@@ -1,0 +1,89 @@
+[
+  {
+    "id": "deep-rain",
+    "name": "Deep Rain",
+    "category": "Nature",
+    "file": "/sounds/nature/deep-rain.mp3",
+    "url": "https://assets.mixkit.co/sfx/download/mixkit-light-rain-loop-2391.mp3"
+  },
+  {
+    "id": "forest-stream",
+    "name": "Forest Stream",
+    "category": "Nature",
+    "file": "/sounds/nature/forest-stream.mp3",
+    "url": "https://assets.mixkit.co/sfx/download/mixkit-forest-stream-woosh-ambience-1223.mp3"
+  },
+  {
+    "id": "soft-waves",
+    "name": "Soft Waves",
+    "category": "Water",
+    "file": "/sounds/water/soft-waves.mp3",
+    "url": "https://assets.mixkit.co/sfx/download/mixkit-small-ocean-waves-ambience-1207.mp3"
+  },
+  {
+    "id": "deep-ocean",
+    "name": "Deep Ocean",
+    "category": "Water",
+    "file": "/sounds/water/deep-ocean.mp3",
+    "url": "https://assets.mixkit.co/sfx/download/mixkit-deep-sea-water-ambience-2743.mp3"
+  },
+  {
+    "id": "coffee-shop",
+    "name": "Coffee Shop",
+    "category": "Ambient",
+    "file": "/sounds/ambient/coffee-shop.mp3",
+    "url": "https://assets.mixkit.co/sfx/download/mixkit-coffee-shop-background-ambience-2840.mp3"
+  },
+  {
+    "id": "soft-city-noise",
+    "name": "Soft City Noise",
+    "category": "Ambient",
+    "file": "/sounds/ambient/soft-city-noise.mp3",
+    "url": "https://assets.mixkit.co/sfx/download/mixkit-city-traffic-ambience-2970.mp3"
+  },
+  {
+    "id": "brown-noise",
+    "name": "Brown Noise",
+    "category": "Focus",
+    "file": "/sounds/focus/brown-noise.mp3",
+    "url": "https://assets.mixkit.co/sfx/download/mixkit-brown-noise-2553.mp3"
+  },
+  {
+    "id": "pink-noise",
+    "name": "Pink Noise",
+    "category": "Focus",
+    "file": "/sounds/focus/pink-noise.mp3",
+    "url": "https://assets.mixkit.co/sfx/download/mixkit-soft-white-noise-2545.mp3"
+  },
+  {
+    "id": "lofi-beats",
+    "name": "LoFi Study Beats",
+    "category": "Beats",
+    "file": "/sounds/beats/lofi-study-beats.mp3",
+    "url": "https://assets.mixkit.co/sfx/download/mixkit-lofi-chill-hip-hop-beat-438.mp3"
+  },
+  {
+    "id": "chill-synth-pad",
+    "name": "Chill Synth Pad",
+    "category": "Meditation",
+    "file": "/sounds/meditation/chill-synth-pad.mp3",
+    "url": "https://assets.mixkit.co/sfx/download/mixkit-soft-synth-pad-455.mp3"
+  },
+  {
+    "id": "tibetan-bells",
+    "name": "Tibetan Bells",
+    "category": "Meditation",
+    "file": "/sounds/meditation/tibetan-bells.mp3",
+    "url": "https://assets.mixkit.co/sfx/download/mixkit-soft-bell-tone-1092.mp3"
+  },
+  {
+    "id": "piano-study",
+    "name": "Piano Study",
+    "category": "Classical",
+    "file": "/sounds/classical/piano-study.mp3",
+    "url": "https://assets.mixkit.co/sfx/download/mixkit-soft-piano-melody-457.mp3"
+  }
+]
+
+
+
