@@ -77,9 +77,11 @@ export interface Achievement {
   type: string;           // Achievement category (e.g., 'streak', 'sessions')
   name: string;           // Display name (e.g., '7-Day Streak')
   description: string;    // Description text
-  icon: string;           // Emoji or icon identifier
+  icon?: string;          // Emoji or icon identifier (optional - backend may not return)
   points?: number;        // Points awarded for this achievement
-  earned: boolean;        // Whether the user has earned this achievement
+  earned?: boolean;       // Whether the user has earned this achievement (optional - backend may not return)
+  unlocked?: boolean;     // Alternative field name for earned status (optional)
+  progress?: number;      // Progress percentage for incomplete achievements (optional)
   earnedAt?: string | null; // ISO timestamp (null if not earned yet)
   criteria?: any;         // Achievement criteria
 }
