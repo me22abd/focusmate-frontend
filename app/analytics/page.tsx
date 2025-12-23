@@ -82,7 +82,13 @@ export default function AnalyticsPage() {
           
           // Refresh achievements list
           const updated = await getUserAchievements();
-          setAchievements(updated || []);
+          if (updated && typeof updated === 'object' && 'achievements' in updated) {
+            setAchievements(updated.achievements || []);
+          } else if (Array.isArray(updated)) {
+            setAchievements(updated);
+          } else {
+            setAchievements([]);
+          }
         }
       } catch (error) {
         console.error('Failed to check achievements:', error);

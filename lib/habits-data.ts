@@ -7,7 +7,7 @@ export interface Habit {
   frequency: 'daily' | 'weekly';
   streak: number;
   completedToday: boolean;
-  completedThisWeek: number[];
+  completedThisWeek: string[];
   createdAt: string;
   color?: string;
 }

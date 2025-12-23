@@ -95,6 +95,7 @@
 'use client';
 
 // Framework imports
+import { Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 // Custom: MY auth guard hook
@@ -114,7 +115,7 @@ import { Users, User } from 'lucide-react';
 /**
  * Session Setup Page Component
  */
-export default function SetupPage() {
+function SetupPageContent() {
   // Custom: Protect route (redirect if not authenticated)
   useAuthGuard();
   
@@ -284,6 +285,29 @@ export default function SetupPage() {
       {/* Custom: MY footer */}
       <SimpleFooter variant="auth" />
     </>
+  );
+}
+
+export default function SetupPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="flex-1 flex items-center justify-center p-4">
+          <Card className="w-full max-w-2xl">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mr-3" />
+                <p className="text-slate-600 dark:text-slate-400">Loading setup...</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        <SimpleFooter variant="auth" />
+      </div>
+    }>
+      <SetupPageContent />
+    </Suspense>
   );
 }
 

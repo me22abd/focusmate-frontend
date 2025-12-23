@@ -148,7 +148,7 @@ export function VideoCall({
     try {
       // Get user media (video + audio)
       const constraints: MediaStreamConstraints = {
-        video: { deviceId: selectedCameraId ? { exact: selectedCameraId } : true },
+        video: selectedCameraId ? { deviceId: { exact: selectedCameraId } } : true,
         audio: true,
       };
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
@@ -191,7 +191,7 @@ export function VideoCall({
     try {
       // Get user media (video + audio)
       const constraints: MediaStreamConstraints = {
-        video: { deviceId: selectedCameraId ? { exact: selectedCameraId } : true },
+        video: selectedCameraId ? { deviceId: { exact: selectedCameraId } } : true,
         audio: true,
       };
       const stream = await navigator.mediaDevices.getUserMedia(constraints);

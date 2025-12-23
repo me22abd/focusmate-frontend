@@ -208,9 +208,11 @@ export function FocusSetupForm({ initialDuration = 25, onStart }: FocusSetupForm
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium text-slate-900 dark:text-white">{selectedTask.title}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
-                      {selectedTask.category} • {new Date(selectedTask.scheduledDate).toLocaleDateString()}
-                    </p>
+                    {selectedTask.dueDate && (
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        Due: {new Date(selectedTask.dueDate).toLocaleDateString()}
+                      </p>
+                    )}
                   </div>
                   {/* 🔧 FIX: Changed to div (cannot nest button in button) */}
                   <div
@@ -247,12 +249,14 @@ export function FocusSetupForm({ initialDuration = 25, onStart }: FocusSetupForm
                     <p className="font-medium text-slate-900 dark:text-white">{task.title}</p>
                     <div className="flex items-center gap-2 mt-1">
                       <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-                        {task.category}
+                        {task.priority}
                       </span>
-                      <span className="text-xs text-slate-500 dark:text-slate-400">
-                        {new Date(task.scheduledDate).toLocaleDateString()}
-                        {task.scheduledTime && ` • ${task.scheduledTime}`}
-                      </span>
+                      {task.dueDate && (
+                        <span className="text-xs text-slate-500 dark:text-slate-400">
+                          Due: {new Date(task.dueDate).toLocaleDateString()}
+                          {task.plannedStartTime && ` • ${task.plannedStartTime}`}
+                        </span>
+                      )}
                     </div>
                   </button>
                 ))}

@@ -414,6 +414,7 @@ export async function getUserDetails(userId: string): Promise<UserDetails> {
     if (!user) throw new Error('User not found');
     return {
       ...user,
+      lastLoginAt: user.lastLoginAt ?? undefined,
       notesCount: 0,
       tasksCount: 0,
       flashcardsCount: 0,
@@ -441,8 +442,8 @@ export async function resetUserPassword(userId: string, adminId: string): Promis
 export async function getAnalyticsOverview(): Promise<AnalyticsOverview> {
   try {
     // Route: GET /analytics/overview (shared route, not under /admin)
-    // Uses sharedAxios which has baseURL: http://localhost:3001 (port 3001, no /admin)
-    const response = await sharedAxios.get<AnalyticsOverview>('/analytics/overview');
+    // Uses axios directly with baseURL: http://localhost:3001 (port 3001, no /admin)
+    const response = await axios.get<AnalyticsOverview>('http://localhost:3001/analytics/overview');
     return response.data;
   } catch (error: any) {
     // Return empty structure if endpoint fails
@@ -458,7 +459,7 @@ export async function getDailyActive(userId?: string): Promise<DailyActiveData> 
       return { days: [], range: 7 };
     }
     // Route: GET /sessions/analytics/daily/:userId/7 (shared route, port 3001)
-    const response = await sharedAxios.get<DailyActiveData>(`/sessions/analytics/daily/${userId}/7`);
+    const response = await axios.get<DailyActiveData>(`http://localhost:3001/sessions/analytics/daily/${userId}/7`);
     return response.data;
   } catch (error: any) {
     return { days: [], range: 7 };
@@ -472,7 +473,7 @@ export async function getHourlySessions(userId?: string): Promise<HourlySessions
       return { hourlyDistribution: {}, bestHour: undefined };
     }
     // Route: GET /sessions/analytics/hourly/:userId (shared route, port 3001)
-    const response = await sharedAxios.get<HourlySessions>(`/sessions/analytics/hourly/${userId}`);
+    const response = await axios.get<HourlySessions>(`http://localhost:3001/sessions/analytics/hourly/${userId}`);
     return response.data;
   } catch (error: any) {
     return { hourlyDistribution: {}, bestHour: undefined };
@@ -482,7 +483,7 @@ export async function getHourlySessions(userId?: string): Promise<HourlySessions
 export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
   try {
     // Route: GET /sessions/analytics/leaderboard (shared route, port 3001)
-    const response = await sharedAxios.get<LeaderboardEntry[]>('/sessions/analytics/leaderboard');
+    const response = await axios.get<LeaderboardEntry[]>('http://localhost:3001/sessions/analytics/leaderboard');
     return Array.isArray(response.data) ? response.data : [];
   } catch (error: any) {
     return [];
@@ -492,7 +493,7 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
 export async function getRetentionAnalytics() {
   try {
     // Route: GET /analytics/admin/retention (shared route, port 3001)
-    const response = await sharedAxios.get('/analytics/admin/retention');
+    const response = await axios.get('http://localhost:3001/analytics/admin/retention');
     return response.data;
   } catch {
     return null;
@@ -506,8 +507,8 @@ export async function getRetentionAnalytics() {
 export async function getAllSessions(): Promise<Session[]> {
   try {
     // Route: GET /sessions/history?all=true (shared route, port 3001)
-    // Uses sharedAxios which has baseURL: http://localhost:3001 (port 3001, no /admin)
-    const response = await sharedAxios.get<Session[]>('/sessions/history?all=true');
+    // Uses axios directly with baseURL: http://localhost:3001 (port 3001, no /admin)
+    const response = await axios.get<Session[]>('http://localhost:3001/sessions/history?all=true');
     return Array.isArray(response.data) ? response.data : [];
   } catch (error: any) {
     console.error('Failed to fetch all sessions:', error);

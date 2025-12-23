@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -29,7 +29,7 @@ const codeSchema = z.object({
 
 type CodeInput = z.infer<typeof codeSchema>;
 
-export default function VerifyEmailCodePage() {
+function VerifyEmailCodeForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setAuth, user: currentUser, updateUser } = useAuthStore();
@@ -373,6 +373,28 @@ export default function VerifyEmailCodePage() {
       </div>
       <SimpleFooter variant="public" />
     </>
+  );
+}
+
+export default function VerifyEmailCodePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-1 flex items-center justify-center p-4">
+          <Card className="w-full max-w-md">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-center">
+                <Loader2 className="h-6 w-6 animate-spin" />
+              </div>
+            </CardContent>
+          </Card>
+        </main>
+        <SimpleFooter variant="public" />
+      </div>
+    }>
+      <VerifyEmailCodeForm />
+    </Suspense>
   );
 }
 

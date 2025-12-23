@@ -102,6 +102,7 @@ export default function AdminUsersPage() {
       toast.error('Failed to load user details');
       setSelectedUser({
         ...user,
+        lastLoginAt: user.lastLoginAt ?? undefined,
         notesCount: 0,
         tasksCount: 0,
         flashcardsCount: 0,

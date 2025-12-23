@@ -44,28 +44,13 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { getTasks, createTask, updateTask, deleteTask, getTaskStats } from '@/lib/api/tasks';
+import { getTasks, createTask, updateTask, deleteTask, getTaskStats, type Task, type TaskStats } from '@/lib/api/tasks';
 import { getModules, type Module } from '@/lib/api/modules';
-
-interface Task {
-  id: string;
-  title: string;
-  description?: string;
-  dueDate?: string;
-  plannedStartTime?: string;
-  plannedEndTime?: string;
-  status: 'pending' | 'completed' | 'overdue';
-  priority: 'low' | 'medium' | 'high';
-  progress: number;
-  completed: boolean;
-  moduleId?: string;
-  reminderFrequency?: string;
-}
 
 export function TasksPanel() {
   const { user } = useAuthStore();
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [stats, setStats] = useState({ total: 0, completed: 0, pending: 0, overdue: 0, autoCompletedToday: 0, completionRate: 0 });
+  const [stats, setStats] = useState<TaskStats>({ total: 0, completed: 0, pending: 0, overdue: 0 });
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'pending' | 'completed' | 'overdue'>('all');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -105,7 +90,11 @@ export function TasksPanel() {
         setTasks(taskList);
         
         const taskStats = await getTaskStats();
-        setStats(taskStats);
+        setStats({
+          ...taskStats,
+          autoCompletedToday: taskStats.autoCompletedToday ?? 0,
+          completionRate: taskStats.completionRate ?? 0,
+        });
       } catch (error) {
         console.error('Failed to fetch tasks:', error);
       } finally {
@@ -126,7 +115,7 @@ export function TasksPanel() {
     return task.status === filter;
   });
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string | null) => {
     switch (status) {
       case 'completed':
         return 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/20';

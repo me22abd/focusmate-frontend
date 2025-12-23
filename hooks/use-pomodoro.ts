@@ -179,12 +179,13 @@ export function usePomodoro() {
       // Save to backend
       if (user) {
         try {
-          await saveSession(user.id, {
+          await saveSession({
             mode: 'solo',
             focusTopic: 'Pomodoro Timer',
-            durationMinutes: settings.focusDuration,
-            startedAt: new Date(Date.now() - settings.focusDuration * 60 * 1000).toISOString(),
-            endedAt: new Date().toISOString(),
+            duration: settings.focusDuration,
+            completedDuration: settings.focusDuration,
+            startTime: new Date(Date.now() - settings.focusDuration * 60 * 1000).toISOString(),
+            endTime: new Date().toISOString(),
             notes: `Completed Pomodoro #${completedPomodoros + 1}`,
           });
         } catch (error) {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Timer, FileText, X, User, Plus } from 'lucide-react';
 import { useAuthGuard } from '@/hooks/use-auth-guard';
@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 const SESSION_STORAGE_KEY = 'focusmate_active_solo_session';
 const NOTES_STORAGE_KEY = 'focusmate_session_notes';
 
-export default function SoloSessionPage() {
+function SoloSessionContent() {
   useAuthGuard();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -271,6 +271,27 @@ export default function SoloSessionPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SoloSessionPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex flex-col">
+        <div className="flex-1 flex items-center justify-center p-4">
+          <Card className="w-full max-w-2xl">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-center">
+                <Timer className="h-6 w-6 animate-spin mr-2" />
+                <p className="text-slate-600 dark:text-slate-400">Loading session...</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    }>
+      <SoloSessionContent />
+    </Suspense>
   );
 }
 

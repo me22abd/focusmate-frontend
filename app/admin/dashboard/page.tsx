@@ -48,8 +48,8 @@ export default function AdminDashboardPage() {
           setHealth(healthData);
           setRecentLogs(logsData?.logs || []);
         }
-      } catch (error) {
-        if (isMounted && error.response?.status !== 401 && error.response?.status !== 403) {
+      } catch (error: any) {
+        if (isMounted && error?.response?.status !== 401 && error?.response?.status !== 403) {
           console.error('Failed to load dashboard data:', error);
           // Set defaults on error
           setStats(null);

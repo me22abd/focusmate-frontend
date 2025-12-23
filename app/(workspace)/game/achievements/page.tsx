@@ -35,14 +35,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import { Trophy, Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { getUserAchievements } from '@/lib/api/achievements';
-
-interface Achievement {
-  id: string;
-  name: string;
-  unlocked: boolean;
-  progress: number;
-}
+import { getUserAchievements, type Achievement } from '@/lib/api/achievements';
 
 export default function GameAchievementsPage() {
   useAuthGuard();
@@ -71,7 +64,7 @@ export default function GameAchievementsPage() {
     fetchAchievements();
   }, []);
 
-  const earnedCount = achievements.filter(a => a.unlocked).length;
+  const earnedCount = achievements.filter(a => a.unlocked || a.earned || a.earnedAt).length;
   const totalCount = achievements.length;
 
   if (loading) {
@@ -129,22 +122,25 @@ export default function GameAchievementsPage() {
         </motion.div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {achievements.map((achievement, index) => (
+          {achievements.map((achievement, index) => {
+            const isEarned = achievement.unlocked || achievement.earned || achievement.earnedAt;
+            const progress = achievement.progress || 0;
+            return (
             <motion.div
               key={achievement.id}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.05 }}
-              whileHover={{ scale: achievement.unlocked ? 1.05 : 1.02, y: -4 }}
+              whileHover={{ scale: isEarned ? 1.05 : 1.02, y: -4 }}
               className={cn(
                 'rounded-2xl border-2 p-6 text-center shadow-md transition-all relative',
                 'hover:shadow-lg',
-                achievement.unlocked
+                isEarned
                   ? 'border-indigo-300 dark:border-indigo-700 bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-950/30 dark:to-blue-950/30'
                   : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 opacity-70'
               )}
             >
-              {!achievement.unlocked && (
+              {!isEarned && (
                 <div className="absolute top-3 right-3">
                   <Lock className="h-4 w-4 text-slate-400" />
                 </div>
@@ -152,41 +148,42 @@ export default function GameAchievementsPage() {
               {/* Icon - Template-based centered icon style */}
               <div className={cn(
                 'text-6xl mb-4 transition-all',
-                !achievement.unlocked && 'grayscale opacity-50'
+                !isEarned && 'grayscale opacity-50'
               )}>
-                🏆
+                {achievement.icon || '🏆'}
               </div>
               {/* Title - Template-based typography */}
               <p className={cn(
                 'font-bold text-lg mb-2',
-                achievement.unlocked
+                isEarned
                   ? 'text-slate-900 dark:text-white'
                   : 'text-slate-500 dark:text-slate-400'
               )}>
                 {achievement.name}
               </p>
               {/* Progress bar for locked achievements - Template-based */}
-              {!achievement.unlocked && achievement.progress > 0 && (
+              {!isEarned && progress > 0 && (
                 <div className="mt-3">
                   <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 shadow-inner">
-                    <div
-                      className="bg-gradient-to-r from-indigo-500 to-blue-500 h-2 rounded-full transition-all shadow-sm"
-                      style={{ width: `${achievement.progress}%` }}
-                    />
+                  <div
+                    className="bg-gradient-to-r from-indigo-500 to-blue-500 h-2 rounded-full transition-all shadow-sm"
+                    style={{ width: `${progress}%` }}
+                  />
                   </div>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
-                    {achievement.progress}% complete
+                    {progress}% complete
                   </p>
                 </div>
               )}
               {/* Unlocked badge - Template-based */}
-              {achievement.unlocked && (
+              {isEarned && (
                 <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-semibold mt-2">
                   ✓ Unlocked
                 </div>
               )}
             </motion.div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

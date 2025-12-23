@@ -28,7 +28,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { CheckCircle2, Clock, Target, Flag, User, Users, Home, Play, SmilePlus, Meh, Frown, Check } from 'lucide-react';
@@ -62,7 +62,7 @@ const DEFAULT_HABITS = [
   'Active recall',
 ];
 
-export default function SessionSummaryPage() {
+function SessionSummaryContent() {
   useAuthGuard();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -178,16 +178,21 @@ export default function SessionSummaryPage() {
         
         // Check for newly earned achievements
         try {
-          const achievements = await getUserAchievements();
+          const achievementsResponse = await getUserAchievements();
+          const achievements = Array.isArray(achievementsResponse) 
+            ? achievementsResponse 
+            : (achievementsResponse && typeof achievementsResponse === 'object' && 'achievements' in achievementsResponse)
+            ? achievementsResponse.achievements || []
+            : [];
           const previousAchievements = JSON.parse(localStorage.getItem('previous_achievements') || '[]');
           const newlyEarned = achievements.filter(
             (a) => !previousAchievements.some((pa: any) => pa.id === a.id)
           );
           
           if (newlyEarned.length > 0) {
-            setNewAchievements(newlyEarned.map(a => ({ name: a.name, icon: a.icon })));
+            setNewAchievements(newlyEarned.map(a => ({ name: a.name, icon: a.icon || '🏆' })));
             toast.success(`🏆 Achievement Unlocked!`, {
-              description: newlyEarned.map(a => `${a.icon} ${a.name}`).join(', '),
+              description: newlyEarned.map(a => `${a.icon || '🏆'} ${a.name}`).join(', '),
               duration: 5000,
             });
           }
@@ -687,6 +692,29 @@ export default function SessionSummaryPage() {
       <BottomNav />
       <SimpleFooter variant="auth" />
     </>
+  );
+}
+
+export default function SessionSummaryPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="flex-1 flex items-center justify-center p-4">
+          <Card className="w-full max-w-2xl">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-center">
+                <CheckCircle2 className="h-6 w-6 animate-spin mr-2" />
+                <p className="text-slate-600 dark:text-slate-400">Loading summary...</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        <SimpleFooter variant="auth" />
+      </div>
+    }>
+      <SessionSummaryContent />
+    </Suspense>
   );
 }
 
