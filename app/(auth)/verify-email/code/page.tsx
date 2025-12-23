@@ -7,7 +7,11 @@ import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { verifyEmailCode, sendVerificationEmailCode } from '@/lib/api/auth';
+import { 
+  verifyEmailCode, 
+  sendVerificationEmailCode
+} from '@/lib/api/auth';
+import { axiosInstance } from '@/lib/axios';
 import { useAuthStore } from '@/store/auth-store';
 import { Navbar } from '@/components/navbar';
 import { SimpleFooter } from '@/components/simple-footer';
@@ -81,7 +85,8 @@ export default function VerifyEmailCodePage() {
       if (currentUser) {
         try {
           // Fetch fresh user data from /auth/me to get latest verification status
-          const freshUser = await getCurrentUser();
+          const freshUserResponse = await axiosInstance.get('/auth/me');
+          const freshUser = freshUserResponse.data;
           if (freshUser.user) {
             // Update auth store with verified user
             updateUser(freshUser.user);

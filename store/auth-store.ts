@@ -189,25 +189,42 @@ export const useAuthStore = create<AuthState>()(
         
         // CRITICAL: Validate token version before storing
         try {
-          const jwt = require('jsonwebtoken');
-          const decoded = jwt.decode(accessToken) as any;
+          // Browser-compatible JWT decoder (JWT payload is base64url encoded JSON)
+          const decodeJWT = (token: string): any => {
+            try {
+              const parts = token.split('.');
+              if (parts.length !== 3) return null;
+              const payload = parts[1];
+              // Base64url decode (replace URL-safe characters and add padding if needed)
+              const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+              const padded = base64 + '='.repeat((4 - (base64.length % 4)) % 4);
+              const decoded = atob(padded);
+              return JSON.parse(decoded);
+            } catch (e) {
+              return null;
+            }
+          };
+          
+          const decoded = decodeJWT(accessToken);
           const CURRENT_TOKEN_VERSION = 2; // Must match backend version
           
-          console.log('  Token version check:');
-          console.log(`    Decoded tokenVersion: ${decoded?.tokenVersion || 'undefined (old token)'}`);
-          console.log(`    Current required version: ${CURRENT_TOKEN_VERSION}`);
-          
-          if (decoded?.tokenVersion !== undefined && decoded.tokenVersion !== CURRENT_TOKEN_VERSION) {
-            console.error('❌ STORE: Token version mismatch - rejecting old token!');
-            console.error(`    Token version: ${decoded.tokenVersion}`);
-            console.error(`    Required version: ${CURRENT_TOKEN_VERSION}`);
-            throw new Error('Token version mismatch - token has been invalidated');
-          }
-          
-          if (decoded?.tokenVersion === undefined) {
-            console.warn('⚠️ STORE: Token missing version (old format) - allowing for backward compatibility');
-          } else {
-            console.log('✅ STORE: Token version validated - token is current');
+          if (decoded) {
+            console.log('  Token version check:');
+            console.log(`    Decoded tokenVersion: ${decoded?.tokenVersion || 'undefined (old token)'}`);
+            console.log(`    Current required version: ${CURRENT_TOKEN_VERSION}`);
+            
+            if (decoded?.tokenVersion !== undefined && decoded.tokenVersion !== CURRENT_TOKEN_VERSION) {
+              console.error('❌ STORE: Token version mismatch - rejecting old token!');
+              console.error(`    Token version: ${decoded.tokenVersion}`);
+              console.error(`    Required version: ${CURRENT_TOKEN_VERSION}`);
+              throw new Error('Token version mismatch - token has been invalidated');
+            }
+            
+            if (decoded?.tokenVersion === undefined) {
+              console.warn('⚠️ STORE: Token missing version (old format) - allowing for backward compatibility');
+            } else {
+              console.log('✅ STORE: Token version validated - token is current');
+            }
           }
         } catch (error: any) {
           if (error.message.includes('version')) {
