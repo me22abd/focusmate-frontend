@@ -1,16 +1,35 @@
 'use client';
 
-import { useMemo } from 'react';
-import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  Legend,
-  Tooltip,
-} from 'recharts';
+import { useMemo, useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { ChartCard } from './ChartCard';
 import { Smartphone } from 'lucide-react';
+
+// Dynamically import Recharts components with SSR disabled
+const PieChart = dynamic(
+  () => import('recharts').then((mod) => mod.PieChart),
+  { ssr: false }
+);
+const Pie = dynamic(
+  () => import('recharts').then((mod) => mod.Pie),
+  { ssr: false }
+);
+const Cell = dynamic(
+  () => import('recharts').then((mod) => mod.Cell),
+  { ssr: false }
+);
+const ResponsiveContainer = dynamic(
+  () => import('recharts').then((mod) => mod.ResponsiveContainer),
+  { ssr: false }
+);
+const Legend = dynamic(
+  () => import('recharts').then((mod) => mod.Legend),
+  { ssr: false }
+);
+const Tooltip = dynamic(
+  () => import('recharts').then((mod) => mod.Tooltip),
+  { ssr: false }
+);
 
 const COLORS = ['#3b82f6', '#8b5cf6', '#f59e0b'];
 
@@ -35,6 +54,12 @@ const CustomTooltip = ({ active, payload }: any) => {
 };
 
 export function SessionsByDeviceChart() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // For now, use sample data - in production, this would come from backend
   const chartData = useMemo(() => {
     // Sample data - replace with actual API call when endpoint is available
@@ -46,6 +71,22 @@ export function SessionsByDeviceChart() {
   }, []);
 
   const total = chartData.reduce((sum, item) => sum + item.value, 0);
+
+  if (!mounted) {
+    return (
+      <ChartCard
+        title="Sessions by Device"
+        description="Study sessions by platform type"
+        icon={Smartphone}
+      >
+        <div className="h-[300px] flex items-center justify-center">
+          <div className="animate-pulse text-slate-500 dark:text-slate-400">
+            Loading chart...
+          </div>
+        </div>
+      </ChartCard>
+    );
+  }
 
   return (
     <ChartCard
@@ -97,6 +138,3 @@ export function SessionsByDeviceChart() {
     </ChartCard>
   );
 }
-
-
-

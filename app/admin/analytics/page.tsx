@@ -1,12 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { SummaryCard } from './components/SummaryCard';
-import { DailyActiveUsersChart } from './components/DailyActiveUsersChart';
-import { SessionsPerHourChart } from './components/SessionsPerHourChart';
-import { SessionsByDeviceChart } from './components/SessionsByDeviceChart';
-import { UserGrowthChart } from './components/UserGrowthChart';
-import { UserBehaviorTable } from './components/UserBehaviorTable';
 import {
   getDashboardStats,
   getAnalyticsOverview,
@@ -22,6 +18,28 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import useSWR from 'swr';
+
+// Dynamically import chart components with SSR disabled
+const DailyActiveUsersChart = dynamic(
+  () => import('./components/DailyActiveUsersChart').then((mod) => ({ default: mod.DailyActiveUsersChart })),
+  { ssr: false }
+);
+const SessionsPerHourChart = dynamic(
+  () => import('./components/SessionsPerHourChart').then((mod) => ({ default: mod.SessionsPerHourChart })),
+  { ssr: false }
+);
+const SessionsByDeviceChart = dynamic(
+  () => import('./components/SessionsByDeviceChart').then((mod) => ({ default: mod.SessionsByDeviceChart })),
+  { ssr: false }
+);
+const UserGrowthChart = dynamic(
+  () => import('./components/UserGrowthChart').then((mod) => ({ default: mod.UserGrowthChart })),
+  { ssr: false }
+);
+const UserBehaviorTable = dynamic(
+  () => import('./components/UserBehaviorTable').then((mod) => ({ default: mod.UserBehaviorTable })),
+  { ssr: false }
+);
 
 const dashboardFetcher = async () => {
   try {
@@ -44,6 +62,12 @@ const analyticsFetcher = async () => {
 };
 
 export default function AdminAnalyticsPage() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const { data: dashboardStats } = useSWR<DashboardStats | null>(
     'admin-dashboard-stats',
     dashboardFetcher,
@@ -148,22 +172,27 @@ export default function AdminAnalyticsPage() {
         />
       </div>
 
-      {/* Charts Grid - Row 1: Two large charts */}
-      <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
-        <DailyActiveUsersChart />
-        <SessionsPerHourChart />
-      </div>
+      {/* Charts Grid - Only render when mounted (client-side) */}
+      {mounted && (
+        <>
+          {/* Charts Grid - Row 1: Two large charts */}
+          <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
+            <DailyActiveUsersChart />
+            <SessionsPerHourChart />
+          </div>
 
-      {/* Charts Grid - Row 2: Two smaller charts */}
-      <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
-        <SessionsByDeviceChart />
-        <UserGrowthChart />
-      </div>
+          {/* Charts Grid - Row 2: Two smaller charts */}
+          <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
+            <SessionsByDeviceChart />
+            <UserGrowthChart />
+          </div>
 
-      {/* User Behavior Table - Full width */}
-      <div className="w-full">
-        <UserBehaviorTable />
-      </div>
+          {/* User Behavior Table - Full width */}
+          <div className="w-full">
+            <UserBehaviorTable />
+          </div>
+        </>
+      )}
     </div>
   );
 }

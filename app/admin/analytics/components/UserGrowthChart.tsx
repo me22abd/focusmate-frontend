@@ -2,18 +2,16 @@
 
 import { useMemo, useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { getAnalyticsOverview, type AnalyticsOverview } from '@/lib/api/admin';
-import useSWR from 'swr';
 import { ChartCard } from './ChartCard';
-import { Users } from 'lucide-react';
+import { TrendingUp } from 'lucide-react';
 
 // Dynamically import Recharts components with SSR disabled
-const AreaChart = dynamic(
-  () => import('recharts').then((mod) => mod.AreaChart),
+const LineChart = dynamic(
+  () => import('recharts').then((mod) => mod.LineChart),
   { ssr: false }
 );
-const Area = dynamic(
-  () => import('recharts').then((mod) => mod.Area),
+const Line = dynamic(
+  () => import('recharts').then((mod) => mod.Line),
   { ssr: false }
 );
 const XAxis = dynamic(
@@ -37,28 +35,18 @@ const ResponsiveContainer = dynamic(
   { ssr: false }
 );
 
-const fetcher = async () => {
-  try {
-    const data = await getAnalyticsOverview();
-    return data || {};
-  } catch (error: any) {
-    console.error('Failed to fetch analytics overview:', error);
-    return {};
-  }
-};
-
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl p-3 min-w-[160px]">
         <p className="text-sm font-semibold text-slate-900 dark:text-white mb-2">{label}</p>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-blue-600"></div>
+          <div className="w-3 h-3 rounded-full bg-green-600"></div>
           <p className="text-sm font-medium text-slate-900 dark:text-white">
-            <span className="text-blue-600 dark:text-blue-400 font-bold text-base">
+            <span className="text-green-600 dark:text-green-400 font-bold text-base">
               {payload[0].value}
             </span>
-            <span className="text-slate-600 dark:text-slate-400 ml-1">active users</span>
+            <span className="text-slate-600 dark:text-slate-400 ml-1">users</span>
           </p>
         </div>
       </div>
@@ -67,54 +55,36 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-export function DailyActiveUsersChart() {
+export function UserGrowthChart() {
   const [mounted, setMounted] = useState(false);
-  const { data, error, isLoading } = useSWR<AnalyticsOverview>(
-    'admin-analytics-overview',
-    fetcher,
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: true,
-      refreshInterval: 60000,
-    }
-  );
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  // Sample data - replace with actual API call when endpoint is available
   const chartData = useMemo(() => {
-    const source = data?.dailyActiveUsers || data?.weeklySignups || [];
-    
-    if (source.length === 0) {
-      // Generate sample data for visualization if no data
-      const days = [];
-      const today = new Date();
-      for (let i = 6; i >= 0; i--) {
-        const date = new Date(today);
-        date.setDate(date.getDate() - i);
-        days.push({
-          date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-          users: Math.floor(Math.random() * 50) + 20,
-        });
-      }
-      return days;
+    const months = [];
+    const today = new Date();
+    let baseUsers = 100;
+    for (let i = 11; i >= 0; i--) {
+      const date = new Date(today);
+      date.setMonth(date.getMonth() - i);
+      baseUsers += Math.floor(Math.random() * 50) + 20;
+      months.push({
+        month: date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }),
+        users: baseUsers,
+      });
     }
-
-    return source.map((item) => ({
-      date: new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-      users: item.count || 0,
-    }));
-  }, [data]);
+    return months;
+  }, []);
 
   if (!mounted) {
     return (
       <ChartCard
-        title="Daily Active Users"
-        description="Users active per day over the last 7 days"
-        icon={Users}
-        isLoading={true}
-        error={!!error}
+        title="User Growth"
+        description="Total users over the last 12 months"
+        icon={TrendingUp}
       >
         <div className="h-[300px] flex items-center justify-center">
           <div className="animate-pulse text-slate-500 dark:text-slate-400">
@@ -127,23 +97,15 @@ export function DailyActiveUsersChart() {
 
   return (
     <ChartCard
-      title="Daily Active Users"
-      description="Users active per day over the last 7 days"
-      icon={Users}
-      isLoading={isLoading}
-      error={!!error}
+      title="User Growth"
+      description="Total users over the last 12 months"
+      icon={TrendingUp}
     >
       <ResponsiveContainer width="100%" height={300}>
-        <AreaChart
+        <LineChart
           data={chartData}
           margin={{ top: 10, right: 10, left: 0, bottom: 5 }}
         >
-          <defs>
-            <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4} />
-              <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-            </linearGradient>
-          </defs>
           <CartesianGrid
             strokeDasharray="3 3"
             stroke="#e2e8f0"
@@ -151,7 +113,7 @@ export function DailyActiveUsersChart() {
             opacity={0.3}
           />
           <XAxis
-            dataKey="date"
+            dataKey="month"
             stroke="#64748b"
             className="dark:stroke-slate-400"
             style={{ fontSize: '12px' }}
@@ -164,17 +126,18 @@ export function DailyActiveUsersChart() {
             tick={{ fill: '#64748b' }}
           />
           <Tooltip content={<CustomTooltip />} />
-          <Area
+          <Line
             type="monotone"
             dataKey="users"
-            stroke="#3b82f6"
+            stroke="#10b981"
             strokeWidth={2}
-            fill="url(#colorUsers)"
+            dot={{ fill: '#10b981', r: 4 }}
             animationDuration={1000}
             animationEasing="ease-out"
           />
-        </AreaChart>
+        </LineChart>
       </ResponsiveContainer>
     </ChartCard>
   );
 }
+

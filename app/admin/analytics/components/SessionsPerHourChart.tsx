@@ -1,19 +1,41 @@
 'use client';
 
-import { useMemo } from 'react';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts';
+import { useMemo, useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { getHourlySessions, type HourlySessions } from '@/lib/api/admin';
 import useSWR from 'swr';
 import { ChartCard } from './ChartCard';
 import { Clock } from 'lucide-react';
+
+// Dynamically import Recharts components with SSR disabled
+const BarChart = dynamic(
+  () => import('recharts').then((mod) => mod.BarChart),
+  { ssr: false }
+);
+const Bar = dynamic(
+  () => import('recharts').then((mod) => mod.Bar),
+  { ssr: false }
+);
+const XAxis = dynamic(
+  () => import('recharts').then((mod) => mod.XAxis),
+  { ssr: false }
+);
+const YAxis = dynamic(
+  () => import('recharts').then((mod) => mod.YAxis),
+  { ssr: false }
+);
+const CartesianGrid = dynamic(
+  () => import('recharts').then((mod) => mod.CartesianGrid),
+  { ssr: false }
+);
+const Tooltip = dynamic(
+  () => import('recharts').then((mod) => mod.Tooltip),
+  { ssr: false }
+);
+const ResponsiveContainer = dynamic(
+  () => import('recharts').then((mod) => mod.ResponsiveContainer),
+  { ssr: false }
+);
 
 const fetcher = async () => {
   try {
@@ -49,6 +71,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export function SessionsPerHourChart() {
+  const [mounted, setMounted] = useState(false);
   const { data, error, isLoading } = useSWR<HourlySessions>(
     'admin-hourly-sessions',
     fetcher,
@@ -58,6 +81,10 @@ export function SessionsPerHourChart() {
       refreshInterval: 60000,
     }
   );
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const chartData = useMemo(() => {
     const distribution = data?.hourlyDistribution || {};
@@ -81,6 +108,24 @@ export function SessionsPerHourChart() {
       sessions: count || 0,
     })).sort((a, b) => a.hourNum - b.hourNum);
   }, [data]);
+
+  if (!mounted) {
+    return (
+      <ChartCard
+        title="Sessions per Hour"
+        description="Study sessions started by hour of day"
+        icon={Clock}
+        isLoading={true}
+        error={!!error}
+      >
+        <div className="h-[300px] flex items-center justify-center">
+          <div className="animate-pulse text-slate-500 dark:text-slate-400">
+            Loading chart...
+          </div>
+        </div>
+      </ChartCard>
+    );
+  }
 
   return (
     <ChartCard
@@ -107,14 +152,12 @@ export function SessionsPerHourChart() {
             className="dark:stroke-slate-400"
             style={{ fontSize: '12px' }}
             tick={{ fill: '#64748b' }}
-            className="dark:fill-slate-400"
           />
           <YAxis
             stroke="#64748b"
             className="dark:stroke-slate-400"
             style={{ fontSize: '12px' }}
             tick={{ fill: '#64748b' }}
-            className="dark:fill-slate-400"
           />
           <Tooltip content={<CustomTooltip />} />
           <Bar
@@ -129,6 +172,3 @@ export function SessionsPerHourChart() {
     </ChartCard>
   );
 }
-
-
-
