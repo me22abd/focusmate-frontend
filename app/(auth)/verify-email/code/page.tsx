@@ -11,7 +11,7 @@ import {
   verifyEmailCode, 
   sendVerificationEmailCode
 } from '@/lib/api/auth';
-import { axiosInstance } from '@/lib/axios';
+import axiosInstance from '@/lib/axios';
 import { useAuthStore } from '@/store/auth-store';
 import { Navbar } from '@/components/navbar';
 import { SimpleFooter } from '@/components/simple-footer';
