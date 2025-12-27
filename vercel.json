@@ -4,10 +4,17 @@
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "env": {
-    "NEXT_PUBLIC_API_URL": "https://focusmate-backend-production-3f1b.up.railway.app",
-    "NEXT_PUBLIC_USER_FRONTEND_URL": "https://app.focusmate.com"
+    "NEXT_PUBLIC_API_URL": "https://api.focusmateapp.app",
+    "NEXT_PUBLIC_WS_URL": "wss://api.focusmateapp.app/socket.io",
+    "NEXT_PUBLIC_USER_FRONTEND_URL": "https://app.focusmate.com",
+    "NEXT_PUBLIC_ADMIN_FRONTEND_URL": "https://admin.focusmate.com"
   }
 }
+
+
+
+
+
 
 
 

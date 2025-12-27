@@ -115,6 +115,7 @@
 
 // Library pattern: Standard axios import
 import axios from 'axios';
+import * as Sentry from '@sentry/nextjs';
 
 /**
  * ============================================================================
@@ -152,22 +153,23 @@ const getBaseURL = () => {
   /**
    * Get Backend API Base URL
    * Priority:
-   * 1. NEXT_PUBLIC_API_URL environment variable (for production/Vercel)
-   * 2. window.location.hostname:3001 (for local network access)
-   * 3. localhost:3001 (fallback)
+   * 1. NEXT_PUBLIC_API_URL environment variable (ALWAYS used if set - for production/Vercel)
+   * 2. window.location.hostname:3001 (for local network access in development)
+   * 3. localhost:3001 (fallback for server-side rendering)
    * 
    * This ensures:
-   * - Production: Uses environment variable (https://api.focusmate.com)
+   * - Production: ALWAYS uses NEXT_PUBLIC_API_URL (https://api.focusmateapp.app)
    * - Local Desktop: http://localhost:3001
    * - Local Mobile: http://192.168.x.x:3001 (same LAN IP)
    */
 
-  // 1. Check environment variable first (for production/deployment)
+  // CRITICAL: Always use NEXT_PUBLIC_API_URL if set (for production/Vercel)
+  // This ensures production deployments ALWAYS use the correct Railway backend URL
   if (process.env.NEXT_PUBLIC_API_URL) {
     return process.env.NEXT_PUBLIC_API_URL;
   }
 
-  // 2. For browser/client-side: use window.location.hostname for network access
+  // Development: For browser/client-side: use window.location.hostname for network access
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
     return `http://${hostname}:3001`;
@@ -377,6 +379,19 @@ axiosInstance.interceptors.response.use(
     // Auto-logout on 401 or token version mismatch (except public endpoints)
     // -------------------------------------------------------------------------
     if ((is401Error || isTokenVersionMismatch) && !isPublicEndpoint) {
+      // Capture authentication errors to Sentry
+      Sentry.captureException(error, {
+        tags: {
+          error_type: 'authentication',
+          endpoint: originalRequest?.url || 'unknown',
+        },
+        extra: {
+          is401Error,
+          isTokenVersionMismatch,
+          isPublicEndpoint,
+        },
+      });
+      
       console.error('═══════════════════════════════════════════════════════════');
       console.error('AXIOS RESPONSE INTERCEPTOR: 401 Error Detected');
       console.error('═══════════════════════════════════════════════════════════');
@@ -539,6 +554,38 @@ axiosInstance.interceptors.response.use(
       }
     }
 
+    // Capture all other API errors to Sentry
+    if (error.response && error.response.status >= 500) {
+      // Server errors (500+)
+      Sentry.captureException(error, {
+        tags: {
+          error_type: 'api_server_error',
+          status_code: error.response.status,
+          endpoint: originalRequest?.url || 'unknown',
+        },
+        level: 'error',
+      });
+    } else if (error.response && error.response.status >= 400 && !isPublicEndpoint) {
+      // Client errors (400-499) for protected endpoints
+      Sentry.captureException(error, {
+        tags: {
+          error_type: 'api_client_error',
+          status_code: error.response.status,
+          endpoint: originalRequest?.url || 'unknown',
+        },
+        level: 'warning',
+      });
+    } else if (!error.response) {
+      // Network errors
+      Sentry.captureException(error, {
+        tags: {
+          error_type: 'network_error',
+          endpoint: originalRequest?.url || 'unknown',
+        },
+        level: 'error',
+      });
+    }
+    
     // All other errors: Pass through
     return Promise.reject(error);
   }
