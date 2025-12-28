@@ -73,10 +73,10 @@ export function Footer() {
             <div className="flex items-center space-x-2 text-sm text-muted-foreground">
               <Mail className="h-4 w-4" />
               <a
-                href="mailto:support@focusmate.com"
+                href="mailto:support@focusmateapp.app"
                 className="hover:text-foreground transition-colors"
               >
-                support@focusmate.com
+                support@focusmateapp.app
               </a>
             </div>
           </div>
