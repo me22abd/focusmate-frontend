@@ -76,26 +76,62 @@ export default function AdminSettingsPage() {
   const isHealthy = health?.dbStatus === 'connected';
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Admin Settings</h1>
-        <p className="text-slate-600 dark:text-slate-400 mt-1">
-          System configuration and health monitoring
-        </p>
-      </div>
+    <>
+      {/* Premium Animated Background */}
+      <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-950 dark:via-purple-950/20 dark:to-slate-900">
+        {/* Floating gradient orbs */}
+        <div className="absolute inset-0 overflow-hidden">
+          <motion.div
+            className="absolute top-20 left-10 w-72 h-72 bg-purple-400/30 rounded-full blur-3xl"
+            animate={{
+              x: [0, 50, 0],
+              y: [0, 30, 0],
+              scale: [1, 1.2, 1],
+            }}
+            transition={{
+              duration: 20,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+          <motion.div
+            className="absolute bottom-20 right-10 w-96 h-96 bg-blue-400/30 rounded-full blur-3xl"
+            animate={{
+              x: [0, -30, 0],
+              y: [0, -50, 0],
+              scale: [1, 1.1, 1],
+            }}
+            transition={{
+              duration: 25,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+        </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            System Health
-            {isHealthy ? (
-              <CheckCircle2 className="h-5 w-5 text-green-600" />
-            ) : (
-              <XCircle className="h-5 w-5 text-red-600" />
-            )}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+        <div className="relative z-10 space-y-6 p-6">
+          <GlassCard delay={0} className="p-6">
+            <div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">Admin Settings</h1>
+              <p className="text-slate-600 dark:text-slate-400 mt-1">
+                System configuration and health monitoring
+              </p>
+            </div>
+          </GlassCard>
+
+          <GlassCard delay={0.1}>
+            <Card className="border-0 shadow-none bg-transparent">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">
+                  System Health
+                  {isHealthy ? (
+                    <CheckCircle2 className="h-5 w-5 text-green-600" />
+                  ) : (
+                    <XCircle className="h-5 w-5 text-red-600" />
+                  )}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
           {health ? (
             <div className="space-y-4">
                 <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
@@ -149,18 +185,20 @@ export default function AdminSettingsPage() {
                   </p>
                 </div>
               )}
-            </div>
-          ) : (
-            <p className="text-muted-foreground">Unable to load system health</p>
-          )}
-        </CardContent>
-      </Card>
+                </div>
+              ) : (
+                <p className="text-muted-foreground">Unable to load system health</p>
+              )}
+              </CardContent>
+            </Card>
+          </GlassCard>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Service Status</CardTitle>
-        </CardHeader>
-        <CardContent>
+          <GlassCard delay={0.2}>
+            <Card className="border-0 shadow-none bg-transparent">
+              <CardHeader>
+                <CardTitle className="bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">Service Status</CardTitle>
+              </CardHeader>
+              <CardContent>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -170,49 +208,49 @@ export default function AdminSettingsPage() {
                   <p className="text-sm text-muted-foreground">Test email sending functionality</p>
                 </div>
               </div>
-              <Button
-                variant="outline"
-                onClick={handleTestEmail}
-                disabled={testingEmail}
-              >
-                {testingEmail ? (
-                  <>
-                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                    Testing...
-                  </>
-                ) : (
-                  <>
-                    <Mail className="h-4 w-4 mr-2" />
-                    Test Email
-                  </>
-                )}
-              </Button>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Database className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="font-medium">Database Connection</p>
-                  <p className="text-sm text-muted-foreground">Test database connectivity</p>
-                </div>
+                <AnimatedButton
+                  variant="outline"
+                  onClick={handleTestEmail}
+                  disabled={testingEmail}
+                >
+                  {testingEmail ? (
+                    <>
+                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                      Testing...
+                    </>
+                  ) : (
+                    <>
+                      <Mail className="h-4 w-4 mr-2" />
+                      Test Email
+                    </>
+                  )}
+                </AnimatedButton>
               </div>
-              <Button
-                variant="outline"
-                onClick={handleTestDB}
-                disabled={testingDB}
-              >
-                {testingDB ? (
-                  <>
-                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                    Testing...
-                  </>
-                ) : (
-                  <>
-                    <Database className="h-4 w-4 mr-2" />
-                    Test DB
-                  </>
-                )}
-              </Button>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Database className="h-5 w-5 text-muted-foreground" />
+                  <div>
+                    <p className="font-medium">Database Connection</p>
+                    <p className="text-sm text-muted-foreground">Test database connectivity</p>
+                  </div>
+                </div>
+                <AnimatedButton
+                  variant="outline"
+                  onClick={handleTestDB}
+                  disabled={testingDB}
+                >
+                  {testingDB ? (
+                    <>
+                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                      Testing...
+                    </>
+                  ) : (
+                    <>
+                      <Database className="h-4 w-4 mr-2" />
+                      Test DB
+                    </>
+                  )}
+                </AnimatedButton>
             </div>
             <div className="flex items-center justify-between">
               <div>
@@ -220,33 +258,38 @@ export default function AdminSettingsPage() {
                 <p className="text-sm text-muted-foreground">API key status</p>
               </div>
               <span className="text-sm text-muted-foreground">Not configured</span>
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+              </CardContent>
+            </Card>
+          </GlassCard>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>System Information</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">System Version</span>
-              <span className="font-medium">1.0.0</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Environment</span>
-              <span className="font-medium">{health?.environment || 'Unknown'}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Node Version</span>
-              <span className="font-medium">{typeof process !== 'undefined' ? process.version : 'N/A'}</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+          <GlassCard delay={0.3}>
+            <Card className="border-0 shadow-none bg-transparent">
+              <CardHeader>
+                <CardTitle className="bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">System Information</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">System Version</span>
+                    <span className="font-medium">1.0.0</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Environment</span>
+                    <span className="font-medium">{health?.environment || 'Unknown'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Node Version</span>
+                    <span className="font-medium">{typeof process !== 'undefined' ? process.version : 'N/A'}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </GlassCard>
+        </div>
+      </div>
+    </>
   );
 }
 

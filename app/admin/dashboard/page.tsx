@@ -131,7 +131,7 @@ export default function AdminDashboardPage() {
 
           {/* Stats Cards */}
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          <GlassCard delay={0.1}>
+            <GlassCard delay={0.1}>
             <Card className="border-0 shadow-none bg-transparent">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Users</CardTitle>
@@ -261,11 +261,11 @@ export default function AdminDashboardPage() {
               <div className="text-2xl font-bold text-slate-700 dark:text-slate-300">{health?.memoryUsage || 'N/A'}</div>
               <p className="text-xs text-muted-foreground mt-1">Current memory consumption</p>
             </CardContent>
-          </Card>
-        </GlassCard>
-      </div>
+            </Card>
+          </GlassCard>
+          </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-6 md:grid-cols-2">
           {/* System Health Details */}
           {health && (
             <GlassCard delay={0.55}>
@@ -348,6 +348,7 @@ export default function AdminDashboardPage() {
             </CardContent>
           </Card>
         </GlassCard>
+          </div>
         </div>
       </div>
     </div>

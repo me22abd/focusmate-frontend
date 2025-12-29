@@ -107,6 +107,7 @@
 // Framework pattern: Next.js core imports (required for all Next.js pages)
 import Link from 'next/link';
 import Image from 'next/image';
+import { motion } from 'framer-motion';
 
 // Custom implementation: MY components (designed for Focusmate)
 import { Navbar } from '@/components/navbar';
@@ -199,7 +200,7 @@ export default function Home() {
           Custom implementation by me: Focusmate-specific content and styling
           
           What I Built:
-          - Gradient background (indigo/sky for brand)
+          - Premium animated background with floating gradient orbs
           - Logo display (my logo.svg file)
           - Headline hierarchy (tagline → title → subtitle → description)
           - CTA button layout (Get Started + Sign In)
@@ -211,10 +212,40 @@ export default function Home() {
           - Two CTAs (primary action + alternate path)
           - Responsive spacing (mobile-first)
           ===================================================================== */}
-      <div className="landing-root min-h-screen bg-gradient-to-br from-indigo-50/50 via-white to-sky-50/50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 transition-colors">
-        
+      {/* Premium Animated Background */}
+      <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-950 dark:via-purple-950/20 dark:to-slate-900">
+        {/* Floating gradient orbs */}
+        <div className="absolute inset-0 overflow-hidden">
+          <motion.div
+            className="absolute top-20 left-10 w-72 h-72 bg-purple-400/30 rounded-full blur-3xl"
+            animate={{
+              x: [0, 50, 0],
+              y: [0, 30, 0],
+              scale: [1, 1.2, 1],
+            }}
+            transition={{
+              duration: 20,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+          <motion.div
+            className="absolute bottom-20 right-10 w-96 h-96 bg-blue-400/30 rounded-full blur-3xl"
+            animate={{
+              x: [0, -30, 0],
+              y: [0, -50, 0],
+              scale: [1, 1.1, 1],
+            }}
+            transition={{
+              duration: 25,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+        </div>
+
         {/* Hero Section - Custom content */}
-        <div className="mx-auto flex max-w-4xl flex-col items-center gap-10 px-4 pb-16 pt-20 text-center">
+        <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center gap-10 px-4 pb-16 pt-20 text-center">
           
           {/* Custom: Logo display with Next.js Image optimization */}
           <Image 
@@ -275,59 +306,27 @@ export default function Home() {
           </div>
 
           {/* ===================================================================
-              FEATURE CARDS GRID - Custom Implementation
+              FEATURE HIGHLIGHTS - Custom Implementation
               =================================================================== 
               
-              📘 CODE ORIGIN:
-              Pattern source: Feature showcase grids (common in SaaS landing pages)
-              Custom implementation by me: Focusmate-specific features and styling
-              
-              What I Built:
-              - 4-column responsive grid (md:grid-cols-4)
-              - Each card represents a unique Focusmate feature
-              - Hover effects (translate-y, shadow, icon scale)
-              - Color-coded by feature category
-              - Icon + title + description structure
-              
-              Why 4 Features:
-              - Core value props (matching, real-time, progress, security)
-              - Not too many (overwhelming) or too few (underwhelming)
-              - Fits nicely in 4-column grid on desktop
-              - Stacks well on mobile
-              
-              Design Decisions:
-              - Card hover lifts slightly (-translate-y-1) for interactivity
-              - Icon scales on hover (group-hover:scale-110) for delight
-              - Rounded corners (rounded-3xl) for modern aesthetic
-              - Subtle borders for definition without harshness
+              Based on the original design with checkmark highlights
               =================================================================== */}
-          <div className="grid w-full gap-6 rounded-3xl border bg-card/50 p-6 shadow-sm backdrop-blur">
-            <div className="grid gap-6 md:grid-cols-4">
-              {/* Framework pattern: .map() for rendering lists (React standard) */}
-              {/* Custom: MY featureCards data structure */}
-              {featureCards.map((feature) => {
-                // Extract icon component from feature object
-                const Icon = feature.icon;
-                
-                return (
-                  <div
-                    key={feature.title}
-                    // Custom: Tailwind classes I chose for card styling
-                    className={`feature-card group rounded-3xl border bg-card p-5 text-left shadow-sm transition-all hover:-translate-y-1 hover:shadow-md ${feature.borderColor}`}
-                  >
-                    {/* Custom: Icon container with gradient background */}
-                    <div className={`feature-icon mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br shadow-sm transition-transform group-hover:scale-110 ${feature.accentBg}`}>
-                      <Icon className={`h-6 w-6 ${feature.iconColor}`} />
-                    </div>
-                    
-                    {/* Custom: Feature title and description (my copy) */}
-                    <h3 className="text-lg font-semibold">{feature.title}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                      {feature.description}
-                    </p>
-                  </div>
-                );
-              })}
+          <div className="flex flex-col gap-4 w-full max-w-2xl">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span className="text-green-600">✓</span>
+              <span>Free forever - no credit card required</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span className="text-green-600">✓</span>
+              <span>Match in seconds with real accountability</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span className="text-green-600">✓</span>
+              <span>Track your focus streaks and level up</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span className="text-green-600">✓</span>
+              <span>Join thousands building better focus habits</span>
             </div>
           </div>
         </div>

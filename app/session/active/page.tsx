@@ -467,351 +467,359 @@ function ActiveSessionContent() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-slate-50 px-4 sm:px-6 pb-24 pt-6 dark:bg-slate-950">
-        <div className="container mx-auto max-w-4xl py-4 sm:py-8">
-          {/* Error State: Missing Partner Data */}
-          {isPartnerMode && !hasRequiredPartnerData && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-6"
-            >
-              <Card className="border-2 border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/30">
-                <CardContent className="p-6 text-center">
-                  <div className="flex flex-col items-center gap-4">
-                    <div className="h-16 w-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-                      <User className="h-8 w-8 text-red-600 dark:text-red-400" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-slate-900 dark:text-white mb-2">
-                        Session Data Incomplete
-                      </h3>
-                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-                        Missing partner information. Please return to the matchmaking screen.
-                      </p>
-                      <Button
-                        onClick={() => router.push('/sessions/workspace')}
-                        variant="default"
-                      >
-                        Go to Sessions
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
+      {/* Premium Animated Background */}
+      <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-950 dark:via-purple-950/20 dark:to-slate-900">
+        {/* Floating gradient orbs */}
+        <div className="absolute inset-0 overflow-hidden">
+          <motion.div
+            className="absolute top-20 left-10 w-72 h-72 bg-purple-400/30 rounded-full blur-3xl"
+            animate={{
+              x: [0, 50, 0],
+              y: [0, 30, 0],
+              scale: [1, 1.2, 1],
+            }}
+            transition={{
+              duration: 20,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+          <motion.div
+            className="absolute bottom-20 right-10 w-96 h-96 bg-blue-400/30 rounded-full blur-3xl"
+            animate={{
+              x: [0, -30, 0],
+              y: [0, -50, 0],
+              scale: [1, 1.1, 1],
+            }}
+            transition={{
+              duration: 25,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+        </div>
 
-          {/* Partner Card (if partner session) - with defensive checks */}
-          {isPartnerMode && hasRequiredPartnerData && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-6"
-            >
-              <Card className="border-2 border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/30">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      {partnerAvatar ? (
-                        <img
-                          src={partnerAvatar}
-                          alt={partnerName || 'Partner'}
-                          className="h-12 w-12 rounded-full object-cover border-2 border-blue-200 dark:border-blue-800 shadow-lg"
-                          onError={(e) => {
-                            // Fallback to initial if image fails to load
-                            const target = e.target as HTMLImageElement;
-                            target.style.display = 'none';
-                            const fallback = target.nextElementSibling as HTMLElement;
-                            if (fallback) fallback.style.display = 'flex';
-                          }}
-                        />
-                      ) : null}
-                      <div className={`h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold shadow-lg ${partnerAvatar ? 'hidden' : ''}`}>
-                        {(partnerName || 'Partner').charAt(0).toUpperCase()}
+        <div className="relative z-10 px-4 sm:px-6 pb-24 pt-6">
+          <div className="container mx-auto max-w-4xl py-4 sm:py-8">
+            {/* Error State: Missing Partner Data */}
+            {isPartnerMode && !hasRequiredPartnerData && (
+              <GlassCard delay={0} className="mb-6 border-2 border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30">
+                <Card className="border-0 shadow-none bg-transparent">
+                  <CardContent className="p-6 text-center">
+                    <div className="flex flex-col items-center gap-4">
+                      <div className="h-16 w-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                        <User className="h-8 w-8 text-red-600 dark:text-red-400" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-slate-900 dark:text-white">
-                          {partnerName || 'Partner'}
+                        <h3 className="font-semibold text-slate-900 dark:text-white mb-2">
+                          Session Data Incomplete
                         </h3>
-                        <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                          <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                          <span>Active</span>
-                        </div>
+                        <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                          Missing partner information. Please return to the matchmaking screen.
+                        </p>
+                        <AnimatedButton
+                          onClick={() => router.push('/sessions/workspace')}
+                          variant="default"
+                        >
+                          Go to Sessions
+                        </AnimatedButton>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setShowChat(!showChat)}
-                        className="gap-2"
+                  </CardContent>
+                </Card>
+              </GlassCard>
+            )}
+
+            {/* Partner Card (if partner session) - with defensive checks */}
+            {isPartnerMode && hasRequiredPartnerData && (
+              <GlassCard delay={0.1} className="mb-6 border-2 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/30">
+                <Card className="border-0 shadow-none bg-transparent">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        {partnerAvatar ? (
+                          <img
+                            src={partnerAvatar}
+                            alt={partnerName || 'Partner'}
+                            className="h-12 w-12 rounded-full object-cover border-2 border-blue-200 dark:border-blue-800 shadow-lg"
+                            onError={(e) => {
+                              // Fallback to initial if image fails to load
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              const fallback = target.nextElementSibling as HTMLElement;
+                              if (fallback) fallback.style.display = 'flex';
+                            }}
+                          />
+                        ) : null}
+                        <div className={`h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold shadow-lg ${partnerAvatar ? 'hidden' : ''}`}>
+                          {(partnerName || 'Partner').charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-slate-900 dark:text-white">
+                            {partnerName || 'Partner'}
+                          </h3>
+                          <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+                            <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                            <span>Active</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <AnimatedButton
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setShowChat(!showChat)}
+                          className="gap-2"
+                        >
+                          <MessageCircle className="h-4 w-4" />
+                          {showChat ? 'Hide' : 'Show'} Chat
+                        </AnimatedButton>
+                        <AnimatedButton
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setShowChat(true);
+                            setActiveTab('audio');
+                          }}
+                          className="gap-2"
+                        >
+                          <Phone className="h-4 w-4" />
+                        </AnimatedButton>
+                        <AnimatedButton
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setShowChat(true);
+                            setActiveTab('video');
+                          }}
+                          className="gap-2"
+                        >
+                          <VideoIcon className="h-4 w-4" />
+                        </AnimatedButton>
+                      </div>
+                    </div>
+                    {partnerFocus && (
+                      <div className="mt-3 pt-3 border-t border-blue-200 dark:border-blue-800">
+                        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
+                          Partner's Focus
+                        </p>
+                        <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                          {partnerFocus}
+                        </p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </GlassCard>
+            )}
+
+            {/* Focus Topic */}
+            <GlassCard delay={0.2} className="mb-6 text-center p-6">
+              <div>
+                <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent mb-2">
+                  You're focusing on:
+                </h2>
+                <p className="text-xl sm:text-2xl font-semibold text-indigo-600 dark:text-indigo-400">
+                  {focusTopic || 'General Focus'}
+                </p>
+                {studyGoal && (
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
+                    Goal: {studyGoal}
+                  </p>
+                )}
+              </div>
+            </GlassCard>
+
+            {/* Circular Timer Card */}
+            <GlassCard delay={0.3} className="mb-6 border-2 border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-950/30 shadow-xl">
+              <Card className="border-0 shadow-none bg-transparent">
+                <CardContent className="p-8 sm:p-12">
+                  <div className="flex flex-col items-center justify-center space-y-6">
+                    {/* Circular Timer */}
+                    <CircularTimer
+                      secondsRemaining={secondsRemaining}
+                      totalSeconds={totalSeconds}
+                      size={280}
+                      strokeWidth={16}
+                    />
+
+                    {/* Progress Bar */}
+                    <div className="w-full max-w-md space-y-2">
+                      <Progress value={progress} className="h-3" />
+                      <div className="flex justify-between text-xs text-slate-600 dark:text-slate-400">
+                        <span>{Math.round(progress)}% Complete</span>
+                        <span>{Math.floor((totalSeconds - secondsRemaining) / 60)}m / {duration}m</span>
+                      </div>
+                    </div>
+
+                    {/* Control Buttons */}
+                    <div className="flex items-center gap-4">
+                      {/* Play/Pause Button */}
+                      <AnimatedButton
+                        onClick={handleTogglePause}
+                        size="lg"
+                        className="h-14 w-14 rounded-full bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 hover:opacity-90 shadow-lg"
                       >
-                        <MessageCircle className="h-4 w-4" />
-                        {showChat ? 'Hide' : 'Show'} Chat
-                      </Button>
-                      <Button
+                        {isActive ? (
+                          <Pause className="h-6 w-6 text-white" />
+                        ) : (
+                          <Play className="h-6 w-6 text-white" />
+                        )}
+                      </AnimatedButton>
+
+                      {/* Extend Button */}
+                      <AnimatedButton
+                        onClick={handleExtendSession}
                         variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setShowChat(true);
-                          setActiveTab('audio');
-                        }}
-                        className="gap-2"
+                        size="lg"
+                        disabled={!isActive}
+                        className="h-12 px-6 rounded-full border-2 disabled:opacity-50"
                       >
-                        <Phone className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setShowChat(true);
-                          setActiveTab('video');
-                        }}
-                        className="gap-2"
+                        <Plus className="mr-2 h-5 w-5" />
+                        +5 min
+                      </AnimatedButton>
+
+                      {/* End Button */}
+                      <AnimatedButton
+                        onClick={handleEndSessionClick}
+                        variant="destructive"
+                        size="lg"
+                        className="h-12 px-6 rounded-full"
                       >
-                        <VideoIcon className="h-4 w-4" />
-                      </Button>
+                        <X className="mr-2 h-5 w-5" />
+                        End Session
+                      </AnimatedButton>
                     </div>
                   </div>
-                  {partnerFocus && (
-                    <div className="mt-3 pt-3 border-t border-blue-200 dark:border-blue-800">
-                      <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
-                        Partner's Focus
-                      </p>
-                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                        {partnerFocus}
-                      </p>
-                    </div>
-                  )}
                 </CardContent>
               </Card>
-            </motion.div>
-          )}
+            </GlassCard>
 
-          {/* Focus Topic */}
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="mb-6 text-center"
-          >
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2">
-              You're focusing on:
-            </h2>
-            <p className="text-xl sm:text-2xl font-semibold text-indigo-600 dark:text-indigo-400">
-              {focusTopic || 'General Focus'}
-            </p>
-            {studyGoal && (
-              <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
-                Goal: {studyGoal}
-              </p>
-            )}
-          </motion.div>
-
-          {/* Circular Timer Card */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="mb-6"
-          >
-            <Card className="border-2 border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950/30 shadow-xl">
-              <CardContent className="p-8 sm:p-12">
-                <div className="flex flex-col items-center justify-center space-y-6">
-                  {/* Circular Timer */}
-                  <CircularTimer
-                    secondsRemaining={secondsRemaining}
-                    totalSeconds={totalSeconds}
-                    size={280}
-                    strokeWidth={16}
-                  />
-
-                  {/* Progress Bar */}
-                  <div className="w-full max-w-md space-y-2">
-                    <Progress value={progress} className="h-3" />
-                    <div className="flex justify-between text-xs text-slate-600 dark:text-slate-400">
-                      <span>{Math.round(progress)}% Complete</span>
-                      <span>{Math.floor((totalSeconds - secondsRemaining) / 60)}m / {duration}m</span>
-                    </div>
-                  </div>
-
-                  {/* Control Buttons */}
-                  <div className="flex items-center gap-4">
-                    {/* Play/Pause Button */}
-                    <Button
-                      onClick={handleTogglePause}
-                      size="lg"
-                      className="h-14 w-14 rounded-full bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 hover:opacity-90 shadow-lg transition-all hover:scale-105"
-                    >
-                      {isActive ? (
-                        <Pause className="h-6 w-6 text-white" />
-                      ) : (
-                        <Play className="h-6 w-6 text-white" />
-                      )}
-                    </Button>
-
-                    {/* Extend Button */}
-                    <Button
-                      onClick={handleExtendSession}
-                      variant="outline"
-                      size="lg"
-                      disabled={!isActive}
-                      className="h-12 px-6 rounded-full border-2 transition-all hover:scale-105 disabled:opacity-50"
-                    >
-                      <Plus className="mr-2 h-5 w-5" />
-                      +5 min
-                    </Button>
-
-                    {/* End Button */}
-                    <Button
-                      onClick={handleEndSessionClick}
-                      variant="destructive"
-                      size="lg"
-                      className="h-12 px-6 rounded-full transition-all hover:scale-105"
-                    >
-                      <X className="mr-2 h-5 w-5" />
-                      End Session
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* Communication Panel (Chat, Voice, Calls) */}
-          {mode === 'partner' && showChat && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="mb-6"
-            >
-              <Card className="border border-slate-200 dark:border-slate-800 shadow-lg">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <MessageCircle className="h-5 w-5" />
-                    Communication
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
-                    <TabsList className="grid w-full grid-cols-4">
-                      <TabsTrigger value="chat">Chat</TabsTrigger>
-                      <TabsTrigger value="voice">Voice</TabsTrigger>
-                      <TabsTrigger value="audio">Audio Call</TabsTrigger>
-                      <TabsTrigger value="video">Video Call</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="chat" className="mt-4">
-                      <ChatPanel
-                        socket={socket}
-                        roomId={roomId}
-                        partnerId={partnerId}
-                        partnerName={partnerName}
-                        currentUserId={user?.id || ''}
-                        className="h-[400px]"
-                      />
-                    </TabsContent>
-                    <TabsContent value="voice" className="mt-4">
-                      <div className="space-y-4">
-                        <VoiceMessage
+            {/* Communication Panel (Chat, Voice, Calls) */}
+            {mode === 'partner' && showChat && (
+              <GlassCard delay={0.4} className="mb-6">
+                <Card className="border-0 shadow-none bg-transparent">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">
+                      <MessageCircle className="h-5 w-5 text-indigo-600" />
+                      Communication
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
+                      <TabsList className="grid w-full grid-cols-4">
+                        <TabsTrigger value="chat">Chat</TabsTrigger>
+                        <TabsTrigger value="voice">Voice</TabsTrigger>
+                        <TabsTrigger value="audio">Audio Call</TabsTrigger>
+                        <TabsTrigger value="video">Video Call</TabsTrigger>
+                      </TabsList>
+                      <TabsContent value="chat" className="mt-4">
+                        <ChatPanel
+                          socket={socket}
+                          roomId={roomId}
+                          partnerId={partnerId}
+                          partnerName={partnerName}
+                          currentUserId={user?.id || ''}
+                          className="h-[400px]"
+                        />
+                      </TabsContent>
+                      <TabsContent value="voice" className="mt-4">
+                        <div className="space-y-4">
+                          <VoiceMessage
+                            socket={socket}
+                            roomId={roomId}
+                            currentUserId={user?.id || ''}
+                          />
+                          {/* Show chat messages with voice messages */}
+                          <div className="border-t pt-4">
+                            <ChatPanel
+                              socket={socket}
+                              roomId={roomId}
+                              partnerId={partnerId}
+                              partnerName={partnerName}
+                              currentUserId={user?.id || ''}
+                              className="h-[300px]"
+                            />
+                          </div>
+                        </div>
+                      </TabsContent>
+                      <TabsContent value="audio" className="mt-4">
+                        <AudioCall
                           socket={socket}
                           roomId={roomId}
                           currentUserId={user?.id || ''}
+                          partnerId={partnerId}
+                          partnerName={partnerName}
                         />
-                        {/* Show chat messages with voice messages */}
-                        <div className="border-t pt-4">
-                          <ChatPanel
-                            socket={socket}
-                            roomId={roomId}
-                            partnerId={partnerId}
-                            partnerName={partnerName}
-                            currentUserId={user?.id || ''}
-                            className="h-[300px]"
-                          />
-                        </div>
-                      </div>
-                    </TabsContent>
-                    <TabsContent value="audio" className="mt-4">
-                      <AudioCall
-                        socket={socket}
-                        roomId={roomId}
-                        currentUserId={user?.id || ''}
-                        partnerId={partnerId}
-                        partnerName={partnerName}
-                      />
-                    </TabsContent>
-                    <TabsContent value="video" className="mt-4">
-                      <VideoCall
-                        socket={socket}
-                        roomId={roomId}
-                        currentUserId={user?.id || ''}
-                        partnerId={partnerId}
-                        partnerName={partnerName}
-                      />
-                    </TabsContent>
-                  </Tabs>
+                      </TabsContent>
+                      <TabsContent value="video" className="mt-4">
+                        <VideoCall
+                          socket={socket}
+                          roomId={roomId}
+                          currentUserId={user?.id || ''}
+                          partnerId={partnerId}
+                          partnerName={partnerName}
+                        />
+                      </TabsContent>
+                    </Tabs>
+                  </CardContent>
+                </Card>
+              </GlassCard>
+            )}
+
+            {/* Notes Panel */}
+            <GlassCard delay={0.5}>
+              <Card className="border-0 shadow-none bg-transparent">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">
+                      <FileText className="h-5 w-5 text-indigo-600" />
+                      Session Notes
+                    </CardTitle>
+                    <AnimatedButton
+                      onClick={handleSaveNotes}
+                      variant="outline"
+                      size="sm"
+                      disabled={notes.trim().length === 0}
+                      className={cn(
+                        'gap-2',
+                        notesSaved && notes.trim().length > 0 && 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950/30 dark:text-green-400'
+                      )}
+                    >
+                      <Save className={cn('h-4 w-4', notesSaved && notes.trim().length > 0 && 'animate-bounce')} />
+                      {notesSaved && notes.trim().length > 0 ? 'Saved!' : 'Save'}
+                    </AnimatedButton>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <Textarea
+                    ref={textareaRef}
+                    placeholder="Jot down your thoughts, goals, or accomplishments... (Cmd/Ctrl + Enter to save)"
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    onKeyDown={handleNotesKeyDown}
+                    className="min-h-[200px] resize-none transition-all focus:ring-2 focus:ring-indigo-500"
+                  />
+                  <div className="flex items-center justify-between mt-3">
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      {notes.trim().length > 0 
+                        ? 'Auto-saves after 1 second of inactivity. Press Cmd/Ctrl + Enter to save manually.'
+                        : 'Start typing to enable auto-save. Press Cmd/Ctrl + Enter to save manually.'}
+                    </p>
+                    {notesSaved && notes.trim().length > 0 && (
+                      <motion.span
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="text-xs text-green-600 dark:text-green-400 font-medium"
+                      >
+                        ✓ Saved
+                      </motion.span>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
-            </motion.div>
-          )}
-
-          {/* Notes Panel */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <Card className="border border-slate-200 dark:border-slate-800 shadow-lg">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2">
-                    <FileText className="h-5 w-5" />
-                    Session Notes
-                  </CardTitle>
-                  <Button
-                    onClick={handleSaveNotes}
-                    variant="outline"
-                    size="sm"
-                    disabled={notes.trim().length === 0}
-                    className={cn(
-                      'gap-2',
-                      notesSaved && notes.trim().length > 0 && 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950/30 dark:text-green-400'
-                    )}
-                  >
-                    <Save className={cn('h-4 w-4', notesSaved && notes.trim().length > 0 && 'animate-bounce')} />
-                    {notesSaved && notes.trim().length > 0 ? 'Saved!' : 'Save'}
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Textarea
-                  ref={textareaRef}
-                  placeholder="Jot down your thoughts, goals, or accomplishments... (Cmd/Ctrl + Enter to save)"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  onKeyDown={handleNotesKeyDown}
-                  className="min-h-[200px] resize-none transition-all focus:ring-2 focus:ring-indigo-500"
-                />
-                <div className="flex items-center justify-between mt-3">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    {notes.trim().length > 0 
-                      ? 'Auto-saves after 1 second of inactivity. Press Cmd/Ctrl + Enter to save manually.'
-                      : 'Start typing to enable auto-save. Press Cmd/Ctrl + Enter to save manually.'}
-                  </p>
-                  {notesSaved && notes.trim().length > 0 && (
-                    <motion.span
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="text-xs text-green-600 dark:text-green-400 font-medium"
-                    >
-                      ✓ Saved
-                    </motion.span>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+            </GlassCard>
+          </div>
         </div>
       </div>
 
@@ -820,20 +828,20 @@ function ActiveSessionContent() {
       
       {/* 📝 Floating Action Buttons - Notes & Flashcards */}
       <div className="fixed right-4 bottom-24 flex flex-col gap-3 z-40">
-        <Button
+        <AnimatedButton
           size="icon"
           className="h-14 w-14 rounded-full shadow-lg bg-indigo-600 hover:bg-indigo-700"
           onClick={() => setShowNotesModal(true)}
         >
           <StickyNote className="h-6 w-6" />
-        </Button>
-        <Button
+        </AnimatedButton>
+        <AnimatedButton
           size="icon"
           className="h-14 w-14 rounded-full shadow-lg bg-purple-600 hover:bg-purple-700"
           onClick={() => setShowFlashcardsModal(true)}
         >
           <BrainCircuit className="h-6 w-6" />
-        </Button>
+        </AnimatedButton>
       </div>
       
       {/* Cancel Session Confirmation Dialog */}

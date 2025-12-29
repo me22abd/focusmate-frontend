@@ -30,6 +30,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
+import { GlassCard } from '@/components/ui/glass-card';
+import { AnimatedButton } from '@/components/ui/animated-button';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { getSessionById } from '@/lib/api/sessions';
@@ -302,347 +304,363 @@ function SessionSummaryContent() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-slate-50 px-4 sm:px-6 pb-24 pt-6 dark:bg-slate-950">
-        <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
-          {/* Header */}
+      {/* Premium Animated Background */}
+      <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-950 dark:via-purple-950/20 dark:to-slate-900">
+        {/* Floating gradient orbs */}
+        <div className="absolute inset-0 overflow-hidden">
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center justify-between"
-          >
-            <div>
-              <h1 className="text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <Sparkles className="h-8 w-8 text-indigo-600" />
-                Session Complete!
-              </h1>
-              <p className="text-slate-600 dark:text-slate-400 mt-1">
-                Great job staying focused!
-              </p>
-            </div>
-            <Button variant="outline" onClick={() => router.push('/dashboard')}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Dashboard
-            </Button>
-          </motion.div>
+            className="absolute top-20 left-10 w-72 h-72 bg-purple-400/30 rounded-full blur-3xl"
+            animate={{
+              x: [0, 50, 0],
+              y: [0, 30, 0],
+              scale: [1, 1.2, 1],
+            }}
+            transition={{
+              duration: 20,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+          <motion.div
+            className="absolute bottom-20 right-10 w-96 h-96 bg-blue-400/30 rounded-full blur-3xl"
+            animate={{
+              x: [0, -30, 0],
+              y: [0, -50, 0],
+              scale: [1, 1.1, 1],
+            }}
+            transition={{
+              duration: 25,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+        </div>
 
-          {/* Session Performance Overview */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-          >
-            <Card className="border-2 border-indigo-200 dark:border-indigo-800 bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-950/30 dark:to-blue-950/30">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-indigo-600" />
-                  Session Performance
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">Focus Time</p>
-                    <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                      {formatTime(sessionData.completedDuration)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">Start Time</p>
-                    <p className="text-lg font-semibold text-slate-900 dark:text-white">
-                      {formatDateTime(sessionData.startTime).split(',')[1].trim()}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">End Time</p>
-                    <p className="text-lg font-semibold text-slate-900 dark:text-white">
-                      {formatDateTime(sessionData.endTime).split(',')[1].trim()}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">Productivity Score</p>
-                    <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
-                      {productivityScore}%
-                    </p>
-                  </div>
-                </div>
+        <div className="relative z-10 px-4 sm:px-6 pb-24 pt-6">
+          <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
+            {/* Header */}
+            <GlassCard delay={0} className="p-6">
+              <div className="flex items-center justify-between">
                 <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                      Completion Progress
-                    </span>
-                    <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">
-                      {productivityScore}%
-                    </span>
-                  </div>
-                  <Progress value={productivityScore} className="h-3" />
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* Stats Row: Streak, XP, Coins, Achievements */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-4"
-          >
-            <Card>
-              <CardContent className="p-4 text-center">
-                <Trophy className="h-8 w-8 text-yellow-500 mx-auto mb-2" />
-                <p className="text-sm text-slate-600 dark:text-slate-400">Current Streak</p>
-                <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                  {streak.currentStreak}
-                </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                  {streak.longestStreak} day record
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4 text-center">
-                <Star className="h-8 w-8 text-blue-500 mx-auto mb-2" />
-                <p className="text-sm text-slate-600 dark:text-slate-400">XP Earned</p>
-                <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                  +{xpEarned}
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4 text-center">
-                <Coins className="h-8 w-8 text-amber-500 mx-auto mb-2" />
-                <p className="text-sm text-slate-600 dark:text-slate-400">Coins Earned</p>
-                <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                  +{coinsEarned}
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4 text-center">
-                <CheckCircle2 className="h-8 w-8 text-green-500 mx-auto mb-2" />
-                <p className="text-sm text-slate-600 dark:text-slate-400">Achievements</p>
-                <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                  {achievements.length}
-                </p>
-                {achievements.length > 0 && (
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                    {achievements[0]}
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent flex items-center gap-2">
+                    <Sparkles className="h-8 w-8 text-indigo-600" />
+                    Session Complete!
+                  </h1>
+                  <p className="text-slate-600 dark:text-slate-400 mt-1">
+                    Great job staying focused!
                   </p>
-                )}
-              </CardContent>
-            </Card>
-          </motion.div>
+                </div>
+                <AnimatedButton variant="outline" onClick={() => router.push('/dashboard')}>
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Dashboard
+                </AnimatedButton>
+              </div>
+            </GlassCard>
 
-          {/* Partner Details (if partnered session) */}
-          {sessionData.mode === 'partner' && sessionData.partnerName && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <Card>
+            {/* Session Performance Overview */}
+            <GlassCard delay={0.1} className="border-2 border-indigo-200 dark:border-indigo-800 bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-950/30 dark:to-blue-950/30">
+              <Card className="border-0 shadow-none bg-transparent">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="h-5 w-5 text-blue-600" />
-                    Partner Details
+                  <CardTitle className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">
+                    <TrendingUp className="h-5 w-5 text-indigo-600" />
+                    Session Performance
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-4">
-                    {sessionData.partnerAvatar ? (
-                      <img
-                        src={sessionData.partnerAvatar}
-                        alt={sessionData.partnerName}
-                        className="h-16 w-16 rounded-full object-cover border-2 border-blue-200 dark:border-blue-800"
-                      />
-                    ) : (
-                      <div className="h-16 w-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xl font-bold">
-                        {sessionData.partnerName.charAt(0).toUpperCase()}
-                      </div>
-                    )}
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div>
-                      <h3 className="font-semibold text-slate-900 dark:text-white text-lg">
-                        {sessionData.partnerName}
-                      </h3>
-                      {sessionData.partnerFocus && (
-                        <p className="text-sm text-slate-600 dark:text-slate-400">
-                          Focused on: {sessionData.partnerFocus}
-                        </p>
-                      )}
+                      <p className="text-sm text-slate-600 dark:text-slate-400">Focus Time</p>
+                      <p className="text-2xl font-bold bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">
+                        {formatTime(sessionData.completedDuration)}
+                      </p>
                     </div>
+                    <div>
+                      <p className="text-sm text-slate-600 dark:text-slate-400">Start Time</p>
+                      <p className="text-lg font-semibold text-slate-900 dark:text-white">
+                        {formatDateTime(sessionData.startTime).split(',')[1].trim()}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-600 dark:text-slate-400">End Time</p>
+                      <p className="text-lg font-semibold text-slate-900 dark:text-white">
+                        {formatDateTime(sessionData.endTime).split(',')[1].trim()}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-600 dark:text-slate-400">Productivity Score</p>
+                      <p className="text-2xl font-bold bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">
+                        {productivityScore}%
+                      </p>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                        Completion Progress
+                      </span>
+                      <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">
+                        {productivityScore}%
+                      </span>
+                    </div>
+                    <Progress value={productivityScore} className="h-3" />
                   </div>
                 </CardContent>
               </Card>
-            </motion.div>
-          )}
+            </GlassCard>
 
-          {/* Tasks Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="grid md:grid-cols-2 gap-4"
-          >
-            {/* Completed Tasks */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-green-600" />
-                  Completed Tasks ({completedTasks.length})
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {completedTasks.length === 0 ? (
-                  <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-4">
-                    No tasks completed during this session
-                  </p>
-                ) : (
-                  <div className="space-y-2">
-                    {completedTasks.map((task) => (
-                      <div
-                        key={task.id}
-                        className="flex items-center gap-2 p-2 rounded-lg bg-green-50 dark:bg-green-950/20"
-                      >
-                        <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0" />
-                        <span className="text-sm text-slate-700 dark:text-slate-300 line-through">
-                          {task.title}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Pending Tasks */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-yellow-600" />
-                  Pending Tasks ({pendingTasks.length})
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {pendingTasks.length === 0 ? (
-                  <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-4">
-                    All tasks completed! 🎉
-                  </p>
-                ) : (
-                  <div className="space-y-2">
-                    {pendingTasks.slice(0, 5).map((task) => (
-                      <div
-                        key={task.id}
-                        className="flex items-center gap-2 p-2 rounded-lg bg-yellow-50 dark:bg-yellow-950/20 hover:bg-yellow-100 dark:hover:bg-yellow-950/30 transition-colors"
-                      >
-                        <button
-                          onClick={() => handleToggleTaskComplete(task.id, task.status || 'pending')}
-                          className="flex-shrink-0"
-                        >
-                          <Clock className="h-4 w-4 text-yellow-600" />
-                        </button>
-                        <span className="text-sm text-slate-700 dark:text-slate-300 flex-1">
-                          {task.title}
-                        </span>
-                      </div>
-                    ))}
-                    {pendingTasks.length > 5 && (
-                      <p className="text-xs text-slate-500 dark:text-slate-400 text-center mt-2">
-                        +{pendingTasks.length - 5} more tasks
+            {/* Stats Row: Streak, XP, Coins, Achievements */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <GlassCard delay={0.15}>
+                <Card className="border-0 shadow-none bg-transparent">
+                  <CardContent className="p-4 text-center">
+                    <Trophy className="h-8 w-8 text-yellow-500 mx-auto mb-2" />
+                    <p className="text-sm text-slate-600 dark:text-slate-400">Current Streak</p>
+                    <p className="text-2xl font-bold bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">
+                      {streak.currentStreak}
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      {streak.longestStreak} day record
+                    </p>
+                  </CardContent>
+                </Card>
+              </GlassCard>
+              <GlassCard delay={0.2}>
+                <Card className="border-0 shadow-none bg-transparent">
+                  <CardContent className="p-4 text-center">
+                    <Star className="h-8 w-8 text-blue-500 mx-auto mb-2" />
+                    <p className="text-sm text-slate-600 dark:text-slate-400">XP Earned</p>
+                    <p className="text-2xl font-bold bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">
+                      +{xpEarned}
+                    </p>
+                  </CardContent>
+                </Card>
+              </GlassCard>
+              <GlassCard delay={0.25}>
+                <Card className="border-0 shadow-none bg-transparent">
+                  <CardContent className="p-4 text-center">
+                    <Coins className="h-8 w-8 text-amber-500 mx-auto mb-2" />
+                    <p className="text-sm text-slate-600 dark:text-slate-400">Coins Earned</p>
+                    <p className="text-2xl font-bold bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">
+                      +{coinsEarned}
+                    </p>
+                  </CardContent>
+                </Card>
+              </GlassCard>
+              <GlassCard delay={0.3}>
+                <Card className="border-0 shadow-none bg-transparent">
+                  <CardContent className="p-4 text-center">
+                    <CheckCircle2 className="h-8 w-8 text-green-500 mx-auto mb-2" />
+                    <p className="text-sm text-slate-600 dark:text-slate-400">Achievements</p>
+                    <p className="text-2xl font-bold bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">
+                      {achievements.length}
+                    </p>
+                    {achievements.length > 0 && (
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                        {achievements[0]}
                       </p>
                     )}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </motion.div>
+                  </CardContent>
+                </Card>
+              </GlassCard>
+            </div>
 
-          {/* Mood and Reflection */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-          >
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Heart className="h-5 w-5 text-pink-600" />
-                  How did it go?
-                </CardTitle>
-                <CardDescription>Share your mood and reflection</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Mood Selector */}
-                <div>
-                  <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
-                    How are you feeling?
-                  </p>
-                  <div className="flex gap-3">
-                    {[
-                      { value: 'great', label: 'Great', icon: Smile, color: 'text-green-600' },
-                      { value: 'good', label: 'Good', icon: Smile, color: 'text-blue-600' },
-                      { value: 'okay', label: 'Okay', icon: Meh, color: 'text-yellow-600' },
-                      { value: 'tired', label: 'Tired', icon: Frown, color: 'text-orange-600' },
-                    ].map((moodOption) => (
-                      <button
-                        key={moodOption.value}
-                        onClick={() => setMood(moodOption.value as any)}
-                        className={cn(
-                          'flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all',
-                          mood === moodOption.value
-                            ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-950/30'
-                            : 'border-slate-200 dark:border-slate-700 hover:border-indigo-300'
+            {/* Partner Details (if partnered session) */}
+            {sessionData.mode === 'partner' && sessionData.partnerName && (
+              <GlassCard delay={0.35}>
+                <Card className="border-0 shadow-none bg-transparent">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">
+                      <Users className="h-5 w-5 text-blue-600" />
+                      Partner Details
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center gap-4">
+                      {sessionData.partnerAvatar ? (
+                        <img
+                          src={sessionData.partnerAvatar}
+                          alt={sessionData.partnerName}
+                          className="h-16 w-16 rounded-full object-cover border-2 border-blue-200 dark:border-blue-800"
+                        />
+                      ) : (
+                        <div className="h-16 w-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xl font-bold">
+                          {sessionData.partnerName.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      <div>
+                        <h3 className="font-semibold text-slate-900 dark:text-white text-lg">
+                          {sessionData.partnerName}
+                        </h3>
+                        {sessionData.partnerFocus && (
+                          <p className="text-sm text-slate-600 dark:text-slate-400">
+                            Focused on: {sessionData.partnerFocus}
+                          </p>
                         )}
-                      >
-                        <moodOption.icon className={cn('h-6 w-6', moodOption.color)} />
-                        <span className="text-xs font-medium">{moodOption.label}</span>
-                      </button>
-                    ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </GlassCard>
+            )}
+
+            {/* Tasks Section */}
+            <div className="grid md:grid-cols-2 gap-4">
+              {/* Completed Tasks */}
+              <GlassCard delay={0.4}>
+                <Card className="border-0 shadow-none bg-transparent">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">
+                      <CheckCircle2 className="h-5 w-5 text-green-600" />
+                      Completed Tasks ({completedTasks.length})
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {completedTasks.length === 0 ? (
+                      <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-4">
+                        No tasks completed during this session
+                      </p>
+                    ) : (
+                      <div className="space-y-2">
+                        {completedTasks.map((task) => (
+                          <div
+                            key={task.id}
+                            className="flex items-center gap-2 p-2 rounded-lg bg-green-50 dark:bg-green-950/20"
+                          >
+                            <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0" />
+                            <span className="text-sm text-slate-700 dark:text-slate-300 line-through">
+                              {task.title}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </GlassCard>
+
+              {/* Pending Tasks */}
+              <GlassCard delay={0.45}>
+                <Card className="border-0 shadow-none bg-transparent">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">
+                      <Clock className="h-5 w-5 text-yellow-600" />
+                      Pending Tasks ({pendingTasks.length})
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {pendingTasks.length === 0 ? (
+                      <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-4">
+                        All tasks completed! 🎉
+                      </p>
+                    ) : (
+                      <div className="space-y-2">
+                        {pendingTasks.slice(0, 5).map((task) => (
+                          <div
+                            key={task.id}
+                            className="flex items-center gap-2 p-2 rounded-lg bg-yellow-50 dark:bg-yellow-950/20 hover:bg-yellow-100 dark:hover:bg-yellow-950/30 transition-colors"
+                          >
+                            <button
+                              onClick={() => handleToggleTaskComplete(task.id, task.status || 'pending')}
+                              className="flex-shrink-0"
+                            >
+                              <Clock className="h-4 w-4 text-yellow-600" />
+                            </button>
+                            <span className="text-sm text-slate-700 dark:text-slate-300 flex-1">
+                              {task.title}
+                            </span>
+                          </div>
+                        ))}
+                        {pendingTasks.length > 5 && (
+                          <p className="text-xs text-slate-500 dark:text-slate-400 text-center mt-2">
+                            +{pendingTasks.length - 5} more tasks
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </GlassCard>
+            </div>
+
+            {/* Mood and Reflection */}
+            <GlassCard delay={0.5}>
+              <Card className="border-0 shadow-none bg-transparent">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">
+                    <Heart className="h-5 w-5 text-pink-600" />
+                    How did it go?
+                  </CardTitle>
+                  <CardDescription>Share your mood and reflection</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Mood Selector */}
+                  <div>
+                    <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+                      How are you feeling?
+                    </p>
+                    <div className="flex gap-3">
+                      {[
+                        { value: 'great', label: 'Great', icon: Smile, color: 'text-green-600' },
+                        { value: 'good', label: 'Good', icon: Smile, color: 'text-blue-600' },
+                        { value: 'okay', label: 'Okay', icon: Meh, color: 'text-yellow-600' },
+                        { value: 'tired', label: 'Tired', icon: Frown, color: 'text-orange-600' },
+                      ].map((moodOption) => (
+                        <button
+                          key={moodOption.value}
+                          onClick={() => setMood(moodOption.value as any)}
+                          className={cn(
+                            'flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all',
+                            mood === moodOption.value
+                              ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-950/30'
+                              : 'border-slate-200 dark:border-slate-700 hover:border-indigo-300'
+                          )}
+                        >
+                          <moodOption.icon className={cn('h-6 w-6', moodOption.color)} />
+                          <span className="text-xs font-medium">{moodOption.label}</span>
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
 
-                {/* Reflection Input */}
-                <div>
-                  <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    Reflection (optional)
-                  </p>
-                  <Textarea
-                    placeholder="What did you accomplish? How do you feel? Any insights?"
-                    value={reflection}
-                    onChange={(e) => setReflection(e.target.value)}
-                    className="min-h-[100px]"
-                  />
-                </div>
+                  {/* Reflection Input */}
+                  <div>
+                    <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                      Reflection (optional)
+                    </p>
+                    <Textarea
+                      placeholder="What did you accomplish? How do you feel? Any insights?"
+                      value={reflection}
+                      onChange={(e) => setReflection(e.target.value)}
+                      className="min-h-[100px]"
+                    />
+                  </div>
 
-                <Button onClick={handleSaveReflection} className="w-full">
-                  Save Reflection
-                </Button>
-              </CardContent>
-            </Card>
-          </motion.div>
+                  <AnimatedButton onClick={handleSaveReflection} className="w-full">
+                    Save Reflection
+                  </AnimatedButton>
+                </CardContent>
+              </Card>
+            </GlassCard>
 
-          {/* CTA Buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-            className="flex flex-col sm:flex-row gap-4"
-          >
-            <Button
-              variant="outline"
-              onClick={() => router.push('/dashboard')}
-              className="flex-1"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Dashboard
-            </Button>
-            <Button
-              onClick={() => router.push('/sessions/workspace')}
-              className="flex-1 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700"
-            >
-              <Play className="mr-2 h-4 w-4" />
-              Start Another Session
-            </Button>
-          </motion.div>
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <AnimatedButton
+                variant="outline"
+                onClick={() => router.push('/dashboard')}
+                className="flex-1"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Dashboard
+              </AnimatedButton>
+              <AnimatedButton
+                onClick={() => router.push('/sessions/workspace')}
+                className="flex-1 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700"
+              >
+                <Play className="mr-2 h-4 w-4" />
+                Start Another Session
+              </AnimatedButton>
+            </div>
+          </div>
         </div>
       </div>
       <BottomNav />

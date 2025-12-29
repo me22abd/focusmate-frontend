@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
+import { motion } from 'framer-motion';
 import { SummaryCard } from './components/SummaryCard';
 import {
   getDashboardStats,
@@ -18,6 +19,7 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import useSWR from 'swr';
+import { GlassCard } from '@/components/ui/glass-card';
 
 // Dynamically import chart components with SSR disabled
 const DailyActiveUsersChart = dynamic(
@@ -115,19 +117,54 @@ export default function AdminAnalyticsPage() {
   };
 
   return (
-    <div className="space-y-6 p-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">
-          Analytics Dashboard
-        </h1>
-        <p className="text-slate-600 dark:text-slate-400 mt-1">
-          System-wide analytics and insights with real-time data visualization
-        </p>
-      </div>
+    <>
+      {/* Premium Animated Background */}
+      <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-950 dark:via-purple-950/20 dark:to-slate-900">
+        {/* Floating gradient orbs */}
+        <div className="absolute inset-0 overflow-hidden">
+          <motion.div
+            className="absolute top-20 left-10 w-72 h-72 bg-purple-400/30 rounded-full blur-3xl"
+            animate={{
+              x: [0, 50, 0],
+              y: [0, 30, 0],
+              scale: [1, 1.2, 1],
+            }}
+            transition={{
+              duration: 20,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+          <motion.div
+            className="absolute bottom-20 right-10 w-96 h-96 bg-blue-400/30 rounded-full blur-3xl"
+            animate={{
+              x: [0, -30, 0],
+              y: [0, -50, 0],
+              scale: [1, 1.1, 1],
+            }}
+            transition={{
+              duration: 25,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+        </div>
 
-      {/* Summary Cards Grid */}
-      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+        <div className="relative z-10 space-y-6 p-6">
+          {/* Header */}
+          <GlassCard delay={0} className="p-6">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">
+                Analytics Dashboard
+              </h1>
+              <p className="text-slate-600 dark:text-slate-400 mt-1">
+                System-wide analytics and insights with real-time data visualization
+              </p>
+            </div>
+          </GlassCard>
+
+          {/* Summary Cards Grid */}
+          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <SummaryCard
           title="Total Users"
           value={metrics.totalUsers}
@@ -172,27 +209,37 @@ export default function AdminAnalyticsPage() {
         />
       </div>
 
-      {/* Charts Grid - Only render when mounted (client-side) */}
-      {mounted && (
-        <>
-          {/* Charts Grid - Row 1: Two large charts */}
-          <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
-            <DailyActiveUsersChart />
-            <SessionsPerHourChart />
-          </div>
+          {/* Charts Grid - Only render when mounted (client-side) */}
+          {mounted && (
+            <>
+              {/* Charts Grid - Row 1: Two large charts */}
+              <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
+                <GlassCard delay={0.1}>
+                  <DailyActiveUsersChart />
+                </GlassCard>
+                <GlassCard delay={0.15}>
+                  <SessionsPerHourChart />
+                </GlassCard>
+              </div>
 
-          {/* Charts Grid - Row 2: Two smaller charts */}
-          <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
-            <SessionsByDeviceChart />
-            <UserGrowthChart />
-          </div>
+              {/* Charts Grid - Row 2: Two smaller charts */}
+              <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
+                <GlassCard delay={0.2}>
+                  <SessionsByDeviceChart />
+                </GlassCard>
+                <GlassCard delay={0.25}>
+                  <UserGrowthChart />
+                </GlassCard>
+              </div>
 
-          {/* User Behavior Table - Full width */}
-          <div className="w-full">
-            <UserBehaviorTable />
-          </div>
-        </>
-      )}
-    </div>
+              {/* User Behavior Table - Full width */}
+              <GlassCard delay={0.3}>
+                <UserBehaviorTable />
+              </GlassCard>
+            </>
+          )}
+        </div>
+      </div>
+    </>
   );
 }
