@@ -1,7 +1,8 @@
 /**
  * FocusAI Mascot Component
- * Cute robot mascot with animations for the Focusmate app
+ * 3D chibi-style robot mascot with animations
  * Features: idle floating, breathing, hover wave, blinking eyes, smile
+ * Color scheme: Purple and white to match Focusmate branding
  */
 'use client';
 
@@ -48,7 +49,6 @@ export function FocusAIMascot({ className, size = 'md', animated = true }: Focus
       animate={
         animated
           ? {
-              // Initial entrance + Floating animation
               opacity: 1,
               scale: [1, 1.02, 1],
               y: [0, -8, 0],
@@ -79,7 +79,6 @@ export function FocusAIMascot({ className, size = 'md', animated = true }: Focus
         animate={
           isHovered && animated
             ? {
-                // Wave animation on hover
                 rotate: [0, 10, -10, 10, -10, 0],
               }
             : {}
@@ -95,50 +94,56 @@ export function FocusAIMascot({ className, size = 'md', animated = true }: Focus
       >
         <svg
           width={currentSize.svg}
-          height={currentSize.svg * 1.25}
-          viewBox="0 0 120 150"
+          height={currentSize.svg * 1.4}
+          viewBox="0 0 100 140"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           className="w-full h-full"
         >
-          {/* Head - White/Purple gradient */}
-          <motion.ellipse
-            cx="60"
-            cy="45"
-            rx="28"
-            ry="30"
-            fill="url(#headGradient)"
-            stroke="url(#headStroke)"
-            strokeWidth="2"
-            animate={animated ? { scale: [1, 1.01, 1] } : {}}
-            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-          />
-
-          {/* Eyes */}
+          {/* Head - White spherical */}
           <motion.circle
             cx="50"
             cy="40"
-            r="6"
-            fill="#4c1d95"
+            r="28"
+            fill="white"
+            stroke="#c084fc"
+            strokeWidth="1.5"
+          />
+
+          {/* Pink ear-like structures (changed to purple) */}
+          <circle cx="25" cy="40" r="10" fill="#e9d5ff" />
+          <circle cx="75" cy="40" r="10" fill="#e9d5ff" />
+          <circle cx="25" cy="40" r="8" fill="white" opacity="0.7" />
+          <circle cx="75" cy="40" r="8" fill="white" opacity="0.7" />
+
+          {/* Light blue band across face (changed to soft blue/white) */}
+          <rect x="22" y="45" width="56" height="12" rx="6" fill="#93c5fd" />
+
+          {/* Eyes - Large circular black with white reflections */}
+          <motion.circle
+            cx="38"
+            cy="38"
+            r="8"
+            fill="#1e1b4b"
             animate={isBlinking ? { scaleY: 0.1 } : { scaleY: 1 }}
             transition={{ duration: 0.15 }}
           />
           <motion.circle
-            cx="70"
-            cy="40"
-            r="6"
-            fill="#4c1d95"
+            cx="62"
+            cy="38"
+            r="8"
+            fill="#1e1b4b"
             animate={isBlinking ? { scaleY: 0.1 } : { scaleY: 1 }}
             transition={{ duration: 0.15 }}
           />
-          {/* Eye highlights */}
-          <circle cx="52" cy="38" r="2" fill="white" opacity="0.8" />
-          <circle cx="72" cy="38" r="2" fill="white" opacity="0.8" />
+          {/* Eye highlights - white reflections */}
+          <circle cx="40" cy="36" r="3" fill="white" />
+          <circle cx="64" cy="36" r="3" fill="white" />
 
-          {/* Smile */}
+          {/* Smile - curved line on the blue band */}
           <motion.path
-            d="M 45 52 Q 60 60 75 52"
-            stroke="#6b21a8"
+            d="M 32 52 Q 50 58 68 52"
+            stroke="#4c1d95"
             strokeWidth="2"
             strokeLinecap="round"
             fill="none"
@@ -147,92 +152,112 @@ export function FocusAIMascot({ className, size = 'md', animated = true }: Focus
             transition={{ duration: 0.5, delay: 0.3 }}
           />
 
-          {/* Purple band across face */}
-          <rect x="35" y="48" width="50" height="8" fill="#a855f7" rx="4" />
+          {/* Antennae (optional, can be purple) */}
+          <line x1="50" y1="12" x2="45" y2="20" stroke="#9333ea" strokeWidth="2" strokeLinecap="round" />
+          <line x1="50" y1="12" x2="55" y2="20" stroke="#9333ea" strokeWidth="2" strokeLinecap="round" />
+          <circle cx="45" cy="20" r="2" fill="#9333ea" />
+          <circle cx="55" cy="20" r="2" fill="#9333ea" />
 
-          {/* Body - Purple gradient */}
-          <motion.rect
-            x="30"
-            y="75"
-            width="60"
-            height="55"
-            rx="12"
-            fill="url(#bodyGradient)"
-            stroke="url(#bodyStroke)"
-            strokeWidth="2"
+          {/* Body - Rounded barrel shape (changed from orange to purple) */}
+          <motion.ellipse
+            cx="50"
+            cy="85"
+            rx="32"
+            ry="28"
+            fill="#a855f7"
+            stroke="#9333ea"
+            strokeWidth="1.5"
             animate={animated ? { scale: [1, 1.01, 1] } : {}}
             transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
           />
 
+          {/* Light blue accent panel on lower body (inverted trapezoid) */}
+          <path
+            d="M 25 95 L 75 95 L 70 105 L 30 105 Z"
+            fill="#93c5fd"
+          />
+          {/* Rivets on accent panel */}
+          <circle cx="35" cy="100" r="1.5" fill="#4c1d95" />
+          <circle cx="65" cy="100" r="1.5" fill="#4c1d95" />
+
+          {/* Circular button/sensor on upper torso (light blue) */}
+          <circle cx="50" cy="75" r="6" fill="#93c5fd" />
+          <circle cx="50" cy="75" r="4.5" fill="#dbeafe" stroke="#4c1d95" strokeWidth="0.5" />
+
           {/* FocusAI Text on Chest */}
           <text
-            x="60"
-            y="100"
+            x="50"
+            y="88"
             textAnchor="middle"
             fill="white"
-            fontSize={size === 'sm' ? '6' : size === 'md' ? '8' : '10'}
+            fontSize={size === 'sm' ? '5' : size === 'md' ? '6' : '8'}
             fontWeight="bold"
-            style={{ textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)' }}
+            style={{ textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)' }}
           >
             FocusAI
           </text>
 
-          {/* Light blue accent panel on lower body */}
-          <rect x="35" y="115" width="50" height="12" fill="#60a5fa" rx="6" />
-
-          {/* Left Arm */}
-          <motion.ellipse
-            cx="20"
-            cy="90"
-            rx="8"
-            ry="20"
-            fill="#7c3aed"
+          {/* Left Arm - Segmented */}
+          <motion.g
             animate={isHovered && animated ? { rotate: [0, 20, -20, 0] } : {}}
+            style={{ transformOrigin: '50px 85px' }}
             transition={{ duration: 0.6 }}
-          />
-          <ellipse cx="20" cy="110" rx="10" ry="8" fill="#a855f7" />
-          <circle cx="20" cy="120" r="6" fill="#6b21a8" />
+          >
+            {/* Upper arm joint (dark grey) */}
+            <circle cx="22" cy="80" r="5" fill="#4b5563" />
+            {/* Upper arm segment (white) */}
+            <ellipse cx="18" cy="88" rx="6" ry="12" fill="#f3f4f6" />
+            {/* Forearm (purple) */}
+            <ellipse cx="15" cy="100" rx="8" ry="10" fill="#9333ea" />
+            {/* Hand (dark grey claws) */}
+            <circle cx="12" cy="108" r="4" fill="#4b5563" />
+            <rect x="9" y="108" width="2" height="4" rx="1" fill="#1f2937" />
+            <rect x="12" y="108" width="2" height="4" rx="1" fill="#1f2937" />
+            <rect x="15" y="108" width="2" height="4" rx="1" fill="#1f2937" />
+          </motion.g>
 
-          {/* Right Arm */}
-          <motion.ellipse
-            cx="100"
-            cy="90"
-            rx="8"
-            ry="20"
-            fill="#7c3aed"
+          {/* Right Arm - Segmented */}
+          <motion.g
             animate={isHovered && animated ? { rotate: [0, -20, 20, 0] } : {}}
+            style={{ transformOrigin: '50px 85px' }}
             transition={{ duration: 0.6 }}
-          />
-          <ellipse cx="100" cy="110" rx="10" ry="8" fill="#a855f7" />
-          <circle cx="100" cy="120" r="6" fill="#6b21a8" />
+          >
+            {/* Upper arm joint (dark grey) */}
+            <circle cx="78" cy="80" r="5" fill="#4b5563" />
+            {/* Upper arm segment (white) */}
+            <ellipse cx="82" cy="88" rx="6" ry="12" fill="#f3f4f6" />
+            {/* Forearm (purple) */}
+            <ellipse cx="85" cy="100" rx="8" ry="10" fill="#9333ea" />
+            {/* Hand (dark grey claws) */}
+            <circle cx="88" cy="108" r="4" fill="#4b5563" />
+            <rect x="85" y="108" width="2" height="4" rx="1" fill="#1f2937" />
+            <rect x="88" y="108" width="2" height="4" rx="1" fill="#1f2937" />
+            <rect x="91" y="108" width="2" height="4" rx="1" fill="#1f2937" />
+          </motion.g>
 
-          {/* Left Leg */}
-          <ellipse cx="45" cy="140" rx="10" ry="8" fill="#6b21a8" />
-          <rect x="38" y="140" width="14" height="10" rx="7" fill="#7c3aed" />
+          {/* Left Leg - Short and stout */}
+          <g>
+            {/* Leg joint (dark grey) */}
+            <circle cx="38" cy="108" r="5" fill="#4b5563" />
+            {/* Upper leg segment (white) */}
+            <ellipse cx="38" cy="115" rx="6" ry="8" fill="#f3f4f6" />
+            {/* Foot (purple boot) */}
+            <ellipse cx="38" cy="125" rx="10" ry="8" fill="#9333ea" />
+            {/* Light blue stripe on bottom of foot */}
+            <rect x="30" y="128" width="16" height="2" rx="1" fill="#93c5fd" />
+          </g>
 
-          {/* Right Leg */}
-          <ellipse cx="75" cy="140" rx="10" ry="8" fill="#6b21a8" />
-          <rect x="68" y="140" width="14" height="10" rx="7" fill="#7c3aed" />
-
-          {/* Gradient Definitions */}
-          <defs>
-            <linearGradient id="headGradient" x1="60" y1="15" x2="60" y2="75">
-              <stop offset="0%" stopColor="#ffffff" />
-              <stop offset="100%" stopColor="#f3e8ff" />
-            </linearGradient>
-            <linearGradient id="headStroke" x1="60" y1="15" x2="60" y2="75">
-              <stop offset="0%" stopColor="#c084fc" />
-              <stop offset="100%" stopColor="#a855f7" />
-            </linearGradient>
-            <linearGradient id="bodyGradient" x1="60" y1="75" x2="60" y2="130">
-              <stop offset="0%" stopColor="#a855f7" />
-              <stop offset="100%" stopColor="#7c3aed" />
-            </linearGradient>
-            <linearGradient id="bodyStroke" x1="60" y1="75" x2="60" y2="130">
-              <stop offset="0%" stopColor="#c084fc" />
-              <stop offset="100%" stopColor="#9333ea" />
-            </linearGradient>
-          </defs>
+          {/* Right Leg - Short and stout */}
+          <g>
+            {/* Leg joint (dark grey) */}
+            <circle cx="62" cy="108" r="5" fill="#4b5563" />
+            {/* Upper leg segment (white) */}
+            <ellipse cx="62" cy="115" rx="6" ry="8" fill="#f3f4f6" />
+            {/* Foot (purple boot) */}
+            <ellipse cx="62" cy="125" rx="10" ry="8" fill="#9333ea" />
+            {/* Light blue stripe on bottom of foot */}
+            <rect x="54" y="128" width="16" height="2" rx="1" fill="#93c5fd" />
+          </g>
         </svg>
       </motion.div>
     </motion.div>
