@@ -113,10 +113,12 @@ import { motion } from 'framer-motion';
 import { Navbar } from '@/components/navbar';
 import { Footer } from '@/components/footer';
 import { Button } from '@/components/ui/button';
+import { AnimatedButton } from '@/components/ui/animated-button';
+import { MascotPlaceholder } from '@/components/gamification/mascot-placeholder';
 
 // Adapted from Lucide React: Icon library (free, open-source)
 // Custom selection: I chose these 4 specific icons for Focusmate features
-import { Zap, Users, TrendingUp, Lock } from 'lucide-react';
+import { Zap, Users, TrendingUp, Lock, Sparkles } from 'lucide-react';
 
 /**
  * ============================================================================
@@ -285,25 +287,44 @@ export default function Home() {
             {/* Framework pattern: Next.js Link for client-side navigation */}
             {/* Custom: Primary CTA styling and destination */}
             <Link href="/register" className="w-full sm:w-auto">
-              <Button
+              <AnimatedButton
                 size="lg"
                 className="cta-primary w-full bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 text-white shadow-lg transition-all hover:shadow-xl hover:opacity-90"
               >
                 Get Started Free
-              </Button>
+              </AnimatedButton>
             </Link>
             
             {/* Custom: Secondary CTA for existing users */}
             <Link href="/login" className="w-full sm:w-auto">
-              <Button
+              <AnimatedButton
                 size="lg"
                 variant="outline"
                 className="cta-secondary w-full"
               >
                 Sign In
-              </Button>
+              </AnimatedButton>
             </Link>
           </div>
+
+          {/* Mascot Placeholder Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="flex flex-col items-center gap-4 mt-8"
+          >
+            <MascotPlaceholder size="lg" animated={true} />
+            <div className="text-center space-y-2">
+              <h2 className="text-xl font-bold bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent flex items-center justify-center gap-2">
+                <Sparkles className="h-5 w-5 text-indigo-600" />
+                Your AI Focus Companion Coming Soon
+              </h2>
+              <p className="text-sm text-muted-foreground max-w-md">
+                Meet your future productivity partner. Powered by AI to help you stay focused, track progress, and achieve your goals.
+              </p>
+            </div>
+          </motion.div>
 
           {/* ===================================================================
               FEATURE HIGHLIGHTS - Custom Implementation

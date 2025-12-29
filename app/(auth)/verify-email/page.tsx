@@ -130,6 +130,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { FormField, FormLabel, FormMessage } from '@/components/ui/form';
+import { GlassCard } from '@/components/ui/glass-card';
+import { AnimatedButton } from '@/components/ui/animated-button';
+import { motion } from 'framer-motion';
 
 // Adapted: Icon library (selected icons)
 import { Loader2, Mail, ArrowRight } from 'lucide-react';
@@ -359,12 +362,44 @@ function VerifyEmailForm() {
       <Navbar />
       
       {/* =====================================================================
-          VERIFICATION PAGE CONTAINER
+          VERIFICATION PAGE CONTAINER - Premium UI
           =================================================================== */}
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-accent/10 to-background p-4 sm:p-6">
-        
-        {/* Adapted: ShadCN Card */}
-        <Card className="w-full max-w-md mx-auto">
+      {/* Premium Animated Background */}
+      <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-950 dark:via-purple-950/20 dark:to-slate-900">
+        {/* Floating gradient orbs */}
+        <div className="absolute inset-0 overflow-hidden">
+          <motion.div
+            className="absolute top-20 left-10 w-72 h-72 bg-purple-400/30 rounded-full blur-3xl"
+            animate={{
+              x: [0, 50, 0],
+              y: [0, 30, 0],
+              scale: [1, 1.2, 1],
+            }}
+            transition={{
+              duration: 20,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+          <motion.div
+            className="absolute bottom-20 right-10 w-96 h-96 bg-blue-400/30 rounded-full blur-3xl"
+            animate={{
+              x: [0, -30, 0],
+              y: [0, -50, 0],
+              scale: [1, 1.1, 1],
+            }}
+            transition={{
+              duration: 25,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+        </div>
+
+        <div className="relative z-10 min-h-screen flex items-center justify-center p-4 sm:p-6">
+          {/* Adapted: ShadCN Card with GlassCard */}
+          <GlassCard delay={0.1} className="w-full max-w-md mx-auto">
+            <Card className="border-0 shadow-none bg-transparent">
           
           {/* HEADER */}
           <CardHeader className="space-y-3">
@@ -427,7 +462,7 @@ function VerifyEmailForm() {
                   Three states provide clear feedback about process status.
                   Success state shows user the action completed before redirect.
                   =============================================================== */}
-              <Button 
+              <AnimatedButton 
                 type="submit" 
                 className="w-full bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 hover:opacity-90 transition-opacity" 
                 disabled={isLoading || codeSent}
@@ -451,7 +486,7 @@ function VerifyEmailForm() {
                     Send Verification Code
                   </>
                 )}
-              </Button>
+              </AnimatedButton>
 
               {/* ===============================================================
                   COOLDOWN TIMER DISPLAY
@@ -516,7 +551,9 @@ function VerifyEmailForm() {
               </p>
             </div>
           </CardContent>
-        </Card>
+            </Card>
+          </GlassCard>
+        </div>
       </div>
       
       {/* Custom: MY footer */}
