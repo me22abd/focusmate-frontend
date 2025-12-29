@@ -406,6 +406,7 @@ export default function AdminUsersPage() {
           ) : null}
         </DialogContent>
       </Dialog>
+      </div>
     </div>
   );
 }

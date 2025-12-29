@@ -265,6 +265,7 @@ export default function SessionsWorkspacePage() {
             </div>
           </main>
         </div>
+        </div>
       </div>
     </>
   );
