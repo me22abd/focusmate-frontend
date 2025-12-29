@@ -443,15 +443,29 @@ export default function PrivacyPage() {
               </ul>
             </section>
 
-            {/* 10. Children's Privacy */}
+            {/* 10. Children's Privacy (COPPA Compliance) */}
             <section>
-              <h2 className="text-2xl font-semibold mt-12 mb-4">10. Children's Privacy</h2>
+              <h2 className="text-2xl font-semibold mt-12 mb-4">10. Children's Privacy (COPPA Compliance)</h2>
               <p className="text-muted-foreground leading-relaxed">
-                Our Service is not intended for children under 13 years of age (or the minimum age required 
-                in your jurisdiction). We do not knowingly collect personal information from children under 
-                13. If we learn that we have collected personal information from a child under 13, we will 
-                delete that information promptly. If you believe we have collected information from a child 
-                under 13, please contact us immediately.
+                Our Service is not intended for children under 13 years of age. In compliance with the 
+                Children's Online Privacy Protection Act (COPPA), we do not knowingly collect, use, or 
+                disclose personal information from children under 13 years of age without verifiable parental 
+                consent.
+              </p>
+              <p className="text-muted-foreground leading-relaxed mt-4">
+                If we learn that we have collected personal information from a child under 13 without 
+                verifiable parental consent, we will delete that information promptly. If you are a parent 
+                or guardian and believe that your child under 13 has provided us with personal information, 
+                please contact us immediately at{' '}
+                <a href="mailto:support@focusmateapp.app" className="text-indigo-600 hover:underline dark:text-indigo-400">
+                  support@focusmateapp.app
+                </a>{' '}
+                and we will take steps to remove such information from our systems.
+              </p>
+              <p className="text-muted-foreground leading-relaxed mt-4">
+                If you are located outside the United States, the minimum age may be higher in your 
+                jurisdiction (e.g., 16 years in the EEA/UK under GDPR). By using the Service, you represent 
+                and warrant that you meet the minimum age requirement in your jurisdiction.
               </p>
             </section>
 
