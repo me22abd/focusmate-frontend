@@ -117,6 +117,7 @@ import { Footer } from '@/components/footer';
 import { Button } from '@/components/ui/button';
 import { AnimatedButton } from '@/components/ui/animated-button';
 import { MascotPlaceholder } from '@/components/gamification/mascot-placeholder';
+import { MascotLanding } from '@/components/mascot/MascotLanding';
 import { GlassCard } from '@/components/ui/glass-card';
 
 // Adapted from Lucide React: Icon library (free, open-source)
@@ -250,7 +251,9 @@ export default function Home() {
         </div>
 
         {/* Hero Section - Custom content */}
-        <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center gap-10 px-4 pb-16 pt-20 text-center">
+        <div className="relative z-10 mx-auto flex max-w-7xl flex-col lg:flex-row items-center gap-10 px-4 pb-16 pt-20 text-center lg:text-left">
+          {/* Left side - Content */}
+          <div className="flex-1 flex flex-col items-center lg:items-start gap-10">
           
           {/* Custom: Logo display with Next.js Image optimization */}
           <Image 
@@ -280,13 +283,13 @@ export default function Home() {
             </p>
             
             {/* Description - my value proposition copy */}
-            <p className="hero-description mx-auto max-w-2xl text-base text-muted-foreground">
+            <p className="hero-description mx-auto lg:mx-0 max-w-2xl text-base text-muted-foreground">
               Real-time accountability partners, 25-minute focus blocks, and rich insights to keep your deep work on track.
             </p>
           </div>
           
           {/* CTA Buttons - my button design and routing */}
-          <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
             {/* Framework pattern: Next.js Link for client-side navigation */}
             {/* Custom: Primary CTA styling and destination */}
             <Link href="/register" className="w-full sm:w-auto">
@@ -310,91 +313,98 @@ export default function Home() {
             </Link>
           </div>
 
-          {/* ===================================================================
-              FEATURE CARDS SECTION - Custom Implementation
-              =================================================================== 
-              
-              Premium feature cards with glassmorphism design
-              =================================================================== */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="w-full max-w-6xl mt-12"
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {featureCards.map((card, index) => {
-                const Icon = card.icon;
-                return (
-                  <GlassCard
-                    key={card.title}
-                    delay={0.3 + index * 0.1}
-                    className="p-6"
-                  >
-                    <div className="flex flex-col items-center text-center space-y-4">
-                      {/* Icon */}
-                      <div className={`flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${card.accentBg} border ${card.borderColor}`}>
-                        <Icon className={`h-8 w-8 ${card.iconColor}`} />
-                      </div>
-                      
-                      {/* Title */}
-                      <h3 className="text-lg font-semibold text-foreground">
-                        {card.title}
-                      </h3>
-                      
-                      {/* Description */}
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        {card.description}
-                      </p>
+          </div>
+
+          {/* Right side - Mascot */}
+          <div className="flex-1 flex items-center justify-center lg:justify-end">
+            <MascotLanding className="hidden lg:block" />
+          </div>
+        </div>
+
+        {/* ===================================================================
+            FEATURE CARDS SECTION - Custom Implementation
+            =================================================================== 
+            
+            Premium feature cards with glassmorphism design
+            =================================================================== */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="relative z-10 w-full max-w-6xl mx-auto px-4 mt-12"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {featureCards.map((card, index) => {
+              const Icon = card.icon;
+              return (
+                <GlassCard
+                  key={card.title}
+                  delay={0.3 + index * 0.1}
+                  className="p-6"
+                >
+                  <div className="flex flex-col items-center text-center space-y-4">
+                    {/* Icon */}
+                    <div className={`flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${card.accentBg} border ${card.borderColor}`}>
+                      <Icon className={`h-8 w-8 ${card.iconColor}`} />
                     </div>
-                  </GlassCard>
-                );
-              })}
-            </div>
-          </motion.div>
+                    
+                    {/* Title */}
+                    <h3 className="text-lg font-semibold text-foreground">
+                      {card.title}
+                    </h3>
+                    
+                    {/* Description */}
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {card.description}
+                    </p>
+                  </div>
+                </GlassCard>
+              );
+            })}
+          </div>
+        </motion.div>
 
-          {/* Mascot Placeholder Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-            className="flex flex-col items-center gap-4 mt-12"
-          >
-            <MascotPlaceholder size="lg" animated={true} />
-            <div className="text-center space-y-2">
-              <h2 className="text-xl font-bold bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent flex items-center justify-center gap-2">
-                <Sparkles className="h-5 w-5 text-indigo-600" />
-                Your AI Focus Companion Coming Soon
-              </h2>
-              <p className="text-sm text-muted-foreground max-w-md">
-                Meet your future productivity partner. Powered by AI to help you stay focused, track progress, and achieve your goals.
-              </p>
-            </div>
-          </motion.div>
+        {/* Mascot Placeholder Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
+          className="relative z-10 flex flex-col items-center gap-4 mt-12 px-4"
+        >
+          <MascotPlaceholder size="lg" animated={true} />
+          <div className="text-center space-y-2">
+            <h2 className="text-xl font-bold bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent flex items-center justify-center gap-2">
+              <Sparkles className="h-5 w-5 text-indigo-600" />
+              Your AI Focus Companion Coming Soon
+            </h2>
+            <p className="text-sm text-muted-foreground max-w-md">
+              Meet your future productivity partner. Powered by AI to help you stay focused, track progress, and achieve your goals.
+            </p>
+          </div>
+        </motion.div>
 
-          {/* ===================================================================
-              FEATURE HIGHLIGHTS - Custom Implementation
-              =================================================================== 
-              
-              Based on the original design with checkmark highlights
-              =================================================================== */}
-          <div className="flex flex-col gap-4 w-full max-w-2xl mt-8">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="text-green-600">✓</span>
-              <span>Free forever - no credit card required</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="text-green-600">✓</span>
-              <span>Match in seconds with real accountability</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="text-green-600">✓</span>
-              <span>Track your focus streaks and level up</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="text-green-600">✓</span>
-              <span>Join thousands building better focus habits</span>
-            </div>
+        {/* ===================================================================
+            FEATURE HIGHLIGHTS - Custom Implementation
+            =================================================================== 
+            
+            Based on the original design with checkmark highlights
+            =================================================================== */}
+        <div className="relative z-10 flex flex-col gap-4 w-full max-w-2xl mx-auto px-4 mt-8">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span className="text-green-600">✓</span>
+            <span>Free forever - no credit card required</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span className="text-green-600">✓</span>
+            <span>Match in seconds with real accountability</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span className="text-green-600">✓</span>
+            <span>Track your focus streaks and level up</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span className="text-green-600">✓</span>
+            <span>Join thousands building better focus habits</span>
           </div>
         </div>
       </div>

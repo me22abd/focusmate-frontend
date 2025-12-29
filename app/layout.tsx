@@ -243,6 +243,17 @@ export default function RootLayout({
             position="top-center"  // Custom: My placement choice
             richColors             // Custom: Enable color-coded toasts
           />
+          
+          {/* ===================================================================
+              AI ASSISTANT BUBBLE - Floating Chat Assistant
+              =================================================================== 
+              
+              Custom component: AssistantBubble
+              - Only shows on authenticated pages (component handles this)
+              - Floating button in bottom-right
+              - Opens chat window with FocusAI
+              =================================================================== */}
+          <AssistantBubble />
         </ThemeProvider>
       </body>
     </html>
