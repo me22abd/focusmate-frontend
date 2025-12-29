@@ -160,6 +160,9 @@ import { SessionModeSelect } from '@/components/session-mode-select';
 // Adapted: ShadCN UI components
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
+import { AnimatedButton } from '@/components/ui/animated-button';
+import { XPBar, StreakBadge, ProgressRing } from '@/components/gamification';
 
 // Adapted: Icon library (selected icons)
 import {
@@ -686,8 +689,40 @@ export default function DashboardPage() {
       {/* Custom: MY navbar component */}
       <Navbar />
       
-      <div className="min-h-screen bg-slate-50 px-4 pb-24 pt-6 dark:bg-slate-950">
-        <div className="mx-auto flex w-full max-w-4xl flex-col gap-8">
+      {/* Premium Animated Background */}
+      <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-950 dark:via-purple-950/20 dark:to-slate-900">
+        {/* Floating gradient orbs */}
+        <div className="absolute inset-0 overflow-hidden">
+          <motion.div
+            className="absolute top-20 left-10 w-72 h-72 bg-purple-400/30 rounded-full blur-3xl"
+            animate={{
+              x: [0, 50, 0],
+              y: [0, 30, 0],
+              scale: [1, 1.2, 1],
+            }}
+            transition={{
+              duration: 20,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+          <motion.div
+            className="absolute bottom-20 right-10 w-96 h-96 bg-blue-400/30 rounded-full blur-3xl"
+            animate={{
+              x: [0, -30, 0],
+              y: [0, -50, 0],
+              scale: [1, 1.1, 1],
+            }}
+            transition={{
+              duration: 25,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+        </div>
+
+        <div className="relative z-10 px-4 pb-24 pt-6">
+          <div className="mx-auto flex w-full max-w-4xl flex-col gap-8">
           
           {/* ===================================================================
               EMAIL VERIFICATION BANNER
@@ -757,27 +792,21 @@ export default function DashboardPage() {
               - Hover animation (y: -2 lift)
               - Custom gradient card design
               ================================================================ */}
-          <motion.section
-            initial={{ opacity: 0, y: 20 }}   // Custom: Start below, invisible
-            animate={{ opacity: 1, y: 0 }}    // Custom: Fade in, slide up
-            transition={{ duration: 0.5 }}    // Custom: Half-second animation
-            whileHover={{ y: -2 }}            // Custom: Lift on hover
-            className="rounded-3xl border border-white/60 bg-gradient-to-r from-white to-slate-50 p-6 shadow-[0_25px_50px_-24px_rgba(15,23,42,0.45)] transition-all duration-200 hover:shadow-[0_28px_55px_-25px_rgba(15,23,42,0.5)] dark:border-slate-800 dark:from-slate-900 dark:to-slate-900/60"
-          >
+          <GlassCard delay={0.1} className="p-6">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.4em] text-slate-400">
+              <p className="text-xs font-semibold uppercase tracking-[0.4em] text-slate-400 dark:text-slate-500">
                 Dashboard
               </p>
-              <h1 className="mt-3 text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
+              <h1 className="mt-3 text-2xl sm:text-3xl font-bold bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">
                 {/* Custom: Time-based greeting with user's first name */}
                 {getTimeBasedGreeting()}, {user?.name?.split(' ')[0] || 'Focusmate'}!
               </h1>
-              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+              <p className="mt-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
                 {/* Custom: Contextual motivational message */}
                 {getTimeBasedMessage}
               </p>
             </div>
-          </motion.section>
+          </GlassCard>
 
           {/* ===================================================================
               STATS CARDS
@@ -798,33 +827,26 @@ export default function DashboardPage() {
               ================================================================ */}
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {statsCards.map((card, index) => (
-              <motion.div
-                key={card.label}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}  // Custom: Stagger
-                whileHover={{ y: -4, scale: 1.02 }}  // Custom: Lift and scale on hover
-                className="rounded-3xl border border-white bg-white p-5 shadow-[0_18px_35px_-28px_rgba(15,23,42,0.5)] transition-all duration-200 hover:shadow-[0_22px_40px_-30px_rgba(15,23,42,0.6)] dark:border-slate-800 dark:bg-slate-900"
-              >
+              <GlassCard key={card.label} delay={0.2 + index * 0.1} className="p-5">
                 <div className="flex items-start justify-between">
-                  <div>
+                  <div className="flex-1">
                     {/* Custom: Stat value */}
-                    <p className="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-white">
+                    <p className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-indigo-600 to-blue-500 bg-clip-text text-transparent">
                       {card.value}
                     </p>
                     {/* Custom: Stat label */}
-                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                    <p className="mt-1 text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400">
                       {card.label}
                     </p>
                   </div>
                   {/* Custom: Icon with colored background */}
-                  <div className={`flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-2xl ${card.iconBg} flex-shrink-0`}>
-                    <card.Icon className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <div className={`flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl ${card.iconBg} flex-shrink-0 shadow-lg`}>
+                    <card.Icon className="h-5 w-5 sm:h-6 sm:w-6" />
                   </div>
                 </div>
                 {/* Custom: Helper text (trend or goal) */}
-                <p className="mt-3 text-xs font-medium text-emerald-600">{card.helper}</p>
-              </motion.div>
+                <p className="mt-4 text-xs font-medium text-emerald-600 dark:text-emerald-400">{card.helper}</p>
+              </GlassCard>
             ))}
           </section>
 
@@ -850,13 +872,7 @@ export default function DashboardPage() {
                 - Button with hover/tap animations
                 - Opens SessionModeSelect modal
                 ============================================================== */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              whileHover={{ y: -4, scale: 1.01 }}
-              className="rounded-3xl border border-white bg-white p-5 shadow-[0_22px_40px_-35px_rgba(15,23,42,0.6)] transition-all duration-200 hover:shadow-[0_25px_45px_-30px_rgba(15,23,42,0.7)] dark:border-slate-800 dark:bg-slate-900"
-            >
+            <GlassCard delay={0.5} className="p-5">
               <div className="flex items-start gap-4">
                 {/* Custom: Gradient icon */}
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-r from-indigo-600 to-sky-500 text-white shadow-lg">
@@ -864,26 +880,25 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex-1 space-y-3 min-w-0">
                   <div>
-                    <h2 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white">
+                    <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
                       Match with a focus partner today
                     </h2>
-                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
                       Pair up instantly with an accountability partner.
                     </p>
                   </div>
-                  {/* Custom: Animated button */}
-                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                    <Button
-                      onClick={handleStartSession}
-                      className="w-full rounded-2xl bg-gradient-to-r from-indigo-600 to-sky-500 py-5 text-base shadow-lg shadow-indigo-500/30 transition-all duration-200 hover:shadow-xl hover:shadow-indigo-500/40"
-                    >
-                      <UsersRound className="mr-2 h-5 w-5" />
-                      Match with a focus partner today
-                    </Button>
-                  </motion.div>
+                  {/* Custom: Premium animated button */}
+                  <AnimatedButton
+                    onClick={handleStartSession}
+                    glow
+                    className="w-full rounded-2xl bg-gradient-to-r from-indigo-600 to-sky-500 py-5 text-base font-semibold text-white shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40"
+                  >
+                    <UsersRound className="mr-2 h-5 w-5" />
+                    Match with a focus partner today
+                  </AnimatedButton>
                 </div>
               </div>
-            </motion.div>
+            </GlassCard>
 
             {/* =================================================================
                 WEEKLY PROGRESS CARD
@@ -899,37 +914,39 @@ export default function DashboardPage() {
                 - Width: weeklyProgress% (calculated above)
                 - Motivational helper text
                 ============================================================== */}
-            <div className="rounded-3xl border border-white bg-white p-5 shadow-[0_22px_40px_-35px_rgba(15,23,42,0.6)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_25px_45px_-30px_rgba(15,23,42,0.7)] dark:border-slate-800 dark:bg-slate-900">
+            <GlassCard delay={0.6} className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                  <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
                     Weekly Progress ({Math.round(weeklyFocusMinutes / 60)}h / 5h)
                   </p>
-                  <p className="text-2xl font-semibold text-slate-900 dark:text-white">
+                  <p className="mt-1 text-2xl font-bold bg-gradient-to-r from-indigo-600 to-blue-500 bg-clip-text text-transparent">
                     {weeklyFocusMinutes} / {weeklyGoalMinutes} min
                   </p>
                 </div>
-                <span className="text-sm font-medium text-emerald-600">
+                <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
                   <ArrowUpRight className="mr-1 inline h-4 w-4" />
                   +0 min
                 </span>
               </div>
-              {/* Custom: Progress bar */}
-              <div className="mt-4 h-3 rounded-full bg-slate-100 dark:bg-slate-800">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-indigo-600 to-sky-500 transition-all"
-                  style={{ width: `${weeklyProgress}%` }}  // Custom: Dynamic width
+              {/* Custom: Enhanced progress bar */}
+              <div className="mt-4 h-4 rounded-full bg-slate-200/50 dark:bg-slate-800/50 overflow-hidden">
+                <motion.div
+                  className="h-full rounded-full bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-500"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${weeklyProgress}%` }}
+                  transition={{ duration: 1, ease: 'easeOut' }}
                 />
               </div>
-              <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+              <p className="mt-3 text-xs text-slate-600 dark:text-slate-400">
                 Keep your streak alive by reaching 150 minutes this week.
               </p>
-            </div>
+            </GlassCard>
 
             {/* =================================================================
                 RECENT SESSION CARD (PLACEHOLDER)
                 ============================================================== */}
-            <div className="rounded-3xl border border-white bg-white p-5 shadow-[0_22px_40px_-35px_rgba(15,23,42,0.6)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_25px_45px_-30px_rgba(15,23,42,0.7)] dark:border-slate-800 dark:bg-slate-900">
+            <GlassCard delay={0.7} className="p-5">
               <div className="mb-4 flex items-center justify-between">
                 <div>
                   <p className="text-sm text-slate-500 dark:text-slate-400">Recent session</p>
@@ -951,14 +968,14 @@ export default function DashboardPage() {
                   <p>25 min</p>
                 </div>
               </div>
-              <Button
+              <AnimatedButton
                 variant="outline"
                 className="mt-4 w-full rounded-2xl border-slate-200 text-sm dark:border-slate-700"
                 onClick={handleStartSession}
               >
                 Schedule a session
-              </Button>
-            </div>
+              </AnimatedButton>
+            </GlassCard>
 
             {/* =================================================================
                 ACCOUNT INFORMATION CARD
@@ -974,12 +991,12 @@ export default function DashboardPage() {
                 - Color coding (success/warning for verification status)
                 - Date formatting for createdAt
                 ============================================================== */}
-            <div className="rounded-3xl border border-white bg-white p-5 shadow-[0_18px_35px_-28px_rgba(15,23,42,0.5)] dark:border-slate-800 dark:bg-slate-900">
+            <GlassCard delay={0.8} className="p-5">
               <div className="mb-4">
-                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">
                   Account information
                 </h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
                   Synced with your Focusmate profile
                 </p>
               </div>
@@ -1001,8 +1018,9 @@ export default function DashboardPage() {
                   }
                 />
               </div>
-            </div>
+            </GlassCard>
           </section>
+          </div>
         </div>
       </div>
       

@@ -1,7 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
 import { getDashboardStats, getSystemHealth, getAdminLogs, type DashboardStats, type SystemHealth, type AdminLog } from '@/lib/api/admin';
 import { Users, Calendar, FileText, Database, Mail, Server, Activity, CheckCircle2, XCircle } from 'lucide-react';
 
@@ -81,17 +83,55 @@ export default function AdminDashboardPage() {
   const isDbHealthy = health?.dbStatus === 'connected';
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Admin Dashboard</h1>
-        <p className="text-slate-600 dark:text-slate-400 mt-1">
-          Overview of system statistics and health
-        </p>
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-950 dark:via-purple-950/20 dark:to-slate-900">
+      {/* Floating gradient orbs */}
+      <div className="absolute inset-0 overflow-hidden">
+        <motion.div
+          className="absolute top-20 left-10 w-72 h-72 bg-purple-400/30 rounded-full blur-3xl"
+          animate={{
+            x: [0, 50, 0],
+            y: [0, 30, 0],
+            scale: [1, 1.2, 1],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+        />
+        <motion.div
+          className="absolute bottom-20 right-10 w-96 h-96 bg-blue-400/30 rounded-full blur-3xl"
+          animate={{
+            x: [0, -30, 0],
+            y: [0, -50, 0],
+            scale: [1, 1.1, 1],
+          }}
+          transition={{
+            duration: 25,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+        />
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
+      <div className="relative z-10 space-y-6 p-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">
+            Admin Dashboard
+          </h1>
+          <p className="text-slate-600 dark:text-slate-400 mt-1">
+            Overview of system statistics and health
+          </p>
+        </motion.div>
+
+        {/* Stats Cards */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <GlassCard delay={0.1}>
+            <Card className="border-0 shadow-none bg-transparent">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Users</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
@@ -104,29 +144,36 @@ export default function AdminDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-            <Users className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.activeUsers || 0}</div>
-            <p className="text-xs text-muted-foreground">Currently active accounts</p>
-          </CardContent>
-        </Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Active Users</CardTitle>
+              <Users className="h-4 w-4 text-green-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-500 bg-clip-text text-transparent">
+                {stats?.activeUsers || 0}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">Currently active accounts</p>
+            </CardContent>
+          </Card>
+        </GlassCard>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Suspended Users</CardTitle>
-            <Users className="h-4 w-4 text-red-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.suspendedUsers || 0}</div>
-            <p className="text-xs text-muted-foreground">Suspended accounts</p>
-          </CardContent>
-        </Card>
+        <GlassCard delay={0.2}>
+          <Card className="border-0 shadow-none bg-transparent">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Suspended Users</CardTitle>
+              <Users className="h-4 w-4 text-red-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold bg-gradient-to-r from-red-600 to-rose-500 bg-clip-text text-transparent">
+                {stats?.suspendedUsers || 0}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">Suspended accounts</p>
+            </CardContent>
+          </Card>
+        </GlassCard>
 
-        <Card>
+        <GlassCard delay={0.25}>
+          <Card className="border-0 shadow-none bg-transparent">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Database Status</CardTitle>
             {isDbHealthy ? (
