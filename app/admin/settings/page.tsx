@@ -98,7 +98,7 @@ export default function AdminSettingsPage() {
         <CardContent>
           {health ? (
             <div className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
                 <div>
                   <p className="text-sm text-muted-foreground">Database Status</p>
                   <p className={`text-lg font-semibold ${

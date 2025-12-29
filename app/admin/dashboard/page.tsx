@@ -114,22 +114,23 @@ export default function AdminDashboardPage() {
         />
       </div>
 
-      <div className="relative z-10 space-y-6 p-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">
-            Admin Dashboard
-          </h1>
-          <p className="text-slate-600 dark:text-slate-400 mt-1">
-            Overview of system statistics and health
-          </p>
-        </motion.div>
+      <div className="relative z-10 px-4 sm:px-6 pb-24 pt-6">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">
+              Admin Dashboard
+            </h1>
+            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 mt-1">
+              Overview of system statistics and health
+            </p>
+          </motion.div>
 
-        {/* Stats Cards */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {/* Stats Cards */}
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           <GlassCard delay={0.1}>
             <Card className="border-0 shadow-none bg-transparent">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

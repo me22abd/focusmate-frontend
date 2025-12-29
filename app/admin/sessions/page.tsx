@@ -127,17 +127,18 @@ export default function AdminSessionsPage() {
         />
       </div>
 
-      <div className="relative z-10 space-y-6 p-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">Sessions Management</h1>
-          <p className="text-slate-600 dark:text-slate-400 mt-1">
-            View and manage all study sessions
-          </p>
-        </motion.div>
+                <div className="relative z-10 px-4 sm:px-6 pb-24 pt-6">
+                  <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">Sessions Management</h1>
+                      <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 mt-1">
+                        View and manage all study sessions
+                      </p>
+                    </motion.div>
 
       {/* Filters */}
         <GlassCard delay={0.1}>
