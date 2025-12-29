@@ -108,6 +108,9 @@ import { FocusSetupForm } from '@/components/focus-setup-form';
 
 // Adapted: ShadCN UI components
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
+import { AnimatedButton } from '@/components/ui/animated-button';
+import { motion } from 'framer-motion';
 
 // Adapted: Icon library
 import { Users, User } from 'lucide-react';
@@ -209,11 +212,44 @@ function SetupPageContent() {
       {/* Custom: MY navbar */}
       <Navbar />
       
-      <div className="min-h-screen bg-slate-50 px-4 sm:px-6 pb-24 pt-6 dark:bg-slate-950">
-        <div className="mx-auto flex w-full max-w-2xl items-center justify-center py-6 sm:py-12">
+      {/* Premium Animated Background */}
+      <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-950 dark:via-purple-950/20 dark:to-slate-900">
+        {/* Floating gradient orbs */}
+        <div className="absolute inset-0 overflow-hidden">
+          <motion.div
+            className="absolute top-20 left-10 w-72 h-72 bg-purple-400/30 rounded-full blur-3xl"
+            animate={{
+              x: [0, 50, 0],
+              y: [0, 30, 0],
+              scale: [1, 1.2, 1],
+            }}
+            transition={{
+              duration: 20,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+          <motion.div
+            className="absolute bottom-20 right-10 w-96 h-96 bg-blue-400/30 rounded-full blur-3xl"
+            animate={{
+              x: [0, -30, 0],
+              y: [0, -50, 0],
+              scale: [1, 1.1, 1],
+            }}
+            transition={{
+              duration: 25,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+        </div>
+
+        <div className="relative z-10 px-4 sm:px-6 pb-24 pt-6">
+          <div className="mx-auto flex w-full max-w-2xl items-center justify-center py-6 sm:py-12">
           
           {/* Custom: Centered card layout (focused, distraction-free) */}
-          <Card className="w-full border-2 shadow-2xl">
+          <GlassCard delay={0.1} className="w-full">
+            <Card className="border-0 shadow-none bg-transparent">
             
             {/* =================================================================
                 CARD HEADER - Mode-Specific Icon and Title
