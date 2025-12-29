@@ -314,7 +314,9 @@ function SetupPageContent() {
                 onStart={handleStart}         // Custom: MY routing logic
               />
             </CardContent>
-          </Card>
+            </Card>
+          </GlassCard>
+          </div>
         </div>
       </div>
       

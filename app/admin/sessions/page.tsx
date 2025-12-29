@@ -252,7 +252,9 @@ export default function AdminSessionsPage() {
             </table>
           </div>
         </CardContent>
-      </Card>
+          </Card>
+        </GlassCard>
+      </div>
     </div>
   );
 }
