@@ -117,6 +117,7 @@ import { Footer } from '@/components/footer';
 import { Button } from '@/components/ui/button';
 import { AnimatedButton } from '@/components/ui/animated-button';
 import { MascotPlaceholder } from '@/components/gamification/mascot-placeholder';
+import { GlassCard } from '@/components/ui/glass-card';
 
 // Adapted from Lucide React: Icon library (free, open-source)
 // Custom selection: I chose these 4 specific icons for Focusmate features
@@ -309,12 +310,55 @@ export default function Home() {
             </Link>
           </div>
 
+          {/* ===================================================================
+              FEATURE CARDS SECTION - Custom Implementation
+              =================================================================== 
+              
+              Premium feature cards with glassmorphism design
+              =================================================================== */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="w-full max-w-6xl mt-12"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {featureCards.map((card, index) => {
+                const Icon = card.icon;
+                return (
+                  <GlassCard
+                    key={card.title}
+                    delay={0.3 + index * 0.1}
+                    className="p-6"
+                  >
+                    <div className="flex flex-col items-center text-center space-y-4">
+                      {/* Icon */}
+                      <div className={`flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${card.accentBg} border ${card.borderColor}`}>
+                        <Icon className={`h-8 w-8 ${card.iconColor}`} />
+                      </div>
+                      
+                      {/* Title */}
+                      <h3 className="text-lg font-semibold text-foreground">
+                        {card.title}
+                      </h3>
+                      
+                      {/* Description */}
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {card.description}
+                      </p>
+                    </div>
+                  </GlassCard>
+                );
+              })}
+            </div>
+          </motion.div>
+
           {/* Mascot Placeholder Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="flex flex-col items-center gap-4 mt-8"
+            transition={{ delay: 0.7 }}
+            className="flex flex-col items-center gap-4 mt-12"
           >
             <MascotPlaceholder size="lg" animated={true} />
             <div className="text-center space-y-2">
@@ -334,7 +378,7 @@ export default function Home() {
               
               Based on the original design with checkmark highlights
               =================================================================== */}
-          <div className="flex flex-col gap-4 w-full max-w-2xl">
+          <div className="flex flex-col gap-4 w-full max-w-2xl mt-8">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <span className="text-green-600">✓</span>
               <span>Free forever - no credit card required</span>
