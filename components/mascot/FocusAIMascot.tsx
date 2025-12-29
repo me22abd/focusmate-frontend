@@ -43,30 +43,36 @@ export function FocusAIMascot({ className, size = 'md', animated = true }: Focus
     <motion.div
       className={cn('relative', currentSize.container, className)}
       initial={{ opacity: 0, scale: 0.8, y: 20 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{
-        type: 'spring',
-        stiffness: 200,
-        damping: 15,
-        duration: 0.6,
-      }}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
       animate={
         animated
           ? {
-              // Floating animation
-              y: [0, -8, 0],
-              // Breathing animation
+              // Initial entrance + Floating animation
+              opacity: 1,
               scale: [1, 1.02, 1],
+              y: [0, -8, 0],
             }
-          : {}
+          : {
+              opacity: 1,
+              scale: 1,
+              y: 0,
+            }
       }
-      transition={{
-        duration: 3,
-        repeat: Infinity,
-        ease: 'easeInOut',
-      }}
+      transition={
+        animated
+          ? {
+              duration: 3,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }
+          : {
+              type: 'spring',
+              stiffness: 200,
+              damping: 15,
+              duration: 0.6,
+            }
+      }
     >
       <motion.div
         className="relative w-full h-full flex items-center justify-center"
