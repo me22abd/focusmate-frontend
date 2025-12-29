@@ -125,6 +125,9 @@ import { SimpleFooter } from '@/components/simple-footer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
+import { AnimatedButton } from '@/components/ui/animated-button';
+import { motion } from 'framer-motion';
 import { FormField, FormLabel, FormMessage } from '@/components/ui/form';
 
 // Adapted: Lucide icons (selected by me)
@@ -250,11 +253,43 @@ export default function RegisterPage() {
           Adapted: Centered auth page layout (common pattern)
           Custom: Focusmate gradient background
           =================================================================== */}
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-accent/10 to-background p-4 sm:p-6">
-        
-        {/* Adapted: ShadCN Card component
-            Custom: All content specific to Focusmate */}
-        <Card className="w-full max-w-md mx-auto">
+      {/* Premium Animated Background */}
+      <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-950 dark:via-purple-950/20 dark:to-slate-900">
+        {/* Floating gradient orbs */}
+        <div className="absolute inset-0 overflow-hidden">
+          <motion.div
+            className="absolute top-20 left-10 w-72 h-72 bg-purple-400/30 rounded-full blur-3xl"
+            animate={{
+              x: [0, 50, 0],
+              y: [0, 30, 0],
+              scale: [1, 1.2, 1],
+            }}
+            transition={{
+              duration: 20,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+          <motion.div
+            className="absolute bottom-20 right-10 w-96 h-96 bg-blue-400/30 rounded-full blur-3xl"
+            animate={{
+              x: [0, -30, 0],
+              y: [0, -50, 0],
+              scale: [1, 1.1, 1],
+            }}
+            transition={{
+              duration: 25,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+        </div>
+
+        <div className="relative z-10 min-h-screen flex items-center justify-center p-4 sm:p-6">
+          {/* Adapted: ShadCN Card component
+              Custom: All content specific to Focusmate */}
+          <GlassCard delay={0.1} className="w-full max-w-md mx-auto">
+            <Card className="border-0 shadow-none bg-transparent">
           
           {/* ===================================================================
               CARD HEADER
@@ -490,7 +525,9 @@ export default function RegisterPage() {
               </Link>
             </div>
           </CardFooter>
-        </Card>
+            </Card>
+          </GlassCard>
+        </div>
       </div>
       
       {/* Custom: MY footer */}
