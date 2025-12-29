@@ -132,30 +132,35 @@ export default function AdminDashboardPage() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <GlassCard delay={0.1}>
             <Card className="border-0 shadow-none bg-transparent">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalUsers || 0}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats?.activeUsers || 0} active, {stats?.suspendedUsers || 0} suspended
-            </p>
-          </CardContent>
-        </Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+                <Users className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-blue-500 bg-clip-text text-transparent">
+                  {stats?.totalUsers || 0}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {stats?.activeUsers || 0} active, {stats?.suspendedUsers || 0} suspended
+                </p>
+              </CardContent>
+            </Card>
+          </GlassCard>
 
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-              <Users className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-500 bg-clip-text text-transparent">
-                {stats?.activeUsers || 0}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">Currently active accounts</p>
-            </CardContent>
-          </Card>
-        </GlassCard>
+          <GlassCard delay={0.15}>
+            <Card className="border-0 shadow-none bg-transparent">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Active Users</CardTitle>
+                <Users className="h-4 w-4 text-green-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-500 bg-clip-text text-transparent">
+                  {stats?.activeUsers || 0}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">Currently active accounts</p>
+              </CardContent>
+            </Card>
+          </GlassCard>
 
         <GlassCard delay={0.2}>
           <Card className="border-0 shadow-none bg-transparent">
@@ -174,87 +179,99 @@ export default function AdminDashboardPage() {
 
         <GlassCard delay={0.25}>
           <Card className="border-0 shadow-none bg-transparent">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Database Status</CardTitle>
-            {isDbHealthy ? (
-              <CheckCircle2 className="h-4 w-4 text-green-600" />
-            ) : (
-              <XCircle className="h-4 w-4 text-red-600" />
-            )}
-          </CardHeader>
-          <CardContent>
-            <div className={`text-2xl font-bold ${isDbHealthy ? 'text-green-600' : 'text-red-600'}`}>
-              {health?.dbStatus || 'Unknown'}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {health?.dbLatency || 'N/A'} latency
-            </p>
-          </CardContent>
-        </Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Database Status</CardTitle>
+              {isDbHealthy ? (
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+              ) : (
+                <XCircle className="h-4 w-4 text-red-600" />
+              )}
+            </CardHeader>
+            <CardContent>
+              <div className={`text-2xl font-bold ${isDbHealthy ? 'bg-gradient-to-r from-green-600 to-emerald-500 bg-clip-text text-transparent' : 'bg-gradient-to-r from-red-600 to-rose-500 bg-clip-text text-transparent'}`}>
+                {health?.dbStatus || 'Unknown'}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {health?.dbLatency || 'N/A'} latency
+              </p>
+            </CardContent>
+          </Card>
+        </GlassCard>
 
-        <Card>
+        <GlassCard delay={0.3}>
+          <Card className="border-0 shadow-none bg-transparent">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">API Status</CardTitle>
             <Server className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">Online</div>
-            <p className="text-xs text-muted-foreground">All systems operational</p>
-          </CardContent>
-        </Card>
+            <CardContent>
+              <div className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-500 bg-clip-text text-transparent">Online</div>
+              <p className="text-xs text-muted-foreground mt-1">All systems operational</p>
+            </CardContent>
+          </Card>
+        </GlassCard>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Email Service</CardTitle>
-            <Mail className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-slate-600">-</div>
-            <p className="text-xs text-muted-foreground">Status not available</p>
-          </CardContent>
-        </Card>
+        <GlassCard delay={0.35}>
+          <Card className="border-0 shadow-none bg-transparent">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Email Service</CardTitle>
+              <Mail className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-slate-600 dark:text-slate-400">-</div>
+              <p className="text-xs text-muted-foreground mt-1">Status not available</p>
+            </CardContent>
+          </Card>
+        </GlassCard>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Background Tasks</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">Running</div>
-            <p className="text-xs text-muted-foreground">All tasks active</p>
-          </CardContent>
-        </Card>
+        <GlassCard delay={0.4}>
+          <Card className="border-0 shadow-none bg-transparent">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Background Tasks</CardTitle>
+              <Activity className="h-4 w-4 text-green-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-500 bg-clip-text text-transparent">Running</div>
+              <p className="text-xs text-muted-foreground mt-1">All tasks active</p>
+            </CardContent>
+          </Card>
+        </GlassCard>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Server Uptime</CardTitle>
-            <Database className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{health?.uptime || 'N/A'}</div>
-            <p className="text-xs text-muted-foreground">System uptime</p>
-          </CardContent>
-        </Card>
+        <GlassCard delay={0.45}>
+          <Card className="border-0 shadow-none bg-transparent">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Server Uptime</CardTitle>
+              <Database className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-blue-500 bg-clip-text text-transparent">{health?.uptime || 'N/A'}</div>
+              <p className="text-xs text-muted-foreground mt-1">System uptime</p>
+            </CardContent>
+          </Card>
+        </GlassCard>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Memory Usage</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{health?.memoryUsage || 'N/A'}</div>
-            <p className="text-xs text-muted-foreground">Current memory consumption</p>
-          </CardContent>
-        </Card>
+        <GlassCard delay={0.5}>
+          <Card className="border-0 shadow-none bg-transparent">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Memory Usage</CardTitle>
+              <Activity className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-slate-700 dark:text-slate-300">{health?.memoryUsage || 'N/A'}</div>
+              <p className="text-xs text-muted-foreground mt-1">Current memory consumption</p>
+            </CardContent>
+          </Card>
+        </GlassCard>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* System Health Details */}
-        {health && (
-          <Card>
-            <CardHeader>
-              <CardTitle>System Health Details</CardTitle>
-            </CardHeader>
+        <div className="grid gap-6 md:grid-cols-2">
+          {/* System Health Details */}
+          {health && (
+            <GlassCard delay={0.55}>
+              <Card className="border-0 shadow-none bg-transparent">
+                <CardHeader>
+                  <CardTitle className="font-bold">System Health Details</CardTitle>
+                </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
@@ -293,16 +310,18 @@ export default function AdminDashboardPage() {
                     <span className="font-semibold">{health.environment}</span>
                   </div>
                 )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+                </div>
+              </CardContent>
+            </Card>
+          </GlassCard>
+          )}
 
-        {/* Recent Activity */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-          </CardHeader>
+          {/* Recent Activity */}
+          <GlassCard delay={0.6}>
+            <Card className="border-0 shadow-none bg-transparent">
+              <CardHeader>
+                <CardTitle className="font-bold">Recent Activity</CardTitle>
+              </CardHeader>
           <CardContent>
             {recentLogs.length === 0 ? (
               <p className="text-sm text-muted-foreground">No recent activity</p>
@@ -324,9 +343,11 @@ export default function AdminDashboardPage() {
                   </div>
                 ))}
               </div>
-            )}
-          </CardContent>
-        </Card>
+              )}
+            </CardContent>
+          </Card>
+        </GlassCard>
+        </div>
       </div>
     </div>
   );
