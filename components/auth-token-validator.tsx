@@ -33,6 +33,8 @@ export function AuthTokenValidator() {
       '/verify-email', 
       '/forgot-password', 
       '/reset-password',
+      '/terms', // Terms of Service - public page
+      '/privacy', // Privacy Policy - public page
       '/', // Landing page
     ];
     
