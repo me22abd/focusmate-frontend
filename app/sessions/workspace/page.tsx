@@ -25,6 +25,8 @@ import { Navbar } from '@/components/navbar';
 import { QuickNav } from '@/components/quick-nav';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
+import { AnimatedButton } from '@/components/ui/animated-button';
 import {
   CheckSquare,
   BookOpen,
@@ -78,18 +80,50 @@ export default function SessionsWorkspacePage() {
       <Navbar />
       <QuickNav showBack={true} showHome={true} />
       
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+      {/* Premium Animated Background */}
+      <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-950 dark:via-purple-950/20 dark:to-slate-900">
+        {/* Floating gradient orbs */}
+        <div className="absolute inset-0 overflow-hidden">
+          <motion.div
+            className="absolute top-20 left-10 w-72 h-72 bg-purple-400/30 rounded-full blur-3xl"
+            animate={{
+              x: [0, 50, 0],
+              y: [0, 30, 0],
+              scale: [1, 1.2, 1],
+            }}
+            transition={{
+              duration: 20,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+          <motion.div
+            className="absolute bottom-20 right-10 w-96 h-96 bg-blue-400/30 rounded-full blur-3xl"
+            animate={{
+              x: [0, -30, 0],
+              y: [0, -50, 0],
+              scale: [1, 1.1, 1],
+            }}
+            transition={{
+              duration: 25,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+        </div>
+
+        <div className="relative z-10">
         <div className="flex h-[calc(100vh-4rem)]">
           {/* Sidebar Navigation - Desktop */}
-          <aside className="hidden md:flex w-64 flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
-            <div className="p-4 border-b border-slate-200 dark:border-slate-800">
-              <h1 className="text-xl font-bold text-slate-900 dark:text-white">
+          <aside className="hidden md:flex w-64 flex-col border-r border-white/20 bg-white/40 dark:bg-white/5 backdrop-blur-xl dark:border-slate-800/50">
+            <GlassCard className="p-4 border-0 border-b border-white/20 dark:border-slate-800/50 rounded-none">
+              <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">
                 Sessions Workspace
               </h1>
               <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
                 Your productivity hub
               </p>
-            </div>
+            </GlassCard>
             
             <nav className="flex-1 overflow-y-auto p-4 space-y-2">
               {panels.map((panel) => {

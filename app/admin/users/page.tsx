@@ -2,8 +2,11 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
+import { AnimatedButton } from '@/components/ui/animated-button';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { motion } from 'framer-motion';
 import { getAllUsers, suspendUser, deleteUser, getAdminIdFromToken, getUserDetails, resetUserPassword, type User, type UserDetails } from '@/lib/api/admin';
 import { toast } from 'sonner';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
@@ -130,16 +133,52 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Users Management</h1>
-        <p className="text-slate-600 dark:text-slate-400 mt-1">
-          Manage user accounts and permissions
-        </p>
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-950 dark:via-purple-950/20 dark:to-slate-900">
+      {/* Floating gradient orbs */}
+      <div className="absolute inset-0 overflow-hidden">
+        <motion.div
+          className="absolute top-20 left-10 w-72 h-72 bg-purple-400/30 rounded-full blur-3xl"
+          animate={{
+            x: [0, 50, 0],
+            y: [0, 30, 0],
+            scale: [1, 1.2, 1],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+        />
+        <motion.div
+          className="absolute bottom-20 right-10 w-96 h-96 bg-blue-400/30 rounded-full blur-3xl"
+          animate={{
+            x: [0, -30, 0],
+            y: [0, -50, 0],
+            scale: [1, 1.1, 1],
+          }}
+          transition={{
+            duration: 25,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+        />
       </div>
 
-      {/* Search Bar */}
-      <Card>
+      <div className="relative z-10 space-y-6 p-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">Users Management</h1>
+          <p className="text-slate-600 dark:text-slate-400 mt-1">
+            Manage user accounts and permissions
+          </p>
+        </motion.div>
+
+        {/* Search Bar */}
+        <GlassCard delay={0.1}>
+          <Card className="border-0 shadow-none bg-transparent">
         <CardContent className="pt-6">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
