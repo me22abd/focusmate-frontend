@@ -330,6 +330,7 @@ export default function AdminUsersPage() {
         </CardContent>
           </Card>
         </GlassCard>
+        </div>
 
       {/* User Details Modal */}
       <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>

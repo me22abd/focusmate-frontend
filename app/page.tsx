@@ -18,7 +18,7 @@
  * 
  * a) NEXT.JS FRAMEWORK CODE (Not my original work):
  * ───────────────────────────────────────────────────────────────────────────
- * - Server component export pattern              [Line 82]
+ * - Client component directive ('use client')     [Line 107]
  * - Next.js Link component                       [Lines 2, 103, 111]
  * - Next.js Image component                      [Lines 3, 89]
  * 
@@ -103,6 +103,8 @@
  * @author Eromonsele Marvelous
  * @page Frontend/Landing
  */
+
+'use client';
 
 // Framework pattern: Next.js core imports (required for all Next.js pages)
 import Link from 'next/link';

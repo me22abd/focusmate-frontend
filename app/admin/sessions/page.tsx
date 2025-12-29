@@ -127,8 +127,8 @@ export default function AdminSessionsPage() {
         />
       </div>
 
-                <div className="relative z-10 px-4 sm:px-6 pb-24 pt-6">
-                  <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
+      <div className="relative z-10 px-4 sm:px-6 pb-24 pt-6">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -255,6 +255,7 @@ export default function AdminSessionsPage() {
         </CardContent>
           </Card>
         </GlassCard>
+        </div>
       </div>
     </div>
   );
