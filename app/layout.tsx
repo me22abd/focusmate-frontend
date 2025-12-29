@@ -118,6 +118,9 @@ import "./globals.css";
 // Custom: Token validation component
 import { AuthTokenValidator } from "@/components/auth-token-validator";
 
+// Custom: Sound preloader component
+import { SoundPreloader } from "@/components/sound-preloader";
+
 /**
  * Font Configuration - Geist Sans
  * 
@@ -210,6 +213,9 @@ export default function RootLayout({
           {/* Custom: Global token validator - validates auth on every page load */}
           {/* This component validates tokens and prevents wrong user loading */}
           <AuthTokenValidator />
+          
+          {/* Custom: Sound preloader - unlocks audio context on first user interaction */}
+          <SoundPreloader />
           
           {/* Framework pattern: Render page content */}
           {children}

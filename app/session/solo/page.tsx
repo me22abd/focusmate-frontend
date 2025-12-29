@@ -9,6 +9,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
+import { playSessionEndSound, playCountdownSound, preloadSounds } from '@/lib/sounds';
+import { useSettingsStore } from '@/store/settings-store';
 
 const SESSION_STORAGE_KEY = 'focusmate_active_solo_session';
 const NOTES_STORAGE_KEY = 'focusmate_session_notes';
@@ -17,6 +19,7 @@ function SoloSessionContent() {
   useAuthGuard();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { notifications } = useSettingsStore();
   
   const focusTopic = searchParams.get('focusTopic') || '';
   const studyGoal = searchParams.get('studyGoal') || '';
@@ -69,11 +72,21 @@ function SoloSessionContent() {
     localStorage.setItem(NOTES_STORAGE_KEY, notes);
   }, [notes]);
 
-  // Timer effect
+  // Preload sounds on mount
+  useEffect(() => {
+    preloadSounds();
+  }, []);
+
+  // Timer effect with sound support
   useEffect(() => {
     if (!isActive || secondsRemaining <= 0) {
       // Clear saved session when done
       if (secondsRemaining <= 0 && typeof window !== 'undefined') {
+        // Play session end sound
+        if (notifications.sessionSoundEnabled) {
+          const volume = notifications.sessionSoundVolume / 100;
+          playSessionEndSound(volume);
+        }
         localStorage.removeItem(SESSION_STORAGE_KEY);
       }
       return;
@@ -81,22 +94,39 @@ function SoloSessionContent() {
 
     const interval = setInterval(() => {
       setSecondsRemaining((prev) => {
+        // Play countdown sound for last 5 seconds
+        if (prev <= 5 && prev > 0 && notifications.sessionSoundEnabled) {
+          const volume = notifications.sessionSoundVolume / 100;
+          playCountdownSound(prev, volume);
+        }
+        
         if (prev <= 1) {
           setIsActive(false);
           if (typeof window !== 'undefined') {
             localStorage.removeItem(SESSION_STORAGE_KEY);
           }
+          
+          // Play session end sound
+          if (notifications.sessionSoundEnabled) {
+            const volume = notifications.sessionSoundVolume / 100;
+            playSessionEndSound(volume);
+          }
+          
           toast.success('Focus session completed!', {
             description: 'Great job staying focused!',
           });
           // Navigate to summary after a delay
           setTimeout(() => {
+            const sessionId = `solo_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
             const params = new URLSearchParams({
               mode: 'solo',
               duration: duration.toString(),
               focusTopic,
+              completedDuration: duration.toString(),
+              startTime: new Date(Date.now() - duration * 60 * 1000).toISOString(),
               ...(studyGoal && { studyGoal }),
               notes,
+              sessionId,
             });
             router.push(`/session/summary?${params.toString()}`);
           }, 2000);
@@ -107,7 +137,7 @@ function SoloSessionContent() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isActive, secondsRemaining, duration, focusTopic, studyGoal, notes, router]);
+  }, [isActive, secondsRemaining, duration, focusTopic, studyGoal, notes, router, notifications.sessionSoundEnabled, notifications.sessionSoundVolume]);
 
   const formatTime = (totalSeconds: number) => {
     const minutes = Math.floor(totalSeconds / 60);
@@ -121,13 +151,28 @@ function SoloSessionContent() {
       localStorage.removeItem(SESSION_STORAGE_KEY);
     }
     
+    // Play session end sound when ending early
+    if (notifications.sessionSoundEnabled) {
+      const volume = notifications.sessionSoundVolume / 100;
+      playSessionEndSound(volume);
+    }
+    
+    // Calculate completed duration
+    const totalSeconds = duration * 60;
+    const completedSeconds = totalSeconds - secondsRemaining;
+    const completedDurationMinutes = Math.max(0, Math.floor(completedSeconds / 60));
+    const sessionId = `solo_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
     // Navigate to summary with session data
     const params = new URLSearchParams({
       mode: 'solo',
       duration: duration.toString(),
+      completedDuration: completedDurationMinutes.toString(),
       focusTopic,
+      startTime: new Date(Date.now() - completedSeconds * 1000).toISOString(),
       ...(studyGoal && { studyGoal }),
       notes,
+      sessionId,
       endedEarly: 'true',
     });
     router.push(`/session/summary?${params.toString()}`);

@@ -267,14 +267,65 @@ export const loginUser = async (data: LoginData): Promise<LoginResponse> => {
     return response.data;
   } catch (error: any) {
     // Custom: Comprehensive error logging for debugging
-    console.error('Login error details:', {
+    const errorDetails = {
       message: error.message,
       response: error.response?.data,     // Backend error message
       status: error.response?.status,     // HTTP status code
       url: error.config?.url,             // Endpoint
       baseURL: error.config?.baseURL,     // Base URL being used
-    });
-    throw error;  // Re-throw for component to handle
+      code: error.code,                   // Network error code (e.g., 'ECONNREFUSED', 'NETWORK_ERROR')
+    };
+    
+    console.error('═══════════════════════════════════════════════════════════');
+    console.error('🔴 LOGIN ERROR - Detailed Information:');
+    console.error('═══════════════════════════════════════════════════════════');
+    console.error('  Error Message:', error.message);
+    console.error('  Error Code:', error.code);
+    console.error('  HTTP Status:', error.response?.status);
+    console.error('  Base URL:', error.config?.baseURL);
+    console.error('  Full URL:', error.config?.url ? `${error.config.baseURL}${error.config.url}` : 'N/A');
+    console.error('  Response Data:', error.response?.data);
+    
+    // Handle specific error cases with helpful messages
+    if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND' || error.message?.includes('Network Error')) {
+      console.error('  ❌ NETWORK ERROR: Cannot connect to backend server');
+      console.error('  💡 Troubleshooting:');
+      console.error('     1. Check if backend is running on Railway');
+      console.error('     2. Verify NEXT_PUBLIC_API_URL is set correctly');
+      console.error('     3. Check Railway deployment status');
+    } else if (error.response?.status === 502) {
+      console.error('  ❌ BAD GATEWAY (502): Backend service is not responding');
+      console.error('  💡 Troubleshooting:');
+      console.error('     1. Backend service may be down or crashed');
+      console.error('     2. Check Railway deployment logs');
+      console.error('     3. Verify backend service is listening on correct port');
+    } else if (error.response?.status === 404) {
+      console.error('  ❌ NOT FOUND (404): Endpoint does not exist');
+      console.error('  💡 Check if backend route /auth/login exists');
+    } else if (error.response?.status === 0 || !error.response) {
+      console.error('  ❌ CORS ERROR: Request blocked by browser');
+      console.error('  💡 Troubleshooting:');
+      console.error('     1. Check backend CORS configuration');
+      console.error('     2. Verify frontend origin is allowed in backend CORS');
+    }
+    console.error('═══════════════════════════════════════════════════════════');
+    
+    // Create a more user-friendly error message
+    let userMessage = 'Login failed. Please try again.';
+    if (error.code === 'ECONNREFUSED' || error.message?.includes('Network Error')) {
+      userMessage = 'Cannot connect to server. Please check your internet connection.';
+    } else if (error.response?.status === 502) {
+      userMessage = 'Server is temporarily unavailable. Please try again later.';
+    } else if (error.response?.data?.message) {
+      userMessage = error.response.data.message;
+    }
+    
+    // Enhance error with user-friendly message
+    const enhancedError = new Error(userMessage);
+    (enhancedError as any).originalError = error;
+    (enhancedError as any).status = error.response?.status;
+    (enhancedError as any).code = error.code;
+    throw enhancedError;
   }
 };
 

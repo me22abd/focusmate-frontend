@@ -604,6 +604,42 @@ export default function SettingsPage() {
                         onChange={(val) => updateNotifications({ vibrationEnabled: val })}
                       />
                     </div>
+                    <div className="border-t pt-4 space-y-4">
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <Volume2 className="h-4 w-4 text-slate-500" />
+                            <Label className="text-sm font-medium">Session Sounds</Label>
+                          </div>
+                          <ToggleSetting
+                            label=""
+                            value={notifications.sessionSoundEnabled}
+                            onChange={(val) => updateNotifications({ sessionSoundEnabled: val })}
+                          />
+                        </div>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                          Play sounds when sessions end, countdown, or tasks complete
+                        </p>
+                        {notifications.sessionSoundEnabled && (
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <Label className="text-xs text-slate-600 dark:text-slate-400">Volume</Label>
+                              <span className="text-xs text-slate-500 dark:text-slate-400">
+                                {notifications.sessionSoundVolume}%
+                              </span>
+                            </div>
+                            <input
+                              type="range"
+                              min="0"
+                              max="100"
+                              value={notifications.sessionSoundVolume}
+                              onChange={(e) => updateNotifications({ sessionSoundVolume: parseInt(e.target.value) })}
+                              className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </CardContent>
                 )}
               </Card>

@@ -44,11 +44,14 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { getTasks, createTask, updateTask, deleteTask, getTaskStats, type Task, type TaskStats } from '@/lib/api/tasks';
+import { getTasks, createTask, updateTask, deleteTask, getTaskStats, toggleTaskComplete, type Task, type TaskStats } from '@/lib/api/tasks';
 import { getModules, type Module } from '@/lib/api/modules';
+import { playTaskCompleteSound } from '@/lib/sounds';
+import { useSettingsStore } from '@/store/settings-store';
 
 export function TasksPanel() {
   const { user } = useAuthStore();
+  const { notifications } = useSettingsStore();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [stats, setStats] = useState<TaskStats>({ total: 0, completed: 0, pending: 0, overdue: 0 });
   const [loading, setLoading] = useState(true);
@@ -177,6 +180,35 @@ export function TasksPanel() {
       moduleId: '',
       autoComplete: false,
     });
+  };
+
+  const handleToggleTaskComplete = async (taskId: string, currentStatus: string) => {
+    try {
+      const updatedTask = await toggleTaskComplete(taskId);
+      
+      // Play sound if task was completed (not uncompleted)
+      if (updatedTask.status === 'completed' && currentStatus !== 'completed' && notifications.sessionSoundEnabled) {
+        const volume = notifications.sessionSoundVolume / 100;
+        playTaskCompleteSound(volume);
+      }
+      
+      // Update local state
+      setTasks((prevTasks) =>
+        prevTasks.map((task) => (task.id === taskId ? updatedTask : task))
+      );
+      
+      // Update stats
+      const taskStats = await getTaskStats();
+      setStats(taskStats);
+      
+      toast.success(
+        updatedTask.status === 'completed' ? 'Task completed!' : 'Task marked as pending'
+      );
+    } catch (error: any) {
+      console.error('Failed to toggle task:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to update task';
+      toast.error(errorMessage);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -331,8 +363,12 @@ export function TasksPanel() {
               <Card className={cn('border-2 transition-all', getStatusColor(task.status))}>
                 <CardContent className="p-4">
                   <div className="flex items-start gap-4">
-                    {/* Status Icon */}
-                    <div className="mt-1">
+                    {/* Status Icon - Clickable to toggle completion */}
+                    <button
+                      onClick={() => handleToggleTaskComplete(task.id, task.status || 'pending')}
+                      className="mt-1 hover:opacity-80 transition-opacity"
+                      aria-label={task.status === 'completed' ? 'Mark as pending' : 'Mark as completed'}
+                    >
                       {task.status === 'completed' ? (
                         <CheckCircle2 className="h-5 w-5 text-green-500" />
                       ) : task.status === 'overdue' ? (
@@ -340,7 +376,7 @@ export function TasksPanel() {
                       ) : (
                         <Circle className="h-5 w-5 text-yellow-500" />
                       )}
-                    </div>
+                    </button>
 
                     {/* Task Content */}
                     <div className="flex-1 min-w-0">

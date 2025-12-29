@@ -170,13 +170,30 @@ function MatchmakingContent() {
       return;
     }
 
-    // CRITICAL: Socket.IO must connect to port 3001 with /sessions namespace
-    // Detect backend URL dynamically (localhost for desktop, local IP for mobile)
-    const backendURL = typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'
-      ? `http://${window.location.hostname}:3001`
-      : 'http://localhost:3001';
+    // CRITICAL: Socket.IO must connect with /socket.io path
+    // Detect backend URL dynamically (localhost for desktop, local IP for mobile, production)
+    const getBackendURL = () => {
+      if (typeof window === 'undefined') {
+        return process.env.NEXT_PUBLIC_WS_URL?.replace('/socket.io', '') || 
+               process.env.NEXT_PUBLIC_API_URL || 
+               'http://localhost:3001';
+      }
+      if (process.env.NEXT_PUBLIC_WS_URL) {
+        return process.env.NEXT_PUBLIC_WS_URL.replace('/socket.io', '');
+      }
+      if (process.env.NEXT_PUBLIC_API_URL) {
+        return process.env.NEXT_PUBLIC_API_URL;
+      }
+      const hostname = window.location.hostname;
+      if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        return 'http://localhost:3001';
+      }
+      return `http://${hostname}:3001`;
+    };
     
-    const newSocket = io(`${backendURL}/sessions`, {
+    const backendURL = getBackendURL();
+    const newSocket = io(backendURL, {
+      path: '/socket.io', // WebSocket path: /socket.io
       withCredentials: true,
       transports: ['websocket'],
       auth: {
@@ -262,21 +279,20 @@ function MatchmakingContent() {
       partnerId: string;
       partnerName: string;
       partnerAvatar: string | null;
+      partnerFocus?: string | null;
+      partnerEmail?: string;
+      partnerStreak?: number;
       partner?: {
         id: string;
         name: string;
         email: string;
-        avatar: string | null;
-        status: string;
+        avatarUrl: string | null;
       };
-      partnerEmail?: string; // Backward compatibility
-      partnerTopic?: string;  // Phase 3: Partner preview
-      partnerStreak?: number; // Phase 3: Partner preview
     }) => {
       console.log('🎉 Match found!', data);
       
-      // Phase 3: Store partner preview data
-      setPartnerTopic(data.partnerTopic || '');
+      // Store partner preview data
+      setPartnerTopic(data.partnerFocus || '');
       setPartnerStreak(data.partnerStreak || 0);
       
       handleMatchFound(data);
@@ -358,7 +374,9 @@ function MatchmakingContent() {
     partnerId: string;
     partnerName: string;
     partnerAvatar: string | null;
-    partnerTopic?: string;
+    partnerFocus?: string | null;
+    partnerEmail?: string;
+    partnerStreak?: number;
   }) => {
     setPartnerName(data.partnerName);
     setRoomId(data.roomId);
@@ -377,11 +395,29 @@ function MatchmakingContent() {
       socket.disconnect();
     }
 
-    // Redirect after animation with complete partner data in URL
+    // Build query parameters with ALL required fields
+    const startTime = new Date().toISOString();
+    const params = new URLSearchParams({
+      sessionId: data.sessionId || '',
+      roomId: data.roomId || '',
+      partnerId: data.partnerId || '',
+      partnerName: data.partnerName || data.partnerEmail || 'Partner',
+      partnerAvatar: data.partnerAvatar || '',
+      partnerFocus: data.partnerFocus || '',
+      mode: 'partner',
+      focusTopic: focusTopic || '',
+      duration: duration.toString(),
+      startTime: startTime,
+    });
+
+    // Add optional fields if they exist
+    if (studyGoal) params.set('studyGoal', studyGoal);
+    if (data.partnerEmail) params.set('partnerEmail', data.partnerEmail);
+    if (data.partnerStreak !== undefined) params.set('partnerStreak', data.partnerStreak.toString());
+
+    // Redirect after animation with ALL required query parameters
     setTimeout(() => {
-      router.push(
-        `/session/active?sessionId=${data.sessionId}&roomId=${data.roomId}&partnerId=${data.partnerId}&partnerName=${encodeURIComponent(data.partnerName)}&partnerAvatar=${encodeURIComponent(data.partnerAvatar || '')}&mode=partner&focusTopic=${encodeURIComponent(focusTopic)}${studyGoal ? `&studyGoal=${encodeURIComponent(studyGoal)}` : ''}&duration=${duration}${data.partnerTopic ? `&partnerFocus=${encodeURIComponent(data.partnerTopic)}` : ''}&startTime=${encodeURIComponent(new Date().toISOString())}`
-      );
+      router.push(`/session/active?${params.toString()}`);
     }, 2000);
   };
 

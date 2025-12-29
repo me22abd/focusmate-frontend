@@ -25,6 +25,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { io, Socket } from 'socket.io-client';
+import axiosInstance from '@/lib/axios';
+import { playSessionEndSound, playCountdownSound, preloadSounds } from '@/lib/sounds';
+import { useSettingsStore } from '@/store/settings-store';
 
 const SESSION_STORAGE_PREFIX = 'focusmate_active_session_';
 const NOTES_STORAGE_PREFIX = 'focusmate_session_notes_';
@@ -34,6 +37,7 @@ function ActiveSessionContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { accessToken, user } = useAuthStore();
+  const { notifications } = useSettingsStore();
   
   const mode = searchParams.get('mode') || 'solo';
   const focusTopic = searchParams.get('focusTopic') || '';
@@ -43,6 +47,7 @@ function ActiveSessionContent() {
   
   // Read partner data from URL query params FIRST (primary source)
   const urlPartnerName = searchParams.get('partnerName') || '';
+  const urlPartnerEmail = searchParams.get('partnerEmail') || '';
   const urlPartnerFocus = searchParams.get('partnerFocus') || '';
   const urlPartnerId = searchParams.get('partnerId') || '';
   const urlPartnerAvatar = searchParams.get('partnerAvatar') || '';
@@ -55,33 +60,47 @@ function ActiveSessionContent() {
     partnerName: string;
     partnerAvatar: string | null;
     partnerFocus?: string;
+    partnerEmail?: string;
     roomId: string;
     sessionId: string;
   } | null>(null);
 
   // Use socket state if available, otherwise fall back to URL params
+  // Apply fallbacks: partnerName → partnerEmail → 'Partner', partnerAvatar → null
   const partnerId = partnerData?.partnerId || urlPartnerId;
-  const partnerName = partnerData?.partnerName || urlPartnerName;
-  const partnerAvatar = partnerData?.partnerAvatar || urlPartnerAvatar || null;
+  const partnerName = partnerData?.partnerName || urlPartnerName || partnerData?.partnerEmail || urlPartnerEmail || 'Partner';
+  const partnerAvatar = partnerData?.partnerAvatar !== undefined 
+    ? (partnerData.partnerAvatar || null)
+    : (urlPartnerAvatar || null);
   const partnerFocus = partnerData?.partnerFocus || urlPartnerFocus;
+  const partnerEmail = partnerData?.partnerEmail || urlPartnerEmail;
   const roomId = partnerData?.roomId || urlRoomId;
-  const sessionId = partnerData?.sessionId || urlSessionId;
-
+  
   // Defensive check: Validate required parameters for partner sessions
   const isPartnerMode = mode === 'partner';
-  const hasRequiredPartnerData = partnerId && roomId && partnerName;
   
-  // If partner session but missing required data, show error and redirect
+  // sessionId: Use from URL params first (most reliable), then from socket data, then generate fallback
+  const sessionId = urlSessionId || partnerData?.sessionId || (isPartnerMode && roomId ? `session-${roomId}` : null);
+  // Only require partnerId and roomId - partnerName has fallback, sessionId has fallback
+  const hasRequiredPartnerData = partnerId && roomId;
+  
+  // Only redirect if absolutely critical data is missing (partnerId or roomId)
+  // Give it a delay to allow data to load
   useEffect(() => {
     if (isPartnerMode && !hasRequiredPartnerData) {
-      toast.error('Session data incomplete', {
-        description: 'Missing partner information. Redirecting...',
-      });
-      setTimeout(() => {
-        router.push('/sessions/workspace');
-      }, 3000);
+      const timeout = setTimeout(() => {
+        if (!partnerId || !roomId) {
+          toast.error('Session data incomplete', {
+            description: 'Missing critical partner information. Redirecting...',
+          });
+          setTimeout(() => {
+            router.push('/sessions/workspace');
+          }, 2000);
+        }
+      }, 2000); // Wait 2 seconds before checking
+      return () => clearTimeout(timeout);
     }
-  }, [isPartnerMode, hasRequiredPartnerData, router]);
+  }, [isPartnerMode, hasRequiredPartnerData, partnerId, roomId, router]);
 
   // Generate session ID from start time or use provided sessionId
   const effectiveSessionId = sessionId || (startTime.split('T')[0] + '-' + Date.now());
@@ -160,18 +179,35 @@ function ActiveSessionContent() {
 
   // WebSocket connection for partner sessions
   useEffect(() => {
-    // Only connect for partner sessions with roomId and required data
-    if (mode !== 'partner' || !roomId || !accessToken || !hasRequiredPartnerData) {
+    // Only connect for partner sessions with roomId (partnerId can be missing initially)
+    if (mode !== 'partner' || !roomId || !accessToken) {
       return;
     }
 
-    // CRITICAL: Socket.IO must connect to port 3001 with /sessions namespace
-    // Detect backend URL dynamically (localhost for desktop, local IP for mobile)
-    const backendURL = typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'
-      ? `http://${window.location.hostname}:3001`
-      : 'http://localhost:3001';
+    // CRITICAL: Socket.IO must connect with /socket.io path
+    // Detect backend URL dynamically (localhost for desktop, local IP for mobile, production)
+    const getBackendURL = () => {
+      if (typeof window === 'undefined') {
+        return process.env.NEXT_PUBLIC_WS_URL?.replace('/socket.io', '') || 
+               process.env.NEXT_PUBLIC_API_URL || 
+               'http://localhost:3001';
+      }
+      if (process.env.NEXT_PUBLIC_WS_URL) {
+        return process.env.NEXT_PUBLIC_WS_URL.replace('/socket.io', '');
+      }
+      if (process.env.NEXT_PUBLIC_API_URL) {
+        return process.env.NEXT_PUBLIC_API_URL;
+      }
+      const hostname = window.location.hostname;
+      if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        return 'http://localhost:3001';
+      }
+      return `http://${hostname}:3001`;
+    };
     
-    const newSocket = io(`${backendURL}/sessions`, {
+    const backendURL = getBackendURL();
+    const newSocket = io(backendURL, {
+      path: '/socket.io', // WebSocket path: /socket.io
       withCredentials: true,
       transports: ['websocket'],
       auth: {
@@ -203,29 +239,34 @@ function ActiveSessionContent() {
       (newSocket as any).heartbeatInterval = heartbeatInterval;
     });
 
-    // Handle matchFound event from socket (store in state as fallback)
+    // Handle matchFound event from socket (store in state as fallback/update)
     newSocket.on('matchFound', (data: {
       roomId: string;
       sessionId: string;
       partnerId: string;
       partnerName: string;
       partnerAvatar: string | null;
+      partnerFocus?: string | null;
+      partnerEmail?: string;
+      partnerStreak?: number;
       partner?: {
         id: string;
         name: string;
         email: string;
-        avatar: string | null;
-        status: string;
+        avatarUrl: string | null;
       };
-      partnerTopic?: string;
     }) => {
       console.log('✅ Match found event received:', data);
       // Store socket-delivered partner data in state (fallback if URL params missing)
+      // Apply fallbacks: partnerName → partnerEmail → 'Partner', partnerAvatar → null
       setPartnerData({
         partnerId: data.partnerId,
-        partnerName: data.partnerName,
-        partnerAvatar: data.partnerAvatar || data.partner?.avatar || null,
-        partnerFocus: data.partnerTopic,
+        partnerName: data.partnerName || data.partnerEmail || data.partner?.email || 'Partner',
+        partnerAvatar: data.partnerAvatar !== undefined 
+          ? (data.partnerAvatar || null)
+          : (data.partner?.avatarUrl || null),
+        partnerFocus: data.partnerFocus || undefined,
+        partnerEmail: data.partnerEmail || data.partner?.email,
         roomId: data.roomId,
         sessionId: data.sessionId,
       });
@@ -237,6 +278,12 @@ function ActiveSessionContent() {
         description: data.message,
         duration: 5000,
       });
+      
+      // Play session end sound when partner leaves
+      if (notifications.sessionSoundEnabled) {
+        const volume = notifications.sessionSoundVolume / 100;
+        playSessionEndSound(volume);
+      }
       
       // End the session and navigate to summary
       setIsActive(false);
@@ -263,10 +310,21 @@ function ActiveSessionContent() {
     };
   }, [mode, roomId, accessToken, hasRequiredPartnerData]);
 
-  // Timer effect
+  // Preload sounds on mount
+  useEffect(() => {
+    preloadSounds();
+  }, []);
+
+  // Timer effect with sound support
   useEffect(() => {
     if (!isActive || secondsRemaining <= 0) {
       if (secondsRemaining <= 0 && typeof window !== 'undefined') {
+        // Play session end sound
+        if (notifications.sessionSoundEnabled) {
+          const volume = notifications.sessionSoundVolume / 100;
+          playSessionEndSound(volume);
+        }
+        
         localStorage.removeItem(sessionStorageKey);
         localStorage.removeItem(notesStorageKey);
         toast.success('Focus session completed!', {
@@ -281,12 +339,25 @@ function ActiveSessionContent() {
 
     const interval = setInterval(() => {
       setSecondsRemaining((prev) => {
+        // Play countdown sound for last 5 seconds
+        if (prev <= 5 && prev > 0 && notifications.sessionSoundEnabled) {
+          const volume = notifications.sessionSoundVolume / 100;
+          playCountdownSound(prev, volume);
+        }
+        
         if (prev <= 1) {
           setIsActive(false);
           if (typeof window !== 'undefined') {
             localStorage.removeItem(sessionStorageKey);
             localStorage.removeItem(notesStorageKey);
           }
+          
+          // Play session end sound
+          if (notifications.sessionSoundEnabled) {
+            const volume = notifications.sessionSoundVolume / 100;
+            playSessionEndSound(volume);
+          }
+          
           toast.success('Focus session completed!', {
             description: 'Great job staying focused!',
           });
@@ -300,7 +371,7 @@ function ActiveSessionContent() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isActive, secondsRemaining, sessionStorageKey, notesStorageKey]);
+  }, [isActive, secondsRemaining, sessionStorageKey, notesStorageKey, notifications.sessionSoundEnabled, notifications.sessionSoundVolume]);
 
   const navigateToSummary = () => {
     const totalSeconds = duration * 60;
@@ -315,9 +386,11 @@ function ActiveSessionContent() {
       ...(studyGoal && { studyGoal }),
       notes,
       startTime,
+      ...(sessionId && { sessionId }),
       ...(roomId && { roomId }),
       ...(mode === 'partner' && partnerName && { partnerName, partnerFocus }),
       ...(mode === 'partner' && partnerId && { partnerId }),
+      ...(mode === 'partner' && partnerAvatar && { partnerAvatar }),
     });
     router.push(`/session/summary?${params.toString()}`);
   };
@@ -333,6 +406,12 @@ function ActiveSessionContent() {
       localStorage.removeItem(notesStorageKey);
     }
     setShowCancelDialog(false);
+    
+    // Play session end sound when ending early
+    if (notifications.sessionSoundEnabled) {
+      const volume = notifications.sessionSoundVolume / 100;
+      playSessionEndSound(volume);
+    }
     
     // Notify partner via WebSocket if this is a partner session
     if (mode === 'partner' && roomId && socket) {

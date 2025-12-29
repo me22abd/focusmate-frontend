@@ -467,7 +467,39 @@ export default function LoginPage() {
         },
       });
       
-      const errorMessage = error.response?.data?.message || error.message || 'Invalid email or password';
+      // Handle network/server errors first
+      const status = error.response?.status;
+      const errorCode = error.code;
+      const isNetworkError = errorCode === 'ECONNREFUSED' || errorCode === 'ENOTFOUND' || error.message?.includes('Network Error');
+      const isServerError = status === 502 || status === 503 || status === 504;
+      
+      if (isNetworkError || isServerError) {
+        console.error('🔴 Network/Server Error Detected:');
+        console.error('  Status:', status);
+        console.error('  Code:', errorCode);
+        console.error('  Message:', error.message);
+        console.error('  Base URL:', error.config?.baseURL);
+        
+        if (status === 502) {
+          toast.error('Server Unavailable', {
+            description: 'The backend service is not responding. Please check Railway deployment status.',
+            duration: 5000,
+          });
+        } else if (isNetworkError) {
+          toast.error('Connection Failed', {
+            description: 'Cannot connect to server. Please check your internet connection and try again.',
+            duration: 5000,
+          });
+        } else {
+          toast.error('Server Error', {
+            description: 'The server is experiencing issues. Please try again in a few moments.',
+            duration: 5000,
+          });
+        }
+        return;
+      }
+      
+      const errorMessage = error.originalError?.response?.data?.message || error.response?.data?.message || error.message || 'Invalid email or password';
       
       // -----------------------------------------------------------------------
       // Custom: Unverified email detection and redirect (MY implementation)

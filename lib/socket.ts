@@ -74,6 +74,7 @@
 
 // Library: Socket.IO client
 import { io, Socket } from 'socket.io-client';
+import * as Sentry from '@sentry/nextjs';
 
 // ===========================================================================
 // 📘 CODE ORIGIN: Singleton Socket Instance
@@ -115,10 +116,26 @@ export const getSocket = () => {
   if (typeof window === 'undefined') return null;
 
   // Custom: Lazy initialization (create once, reuse)
-  // CRITICAL: Socket.IO must connect to port 3001 with /sessions namespace
-  // Detect backend URL dynamically (localhost for desktop, local IP for mobile)
+  // CRITICAL: Socket.IO must connect with /socket.io path
+  // Detect backend URL dynamically (localhost for desktop, local IP for mobile, production)
   const getBackendURL = () => {
-    if (typeof window === 'undefined') return 'http://localhost:3001';
+    if (typeof window === 'undefined') {
+      // Server-side: use WebSocket URL if available, otherwise API URL, or default
+      return process.env.NEXT_PUBLIC_WS_URL?.replace('/socket.io', '') || 
+             process.env.NEXT_PUBLIC_API_URL || 
+             'http://localhost:3001';
+    }
+    
+    // Client-side: prefer WebSocket URL if available, otherwise use API URL
+    if (process.env.NEXT_PUBLIC_WS_URL) {
+      // Extract base URL from WebSocket URL (remove /socket.io path)
+      return process.env.NEXT_PUBLIC_WS_URL.replace('/socket.io', '');
+    }
+    
+    if (process.env.NEXT_PUBLIC_API_URL) {
+      return process.env.NEXT_PUBLIC_API_URL;
+    }
+    
     const hostname = window.location.hostname;
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
       return 'http://localhost:3001';
@@ -128,7 +145,8 @@ export const getSocket = () => {
   };
 
   if (!socket) {
-    socket = io(`${getBackendURL()}/sessions`, {
+    socket = io(getBackendURL(), {
+      path: '/socket.io', // WebSocket path: /socket.io
       withCredentials: true,
       transports: ['websocket'], // Use websocket only, no polling fallback
       autoConnect: false,        // Custom: Manual connection control
@@ -149,6 +167,18 @@ export const getSocket = () => {
 
     socket.on('connect_error', (error) => {
       console.error('WebSocket connection error:', error);
+      
+      // Capture WebSocket connection errors to Sentry
+      Sentry.captureException(error, {
+        tags: {
+          error_type: 'websocket_connection_error',
+        },
+        extra: {
+          socket_url: getBackendURL(),
+          socket_path: '/socket.io',
+        },
+        level: 'error',
+      });
     });
   }
 

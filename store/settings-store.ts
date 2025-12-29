@@ -8,6 +8,8 @@ interface NotificationSettings {
   eveningReflectionReminder: boolean;
   streakMotivation: boolean;
   soundEnabled: boolean;
+  sessionSoundEnabled: boolean; // Session sounds (end, countdown, task complete)
+  sessionSoundVolume: number; // 0-100
   vibrationEnabled: boolean;
 }
 
@@ -52,6 +54,8 @@ const defaultNotifications: NotificationSettings = {
   eveningReflectionReminder: true,
   streakMotivation: true,
   soundEnabled: true,
+  sessionSoundEnabled: true, // Default enabled
+  sessionSoundVolume: 50, // Default 50%
   vibrationEnabled: true,
 };
 
@@ -108,6 +112,8 @@ export const useSettingsStore = create<SettingsState>()(
     }
   )
 );
+
+
 
 
 

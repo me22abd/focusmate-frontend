@@ -431,6 +431,54 @@ export const endSession = async (roomId: string) => {
   return response.data;
 };
 
+// ---------------------------------------------------------------------------
+// GET SESSION BY ID
+// ---------------------------------------------------------------------------
+/**
+ * Get a single session by ID from history
+ * Falls back to localStorage if backend fails
+ */
+export const getSessionById = async (sessionId: string) => {
+  try {
+    // Try backend first
+    const history = await getSessionHistory();
+    const session = Array.isArray(history) 
+      ? history.find((s: any) => s.id === sessionId || s.roomId === sessionId)
+      : null;
+    
+    if (session) return session;
+    
+    // Fallback to localStorage
+    if (typeof window !== 'undefined') {
+      const localHistory = localStorage.getItem('focusmate_session_history');
+      if (localHistory) {
+        const parsed = JSON.parse(localHistory);
+        return Array.isArray(parsed)
+          ? parsed.find((s: any) => s.id === sessionId || s.roomId === sessionId)
+          : null;
+      }
+    }
+    
+    return null;
+  } catch (error) {
+    // Fallback to localStorage on error
+    if (typeof window !== 'undefined') {
+      try {
+        const localHistory = localStorage.getItem('focusmate_session_history');
+        if (localHistory) {
+          const parsed = JSON.parse(localHistory);
+          return Array.isArray(parsed)
+            ? parsed.find((s: any) => s.id === sessionId || s.roomId === sessionId)
+            : null;
+        }
+      } catch (e) {
+        console.error('Failed to get session from localStorage:', e);
+      }
+    }
+    throw error;
+  }
+};
+
 /**
  * ============================================================================
  * WHAT I BUILT VS WHAT I ADAPTED

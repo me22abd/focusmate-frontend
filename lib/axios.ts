@@ -164,7 +164,7 @@ const getBaseURL = () => {
    */
 
   // CRITICAL: Always use NEXT_PUBLIC_API_URL if set (for production/Vercel)
-  // This ensures production deployments ALWAYS use the correct Railway backend URL
+  // This ensures production deployments ALWAYS use the correct backend URL
   if (process.env.NEXT_PUBLIC_API_URL) {
     return process.env.NEXT_PUBLIC_API_URL;
   }

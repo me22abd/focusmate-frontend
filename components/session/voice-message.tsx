@@ -179,10 +179,10 @@ export function VoiceMessage({
     if (!audio) {
       audio = new Audio();
       // Construct full URL using dynamic hostname (works on desktop + mobile)
-      const baseUrl =
-        typeof window !== 'undefined'
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 
+        (typeof window !== 'undefined'
           ? `http://${window.location.hostname}:3001`
-          : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+          : 'http://localhost:3001');
       audio.src = `${baseUrl}${message.filePath}`;
       audioRefs.current.set(audioId, audio);
 
@@ -331,6 +331,10 @@ export function VoiceMessage({
     </div>
   );
 }
+
+
+
+
 
 
 

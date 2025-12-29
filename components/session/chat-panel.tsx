@@ -76,10 +76,10 @@ export function ChatPanel({
 
     const loadHistory = async () => {
       try {
-        const baseUrl =
-          typeof window !== 'undefined'
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 
+          (typeof window !== 'undefined'
             ? `http://${window.location.hostname}:3001`
-            : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+            : 'http://localhost:3001');
 
         const response = await axios.get(`${baseUrl}/sessions/chat/${roomId}`, {
           headers: { Authorization: `Bearer ${accessToken}` },
@@ -328,6 +328,10 @@ export function ChatPanel({
     </Card>
   );
 }
+
+
+
+
 
 
 
