@@ -121,6 +121,9 @@ import { AuthTokenValidator } from "@/components/auth-token-validator";
 // Custom: Sound preloader component
 import { SoundPreloader } from "@/components/sound-preloader";
 
+// Custom: Assistant bubble component
+import { AssistantBubble } from "@/components/assistant/AssistantBubble";
+
 /**
  * Font Configuration - Geist Sans
  * 
