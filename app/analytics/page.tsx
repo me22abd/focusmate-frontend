@@ -8,6 +8,8 @@ import { BottomNav } from '@/components/bottom-nav';
 import { SimpleFooter } from '@/components/simple-footer';
 import { QuickNav } from '@/components/quick-nav';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
+import { AnimatedButton } from '@/components/ui/animated-button';
 import { motion } from 'framer-motion';
 import {
   CalendarDays,
@@ -137,10 +139,40 @@ export default function AnalyticsPage() {
       <>
         <Navbar />
         <QuickNav showBack={true} showHome={true} />
-        <div className="min-h-screen bg-slate-50 px-4 pb-24 pt-6 dark:bg-slate-950 flex items-center justify-center">
+        <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-950 dark:via-purple-950/20 dark:to-slate-900 flex items-center justify-center">
+          <div className="absolute inset-0 overflow-hidden">
+            <motion.div
+              className="absolute top-20 left-10 w-72 h-72 bg-purple-400/30 rounded-full blur-3xl"
+              animate={{
+                x: [0, 50, 0],
+                y: [0, 30, 0],
+                scale: [1, 1.2, 1],
+              }}
+              transition={{
+                duration: 20,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+            />
+            <motion.div
+              className="absolute bottom-20 right-10 w-96 h-96 bg-blue-400/30 rounded-full blur-3xl"
+              animate={{
+                x: [0, -30, 0],
+                y: [0, -50, 0],
+                scale: [1, 1.1, 1],
+              }}
+              transition={{
+                duration: 25,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+            />
+          </div>
+          <div className="relative z-10 px-4 pb-24 pt-6">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4" />
             <p className="text-slate-600 dark:text-slate-400">Loading analytics...</p>
+          </div>
           </div>
         </div>
         <BottomNav />
@@ -160,14 +192,42 @@ export default function AnalyticsPage() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-blue-50/30 px-4 pb-24 pt-6 dark:from-slate-950 dark:via-indigo-950/20 dark:to-blue-950/20">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
-          {/* Header */}
-          <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="rounded-3xl border border-white/60 bg-gradient-to-r from-white to-slate-50 p-6 shadow-[0_25px_50px_-24px_rgba(15,23,42,0.45)] dark:border-slate-800 dark:from-slate-900 dark:to-slate-900/60"
-          >
+      {/* Premium Animated Background */}
+      <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-950 dark:via-purple-950/20 dark:to-slate-900">
+        {/* Floating gradient orbs */}
+        <div className="absolute inset-0 overflow-hidden">
+          <motion.div
+            className="absolute top-20 left-10 w-72 h-72 bg-purple-400/30 rounded-full blur-3xl"
+            animate={{
+              x: [0, 50, 0],
+              y: [0, 30, 0],
+              scale: [1, 1.2, 1],
+            }}
+            transition={{
+              duration: 20,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+          <motion.div
+            className="absolute bottom-20 right-10 w-96 h-96 bg-blue-400/30 rounded-full blur-3xl"
+            animate={{
+              x: [0, -30, 0],
+              y: [0, -50, 0],
+              scale: [1, 1.1, 1],
+            }}
+            transition={{
+              duration: 25,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+        </div>
+
+        <div className="relative z-10 px-4 pb-24 pt-6">
+          <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
+            {/* Header */}
+            <GlassCard delay={0} className="p-6">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.4em] text-indigo-600 dark:text-indigo-400">
                 Analytics
@@ -179,15 +239,10 @@ export default function AnalyticsPage() {
                 Track your productivity and focus session insights.
               </p>
             </div>
-          </motion.section>
+            </GlassCard>
 
-          {/* Tabs Navigation */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="rounded-2xl border border-white/60 bg-white/80 backdrop-blur-sm p-2 shadow-lg dark:border-slate-800 dark:bg-slate-900/80"
-          >
+            {/* Tabs Navigation */}
+            <GlassCard delay={0.1} className="p-2">
             <div className="flex flex-wrap gap-2">
               {tabs.map((tab) => {
                 const Icon = tab.icon;
@@ -210,7 +265,7 @@ export default function AnalyticsPage() {
                 );
               })}
             </div>
-          </motion.div>
+            </GlassCard>
 
           {hasNoData && activeTab !== 'achievements' ? (
             <motion.div
@@ -685,6 +740,7 @@ export default function AnalyticsPage() {
               )}
             </>
           )}
+          </div>
         </div>
       </div>
       <BottomNav />

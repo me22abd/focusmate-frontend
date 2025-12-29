@@ -49,6 +49,8 @@ import { SimpleFooter } from '@/components/simple-footer';
 import { QuickNav } from '@/components/quick-nav';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
+import { AnimatedButton } from '@/components/ui/animated-button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { getFocusTopics, getStudyGoals, DEFAULT_FOCUS_TOPICS, DEFAULT_STUDY_GOALS, removeFocusTopic, removeStudyGoal } from '@/lib/focus-data';
@@ -319,32 +321,58 @@ export default function SettingsPage() {
     <>
       <Navbar />
       <QuickNav showBack={true} showHome={true} />
-          <div className="min-h-screen bg-slate-50 px-4 sm:px-6 pb-24 pt-6 dark:bg-slate-950">
-            <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 sm:gap-6">
-          {/* Header */}
+      {/* Premium Animated Background */}
+      <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-950 dark:via-purple-950/20 dark:to-slate-900">
+        {/* Floating gradient orbs */}
+        <div className="absolute inset-0 overflow-hidden">
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-2"
-          >
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
-              <SettingsIcon className="h-8 w-8 text-indigo-600" />
-              Settings
-            </h1>
-            <p className="text-slate-600 dark:text-slate-400">
-              Manage your account, preferences, and app settings
-            </p>
-          </motion.div>
+            className="absolute top-20 left-10 w-72 h-72 bg-purple-400/30 rounded-full blur-3xl"
+            animate={{
+              x: [0, 50, 0],
+              y: [0, 30, 0],
+              scale: [1, 1.2, 1],
+            }}
+            transition={{
+              duration: 20,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+          <motion.div
+            className="absolute bottom-20 right-10 w-96 h-96 bg-blue-400/30 rounded-full blur-3xl"
+            animate={{
+              x: [0, -30, 0],
+              y: [0, -50, 0],
+              scale: [1, 1.1, 1],
+            }}
+            transition={{
+              duration: 25,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+        </div>
+
+        <div className="relative z-10 px-4 sm:px-6 pb-24 pt-6">
+          <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 sm:gap-6">
+          {/* Header */}
+          <GlassCard delay={0} className="p-6">
+            <div className="space-y-2">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent flex items-center gap-3">
+                <SettingsIcon className="h-8 w-8 text-indigo-600" />
+                Settings
+              </h1>
+              <p className="text-slate-600 dark:text-slate-400">
+                Manage your account, preferences, and app settings
+              </p>
+            </div>
+          </GlassCard>
 
           {/* Settings Sections */}
           <div className="space-y-4">
             {/* 1. Account Settings */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-            >
-              <Card className="transition-all hover:shadow-lg">
+            <GlassCard delay={0.1}>
+              <Card className="border-0 shadow-none bg-transparent">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -516,15 +544,11 @@ export default function SettingsPage() {
                   </CardContent>
                 )}
               </Card>
-            </motion.div>
+            </GlassCard>
 
             {/* 2. Notification Settings */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <Card className="transition-all hover:shadow-lg">
+            <GlassCard delay={0.2}>
+              <Card className="border-0 shadow-none bg-transparent">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -643,15 +667,11 @@ export default function SettingsPage() {
                   </CardContent>
                 )}
               </Card>
-            </motion.div>
+            </GlassCard>
 
             {/* 3. Theme & Accessibility */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <Card className="transition-all hover:shadow-lg">
+            <GlassCard delay={0.3}>
+              <Card className="border-0 shadow-none bg-transparent">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -777,15 +797,11 @@ export default function SettingsPage() {
                   </CardContent>
                 )}
               </Card>
-            </motion.div>
+            </GlassCard>
 
             {/* 4. Focus & Study Preferences */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <Card className="transition-all hover:shadow-lg">
+            <GlassCard delay={0.4}>
+              <Card className="border-0 shadow-none bg-transparent">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -878,15 +894,11 @@ export default function SettingsPage() {
                   </CardContent>
                 )}
               </Card>
-            </motion.div>
+            </GlassCard>
 
             {/* 5. Privacy & Visibility */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-            >
-              <Card className="transition-all hover:shadow-lg">
+            <GlassCard delay={0.5}>
+              <Card className="border-0 shadow-none bg-transparent">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -973,15 +985,11 @@ export default function SettingsPage() {
                   </CardContent>
                 )}
               </Card>
-            </motion.div>
+            </GlassCard>
 
             {/* 6. Help & Support */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-            >
-              <Card className="transition-all hover:shadow-lg">
+            <GlassCard delay={0.6}>
+              <Card className="border-0 shadow-none bg-transparent">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -1028,15 +1036,11 @@ export default function SettingsPage() {
                   </CardContent>
                 )}
               </Card>
-            </motion.div>
+            </GlassCard>
 
             {/* 7. Legal */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 }}
-            >
-              <Card className="transition-all hover:shadow-lg">
+            <GlassCard delay={0.7}>
+              <Card className="border-0 shadow-none bg-transparent">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -1079,15 +1083,16 @@ export default function SettingsPage() {
                   </CardContent>
                 )}
               </Card>
-            </motion.div>
+            </GlassCard>
+          </div>
           </div>
         </div>
       </div>
-          <BottomNav />
-          <SimpleFooter variant="auth" />
-        </>
-      );
-    }
+      <BottomNav />
+      <SimpleFooter variant="auth" />
+    </>
+  );
+}
 
 // Toggle Setting Component
 function ToggleSetting({
