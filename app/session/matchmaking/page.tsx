@@ -9,6 +9,8 @@ import { Navbar } from '@/components/navbar';
 import { CancelSessionDialog } from '@/components/cancel-session-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
+import { AnimatedButton } from '@/components/ui/animated-button';
 import { ArrowLeft, X, Users, Clock, Target, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -486,8 +488,40 @@ function MatchmakingContent() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-blue-50/30 dark:from-slate-950 dark:via-indigo-950/20 dark:to-blue-950/20 px-4 pb-24 pt-6">
-        <div className="mx-auto max-w-2xl">
+      {/* Premium Animated Background */}
+      <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-950 dark:via-purple-950/20 dark:to-slate-900">
+        {/* Floating gradient orbs */}
+        <div className="absolute inset-0 overflow-hidden">
+          <motion.div
+            className="absolute top-20 left-10 w-72 h-72 bg-purple-400/30 rounded-full blur-3xl"
+            animate={{
+              x: [0, 50, 0],
+              y: [0, 30, 0],
+              scale: [1, 1.2, 1],
+            }}
+            transition={{
+              duration: 20,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+          <motion.div
+            className="absolute bottom-20 right-10 w-96 h-96 bg-blue-400/30 rounded-full blur-3xl"
+            animate={{
+              x: [0, -30, 0],
+              y: [0, -50, 0],
+              scale: [1, 1.1, 1],
+            }}
+            transition={{
+              duration: 25,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+        </div>
+
+        <div className="relative z-10 px-4 pb-24 pt-6">
+          <div className="mx-auto max-w-2xl">
           {/* Header */}
           <div className="mb-6 flex items-center justify-between">
             <Button
