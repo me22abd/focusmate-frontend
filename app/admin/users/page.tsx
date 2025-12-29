@@ -190,10 +190,12 @@ export default function AdminUsersPage() {
             />
           </div>
         </CardContent>
-      </Card>
+          </Card>
+        </GlassCard>
 
-      <Card>
-        <CardHeader>
+        <GlassCard delay={0.15}>
+          <Card className="border-0 shadow-none bg-transparent">
+            <CardHeader>
           <CardTitle>
             All Users ({filteredUsers.length})
             {searchQuery && <span className="text-sm font-normal text-muted-foreground ml-2">(filtered)</span>}
@@ -325,7 +327,8 @@ export default function AdminUsersPage() {
             </div>
           )}
         </CardContent>
-      </Card>
+          </Card>
+        </GlassCard>
 
       {/* User Details Modal */}
       <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
