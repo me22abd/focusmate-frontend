@@ -7,12 +7,13 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Send, Loader2, X } from 'lucide-react';
+import { Send, Loader2, X } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { sendChatMessage, ChatMessage } from '@/lib/api/ai';
 import { useAuthStore } from '@/store/auth-store';
+import { FocusAIMascot } from '@/components/mascot/FocusAIMascot';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -129,8 +130,8 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
               <div className="flex items-center justify-between p-4 border-b border-white/10">
                 <div className="flex items-center gap-3">
                   {/* Mascot Avatar */}
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 via-blue-500 to-cyan-500 flex items-center justify-center shadow-lg">
-                    <Sparkles className="w-5 h-5 text-white" />
+                  <div className="w-10 h-12 flex items-center justify-center overflow-visible">
+                    <FocusAIMascot size="sm" animated={true} />
                   </div>
                   <div>
                     <h3 className="font-semibold text-foreground">FocusAI</h3>

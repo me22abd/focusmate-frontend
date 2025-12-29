@@ -6,11 +6,12 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/store/auth-store';
 import { AssistantChat } from './AssistantChat';
+import { FocusAIMascot } from '@/components/mascot/FocusAIMascot';
 import { cn } from '@/lib/utils';
 
 export function AssistantBubble() {
@@ -92,7 +93,9 @@ export function AssistantBubble() {
           aria-label="Open FocusAI Assistant"
         >
           {/* Mascot Avatar */}
-          <Sparkles className="w-8 h-8 text-white drop-shadow-lg" />
+          <div className="w-full h-full flex items-center justify-center overflow-visible">
+            <FocusAIMascot size="sm" animated={true} />
+          </div>
 
           {/* Notification Badge (optional - can be conditionally shown) */}
           {/* <motion.div

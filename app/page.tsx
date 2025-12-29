@@ -116,8 +116,7 @@ import { Navbar } from '@/components/navbar';
 import { Footer } from '@/components/footer';
 import { Button } from '@/components/ui/button';
 import { AnimatedButton } from '@/components/ui/animated-button';
-import { MascotPlaceholder } from '@/components/gamification/mascot-placeholder';
-import { MascotLanding } from '@/components/mascot/MascotLanding';
+import { FocusAIMascot } from '@/components/mascot/FocusAIMascot';
 import { GlassCard } from '@/components/ui/glass-card';
 
 // Adapted from Lucide React: Icon library (free, open-source)
@@ -251,9 +250,7 @@ export default function Home() {
         </div>
 
         {/* Hero Section - Custom content */}
-        <div className="relative z-10 mx-auto flex max-w-7xl flex-col lg:flex-row items-center gap-10 px-4 pb-16 pt-20 text-center lg:text-left">
-          {/* Left side - Content */}
-          <div className="flex-1 flex flex-col items-center lg:items-start gap-10">
+        <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center gap-10 px-4 pb-16 pt-20 text-center">
           
           {/* Custom: Logo display with Next.js Image optimization */}
           <Image 
@@ -283,13 +280,13 @@ export default function Home() {
             </p>
             
             {/* Description - my value proposition copy */}
-            <p className="hero-description mx-auto lg:mx-0 max-w-2xl text-base text-muted-foreground">
+            <p className="hero-description mx-auto max-w-2xl text-base text-muted-foreground">
               Real-time accountability partners, 25-minute focus blocks, and rich insights to keep your deep work on track.
             </p>
           </div>
           
           {/* CTA Buttons - my button design and routing */}
-          <div className="flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
             {/* Framework pattern: Next.js Link for client-side navigation */}
             {/* Custom: Primary CTA styling and destination */}
             <Link href="/register" className="w-full sm:w-auto">
@@ -311,13 +308,6 @@ export default function Home() {
                 Sign In
               </AnimatedButton>
             </Link>
-          </div>
-
-          </div>
-
-          {/* Right side - Mascot */}
-          <div className="flex-1 flex items-center justify-center lg:justify-end">
-            <MascotLanding className="hidden lg:block" />
           </div>
         </div>
 
@@ -364,21 +354,21 @@ export default function Home() {
           </div>
         </motion.div>
 
-        {/* Mascot Placeholder Section */}
+        {/* Your AI Focus Companion Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
           className="relative z-10 flex flex-col items-center gap-4 mt-12 px-4"
         >
-          <MascotPlaceholder size="lg" animated={true} />
+          <FocusAIMascot size="lg" />
           <div className="text-center space-y-2">
             <h2 className="text-xl font-bold bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent flex items-center justify-center gap-2">
               <Sparkles className="h-5 w-5 text-indigo-600" />
-              Your AI Focus Companion Coming Soon
+              Your AI Focus Companion
             </h2>
             <p className="text-sm text-muted-foreground max-w-md">
-              Meet your future productivity partner. Powered by AI to help you stay focused, track progress, and achieve your goals.
+              Meet FocusAI, your productivity partner. Powered by AI to help you stay focused, track progress, and achieve your goals.
             </p>
           </div>
         </motion.div>
