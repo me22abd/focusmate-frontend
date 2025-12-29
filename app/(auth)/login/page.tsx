@@ -163,6 +163,9 @@ import { SimpleFooter } from '@/components/simple-footer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
+import { AnimatedButton } from '@/components/ui/animated-button';
+import { motion } from 'framer-motion';
 import { FormField, FormLabel, FormMessage } from '@/components/ui/form';
 
 // Adapted from Lucide React: Icon library
