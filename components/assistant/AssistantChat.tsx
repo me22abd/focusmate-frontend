@@ -117,9 +117,12 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
             onClick={onClose}
           />
 
-          {/* Chat Window */}
+          {/* Chat Window - Responsive positioning */}
           <motion.div
-            className="fixed bottom-24 right-6 w-full max-w-md h-[600px] z-50 md:bottom-6"
+            className="fixed z-50 w-[calc(100vw-2rem)] max-w-md h-[calc(100vh-8rem)] max-h-[600px] 
+                       bottom-4 left-1/2 -translate-x-1/2
+                       sm:bottom-6 sm:left-auto sm:right-6 sm:translate-x-0
+                       md:h-[600px]"
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}

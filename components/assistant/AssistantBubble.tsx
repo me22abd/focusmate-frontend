@@ -19,10 +19,39 @@ export function AssistantBubble() {
   const { isAuthenticated, user } = useAuthStore();
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     setMounted(true);
+    // Load saved position from localStorage
+    const savedPosition = localStorage.getItem('assistant-bubble-position');
+    if (savedPosition) {
+      try {
+        const { x, y } = JSON.parse(savedPosition);
+        setPosition({ x, y });
+      } catch (e) {
+        // Invalid saved position, use default
+        setPosition({ x: 0, y: 0 });
+      }
+    }
   }, []);
+
+  // Handle drag to update position smoothly
+  const handleDrag = (event: any, info: any) => {
+    // Update drag offset during drag for smooth visual feedback
+    setDragOffset({ x: info.offset.x, y: info.offset.y });
+  };
+
+  // Save position to localStorage when drag ends
+  const handleDragEnd = (event: any, info: any) => {
+    const newX = position.x + dragOffset.x;
+    const newY = position.y + dragOffset.y;
+    const newPosition = { x: newX, y: newY };
+    setPosition(newPosition);
+    setDragOffset({ x: 0, y: 0 }); // Reset offset
+    localStorage.setItem('assistant-bubble-position', JSON.stringify(newPosition));
+  };
 
   // Public pages where assistant should NOT appear
   const publicPages = [
@@ -50,11 +79,27 @@ export function AssistantBubble() {
 
   return (
     <>
-      {/* Floating Bubble Button */}
+      {/* Floating Bubble Button - Draggable */}
       <motion.div
-        className="fixed bottom-6 right-6 z-50"
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
+        className="fixed bottom-6 right-6 z-50 cursor-grab active:cursor-grabbing"
+        initial={{ scale: 0, opacity: 0, x: position.x, y: position.y }}
+        animate={{ 
+          scale: 1, 
+          opacity: 1,
+          x: position.x + dragOffset.x,
+          y: position.y + dragOffset.y,
+        }}
+        drag
+        dragMomentum={false}
+        dragElastic={0}
+        dragConstraints={{
+          left: typeof window !== 'undefined' ? -window.innerWidth + 100 : -1000,
+          right: typeof window !== 'undefined' ? window.innerWidth - 100 : 1000,
+          top: typeof window !== 'undefined' ? -window.innerHeight + 100 : -1000,
+          bottom: typeof window !== 'undefined' ? window.innerHeight - 100 : 1000,
+        }}
+        onDrag={handleDrag}
+        onDragEnd={handleDragEnd}
         transition={{
           type: 'spring',
           stiffness: 200,
