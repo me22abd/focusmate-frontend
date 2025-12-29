@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { GlassCard } from '@/components/ui/glass-card';
+import { AnimatedButton } from '@/components/ui/animated-button';
+import { motion } from 'framer-motion';
 import { getSystemHealth, testEmailService, type SystemHealth } from '@/lib/api/admin';
 import { CheckCircle2, XCircle, AlertCircle, Mail, Database, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
