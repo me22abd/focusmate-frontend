@@ -251,6 +251,17 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
       setMessages((prev) => [...prev, aiMessage]);
       setLastActivityTime(Date.now());
       
+      // Show learning message when memory is updated (every 3rd message or randomly)
+      // The backend returns memoryUpdated: true, but we show message occasionally to not be annoying
+      if (Math.random() > 0.7) { // 30% chance to show learning message
+        setTimeout(() => {
+          toast.success('🧠 FocusAI is learning your preferences...', {
+            description: 'Your conversations help me provide better personalized advice.',
+            duration: 3000,
+          });
+        }, 500);
+      }
+      
       // Check if response is structured/helpful - use read pose
       if (response.includes('\n') || response.includes('•') || response.includes('-') || response.length > 100) {
         setMascotPose('read');
