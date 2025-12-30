@@ -158,11 +158,15 @@ export function FocusAICharacter({
         alt={`FocusAI mascot - ${currentPose} pose`}
         width={currentSize.width}
         height={currentSize.height}
-        className={cn('object-contain w-full h-full', {
+        className={cn('object-contain w-full h-full drop-shadow-lg', {
           'transition-all duration-300': animate,
         })}
         priority={size === 'lg'}
-        unoptimized // For PNG images, disable optimization if needed
+        unoptimized
+        onError={(e) => {
+          // Fallback if image doesn't exist yet
+          console.warn(`Mascot image not found: ${imageSrc}`);
+        }}
       />
     </motion.div>
   );
