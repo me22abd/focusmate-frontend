@@ -31,8 +31,9 @@ interface Conversation {
   updatedAt: string;
 }
 
-const CONVERSATIONS_STORAGE_KEY = 'focusai_conversations';
-const CURRENT_CONVERSATION_KEY = 'focusai_current_conversation_id';
+// Storage keys are now user-specific (will be generated with userId)
+const getConversationsStorageKey = (userId: string) => `focusai_conversations_${userId}`;
+const getCurrentConversationKey = (userId: string) => `focusai_current_conversation_id_${userId}`;
 
 export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -48,48 +49,67 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
   const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null);
   const { user } = useAuthStore();
 
-  // Load conversations from localStorage
+  // Load conversations from localStorage (user-specific)
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || !user?.id) {
+      // Clear conversations if no user
+      setConversations([]);
+      setCurrentConversationId(null);
+      setMessages([]);
+      return;
+    }
     
     try {
-      const stored = localStorage.getItem(CONVERSATIONS_STORAGE_KEY);
+      const conversationsKey = getConversationsStorageKey(user.id);
+      const currentIdKey = getCurrentConversationKey(user.id);
+      
+      const stored = localStorage.getItem(conversationsKey);
       if (stored) {
         const parsed = JSON.parse(stored);
-        setConversations(parsed);
-      }
+        if (parsed && parsed.length > 0) {
+          setConversations(parsed);
 
-      const currentId = localStorage.getItem(CURRENT_CONVERSATION_KEY);
-      if (currentId && stored) {
-        const parsed = JSON.parse(stored);
-        const conversation = parsed.find((c: Conversation) => c.id === currentId);
-        if (conversation) {
-          setCurrentConversationId(currentId);
-          setMessages(conversation.messages);
-          return;
+          const currentId = localStorage.getItem(currentIdKey);
+          if (currentId) {
+            const conversation = parsed.find((c: Conversation) => c.id === currentId);
+            if (conversation) {
+              setCurrentConversationId(currentId);
+              setMessages(conversation.messages);
+              return;
+            }
+          }
+          // If no current conversation found, use the first one
+          if (parsed.length > 0) {
+            setCurrentConversationId(parsed[0].id);
+            setMessages(parsed[0].messages);
+            return;
+          }
         }
       }
     } catch (error) {
       console.error('Failed to load conversations:', error);
     }
 
-    // Create new conversation if none exists
+    // Create new conversation if none exists for this user
     createNewConversation();
-  }, []);
+  }, [user?.id]); // Reload when user changes
 
-  // Save conversations to localStorage whenever they change
+  // Save conversations to localStorage whenever they change (user-specific)
   useEffect(() => {
-    if (typeof window === 'undefined' || conversations.length === 0) return;
+    if (typeof window === 'undefined' || conversations.length === 0 || !user?.id) return;
     
     try {
-      localStorage.setItem(CONVERSATIONS_STORAGE_KEY, JSON.stringify(conversations));
+      const conversationsKey = getConversationsStorageKey(user.id);
+      const currentIdKey = getCurrentConversationKey(user.id);
+      
+      localStorage.setItem(conversationsKey, JSON.stringify(conversations));
       if (currentConversationId) {
-        localStorage.setItem(CURRENT_CONVERSATION_KEY, currentConversationId);
+        localStorage.setItem(currentIdKey, currentConversationId);
       }
     } catch (error) {
       console.error('Failed to save conversations:', error);
     }
-  }, [conversations, currentConversationId]);
+  }, [conversations, currentConversationId, user?.id]);
 
   // Update current conversation when messages change
   useEffect(() => {
