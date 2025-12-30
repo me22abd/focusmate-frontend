@@ -309,25 +309,15 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
+          {/* Backdrop - Removed for full-screen experience */}
+
+          {/* Chat Window - Full Screen */}
           <motion.div
-            className="fixed inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-sm z-40"
+            className="fixed inset-0 z-50 w-screen h-screen flex gap-0"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={onClose}
-          />
-
-          {/* Chat Window - Responsive positioning with sidebar */}
-          <motion.div
-            className="fixed z-50 w-[calc(100vw-2rem)] max-w-4xl h-[calc(100vh-8rem)] max-h-[700px]
-                       bottom-4 left-1/2 -translate-x-1/2
-                       sm:bottom-6 sm:left-auto sm:right-6 sm:translate-x-0
-                       md:h-[700px] flex gap-2"
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            transition={{ duration: 0.2 }}
           >
             {/* Sidebar - Conversation List */}
             <AnimatePresence>
@@ -339,7 +329,7 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
                   transition={{ duration: 0.2 }}
                   className="overflow-hidden"
                 >
-                  <GlassCard className="h-full flex flex-col shadow-xl">
+                  <GlassCard className="h-full flex flex-col shadow-xl rounded-none border-r border-white/10">
                     <div className="p-4 border-b border-white/10 flex items-center justify-between">
                       <h3 className="font-semibold text-foreground">Conversations</h3>
                       <Button
@@ -401,9 +391,9 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
             </AnimatePresence>
 
             {/* Main Chat Area */}
-            <GlassCard className="h-full flex-1 flex flex-col shadow-2xl min-w-0">
+            <GlassCard className="h-full flex-1 flex flex-col shadow-2xl min-w-0 rounded-none border-0">
               {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b border-white/10">
+              <div className="flex items-center justify-between p-4 border-b border-white/10 flex-shrink-0">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   {/* Mascot Avatar */}
                   <div className="w-[70px] h-[70px] flex items-center justify-center overflow-visible flex-shrink-0">
@@ -436,8 +426,8 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
                 </div>
               </div>
 
-              {/* Messages Area */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {/* Messages Area - Scrollable */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
                 <AnimatePresence>
                   {messages.map((message, index) => (
                     <motion.div
@@ -484,7 +474,7 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
               </div>
 
               {/* Input Area */}
-              <div className="p-4 border-t border-white/10">
+              <div className="p-4 border-t border-white/10 flex-shrink-0">
                 <div className="flex gap-2">
                   <Input
                     ref={inputRef}
