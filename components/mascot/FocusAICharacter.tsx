@@ -153,21 +153,47 @@ export function FocusAICharacter({
           : {}
       }
     >
-      <Image
-        src={imageSrc}
-        alt={`FocusAI mascot - ${currentPose} pose`}
-        width={currentSize.width}
-        height={currentSize.height}
-        className={cn('object-contain w-full h-full drop-shadow-lg', {
-          'transition-all duration-300': animate,
-        })}
-        priority={size === 'lg'}
-        unoptimized
-        onError={(e) => {
-          // Fallback if image doesn't exist yet
-          console.warn(`Mascot image not found: ${imageSrc}`);
-        }}
-      />
+      {/* Glow effect wrapper for better blending */}
+      <div className="relative w-full h-full">
+        {/* Subtle glow effect matching app gradient - creates depth */}
+        <div 
+          className="absolute inset-0 rounded-full blur-2xl opacity-50 dark:opacity-30 transition-opacity"
+          style={{
+            background: 'radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(59, 130, 246, 0.1) 50%, rgba(6, 182, 212, 0.05) 100%)',
+          }}
+        />
+        
+        {/* Mascot image with enhanced background blending */}
+        <div className="relative z-10 w-full h-full">
+          <Image
+            src={imageSrc}
+            alt={`FocusAI mascot - ${currentPose} pose`}
+            width={currentSize.width}
+            height={currentSize.height}
+            className={cn(
+              'object-contain w-full h-full mascot-image-blend',
+              // Enhanced shadows for depth and blending
+              'shadow-[0_4px_20px_rgba(99,102,241,0.2)]',
+              'dark:shadow-[0_4px_20px_rgba(139,92,246,0.25)]',
+              // Subtle color enhancement to match app theme
+              'brightness-[1.03]',
+              {
+                'transition-all duration-300': animate,
+              }
+            )}
+            style={{
+              // Ensure proper rendering and anti-aliasing
+              imageRendering: 'auto',
+            }}
+            priority={size === 'lg'}
+            unoptimized
+            onError={(e) => {
+              // Fallback if image doesn't exist yet
+              console.warn(`Mascot image not found: ${imageSrc}`);
+            }}
+          />
+        </div>
+      </div>
     </motion.div>
   );
 }

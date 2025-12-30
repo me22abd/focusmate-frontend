@@ -112,6 +112,18 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* Mascot background blending utilities */
+.mascot-image-blend {
+  /* Remove white backgrounds and blend naturally */
+  filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.15)) 
+          drop-shadow(0 8px 24px rgba(139, 92, 246, 0.1));
+}
+
+.dark .mascot-image-blend {
+  filter: drop-shadow(0 4px 12px rgba(139, 92, 246, 0.2)) 
+          drop-shadow(0 8px 24px rgba(99, 102, 241, 0.15));
+}
+
 .true-tone {
   --background: oklch(0.96 0.03 85);
   --foreground: oklch(0.4 0.06 70);
