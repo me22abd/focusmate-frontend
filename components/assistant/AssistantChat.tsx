@@ -7,7 +7,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader2, X, MessageSquare, Plus, Trash2, Clock } from 'lucide-react';
+import { Send, Loader2, X, MessageSquare, Plus, Trash2, Clock, ArrowLeft } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +16,7 @@ import { useAuthStore } from '@/store/auth-store';
 import { FocusAICharacter, FocusAIPose } from '@/components/mascot/FocusAICharacter';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 interface AssistantChatProps {
   isOpen: boolean;
@@ -45,9 +46,22 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
   const [lastActivityTime, setLastActivityTime] = useState(Date.now());
   const [showSidebar, setShowSidebar] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null);
   const { user } = useAuthStore();
+  const router = useRouter();
+
+  // Handle close - navigate back or to dashboard
+  const handleClose = () => {
+    // Try to go back in history, otherwise go to dashboard
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      router.push('/dashboard');
+    }
+    onClose();
+  };
 
   // Load conversations from localStorage (user-specific)
   useEffect(() => {
@@ -415,6 +429,16 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
               {/* Header */}
               <div className="flex items-center justify-between p-4 border-b border-white/10 flex-shrink-0">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
+                  {/* Back Button */}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleClose}
+                    className="h-8 w-8 flex-shrink-0"
+                    aria-label="Go back"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                  </Button>
                   {/* Mascot Avatar */}
                   <div className="w-[70px] h-[70px] flex items-center justify-center overflow-visible flex-shrink-0">
                     <FocusAICharacter pose={mascotPose} size="md" animate />
@@ -437,7 +461,7 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={onClose}
+                    onClick={handleClose}
                     className="h-8 w-8"
                     aria-label="Close chat"
                   >
@@ -446,8 +470,15 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
                 </div>
               </div>
 
-              {/* Messages Area - Scrollable */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
+              {/* Messages Area - Scrollable with proper scroll behavior */}
+              <div 
+                ref={messagesContainerRef}
+                className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0 overscroll-contain"
+                style={{ 
+                  WebkitOverflowScrolling: 'touch',
+                  scrollBehavior: 'smooth'
+                }}
+              >
                 <AnimatePresence>
                   {messages.map((message, index) => (
                     <motion.div
