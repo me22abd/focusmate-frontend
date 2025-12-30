@@ -13,12 +13,12 @@ import { cn } from '@/lib/utils';
 export type FocusAIPose = 
   | 'idle' 
   | 'wave' 
-  | 'smile' 
+  | 'happy' 
   | 'help' 
   | 'flip' 
   | 'idea' 
-  | 'sleep' 
-  | 'notebook';
+  | 'neutral' 
+  | 'read';
 
 interface FocusAICharacterProps {
   pose?: FocusAIPose;
@@ -30,14 +30,14 @@ interface FocusAICharacterProps {
 }
 
 const poseImageMap: Record<FocusAIPose, string> = {
-  idle: '/mascot/focusai.png',
+  idle: '/mascot/focusai_idle.png',
   wave: '/mascot/focusai_wave.png',
-  smile: '/mascot/focusai_smile.png',
+  happy: '/mascot/focusai_happy.png',
   help: '/mascot/focusai_help.png',
   flip: '/mascot/focusai_flip.png',
   idea: '/mascot/focusai_idea.png',
-  sleep: '/mascot/focusai_sleep.png',
-  notebook: '/mascot/focusai_notebook.png',
+  neutral: '/mascot/focusai_neutral.png',
+  read: '/mascot/focusai_read.png',
 };
 
 const sizeMap = {
@@ -133,12 +133,22 @@ export function FocusAICharacter({
               duration: 0.6,
             }
       }
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
+      onHoverStart={() => {
+        setIsHovered(true);
+        if (onHoverPose && pose !== onHoverPose) {
+          setCurrentPose(onHoverPose);
+        }
+      }}
+      onHoverEnd={() => {
+        setIsHovered(false);
+        if (onHoverPose) {
+          setCurrentPose(pose);
+        }
+      }}
       whileHover={
-        animate
+        animate && isHovered && onHoverPose === 'wave'
           ? {
-              rotate: [0, -8, 8, -8, 0], // Hover wave animation
+              rotate: [0, -8, 8, -8, 0], // Hover wave animation (only for wave pose)
             }
           : {}
       }

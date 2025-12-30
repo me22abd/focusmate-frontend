@@ -40,7 +40,7 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [mascotPose, setMascotPose] = useState<FocusAIPose>('smile');
+  const [mascotPose, setMascotPose] = useState<FocusAIPose>('happy');
   const [lastActivityTime, setLastActivityTime] = useState(Date.now());
   const [showSidebar, setShowSidebar] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -199,7 +199,7 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
     const checkInactivity = () => {
       const timeSinceActivity = Date.now() - lastActivityTime;
       if (timeSinceActivity > 10000 && !isLoading) {
-        setMascotPose('sleep');
+        setMascotPose('neutral');
       }
     };
 
@@ -229,7 +229,7 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
     } else if (message.includes('idea') || message.includes('suggestion') || message.includes('tip') || message.includes('advice')) {
       setMascotPose('idea');
     } else {
-      setMascotPose('notebook'); // Default to notebook for structured responses
+      setMascotPose('read'); // Default to read for structured responses
     }
 
     // Add user message immediately
@@ -257,11 +257,11 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
       setMessages((prev) => [...prev, aiMessage]);
       setLastActivityTime(Date.now());
       
-      // Check if response is structured/helpful - use notebook pose
+      // Check if response is structured/helpful - use read pose
       if (response.includes('\n') || response.includes('•') || response.includes('-') || response.length > 100) {
-        setMascotPose('notebook');
+        setMascotPose('read');
       } else {
-        setMascotPose('smile');
+        setMascotPose('happy');
       }
     } catch (error: any) {
       console.error('Chat error:', error);
