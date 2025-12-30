@@ -208,6 +208,79 @@ export const sendChatMessage = async (
   return sendAIMessage(message, retries);
 };
 
+// ==========================================================================
+// PHASE 3: AI SESSION INTELLIGENCE API FUNCTIONS
+// ==========================================================================
+
+export interface SessionSummaryResponse {
+  summary: string;
+  strengths: string[];
+  weaknesses: string[];
+  recommendations: string[];
+  motivationalMessage: string;
+}
+
+export const generateSessionSummary = async (data: {
+  duration: number;
+  tasksCompleted: number;
+  tasksPlanned: number;
+  partnerName?: string;
+  reflectionText?: string;
+  startTime: string;
+  endTime: string;
+}): Promise<SessionSummaryResponse> => {
+  const response = await axiosInstance.post<SessionSummaryResponse>('/ai/session/summary', data);
+  return response.data;
+};
+
+export interface MoodDetectionResponse {
+  mood: string;
+  confidence: number;
+  explanation: string | null;
+}
+
+export const detectMood = async (data: {
+  sessionId?: string;
+  reflectionText: string;
+}): Promise<MoodDetectionResponse> => {
+  const response = await axiosInstance.post<MoodDetectionResponse>('/ai/session/mood', data);
+  return response.data;
+};
+
+export interface OptimizedTask {
+  improvedText: string;
+  priority: 'low' | 'medium' | 'high';
+  estimatedTime: number;
+}
+
+export const optimizeTasks = async (tasks: any[]): Promise<OptimizedTask[]> => {
+  const response = await axiosInstance.post<{ tasks: OptimizedTask[] }>('/ai/tasks/optimize', { tasks });
+  return response.data.tasks;
+};
+
+// ==========================================================================
+// PHASE 4: AI SMART REMINDERS & NOTIFICATIONS API FUNCTIONS
+// ==========================================================================
+
+export interface NotificationRecommendation {
+  type: 'streak_warning' | 'best_time_to_focus' | 'task_overdue' | 'low_mood_alert' | 'session_preparation' | 'motivation_boost';
+  title: string;
+  description: string;
+}
+
+export const evaluateNotifications = async (): Promise<NotificationRecommendation[]> => {
+  const response = await axiosInstance.post<{ notifications: NotificationRecommendation[] }>('/ai/notify/evaluate');
+  return response.data.notifications;
+};
+
+export const generateEmailReply = async (data: {
+  originalMessage: string;
+  context?: string;
+}): Promise<string> => {
+  const response = await axiosInstance.post<{ reply: string }>('/ai/email/support', data);
+  return response.data.reply;
+};
+
 /**
  * ============================================================================
  * WHAT I BUILT VS WHAT I ADAPTED
