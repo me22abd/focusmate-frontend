@@ -140,8 +140,11 @@ export interface ChatResponse {
  */
 export const sendChatMessage = async (
   message: string, 
-  conversationHistory: ChatMessage[] = []
+  conversationHistory: ChatMessage[] = [],
+  retries: number = 0
 ): Promise<string> => {
+  const maxRetries = 2; // Retry up to 2 times for rate limits
+  
   try {
     // Custom: POST to MY AI endpoint with message and history
     const response = await axiosInstance.post<ChatResponse>('/ai/chat', {
@@ -170,12 +173,23 @@ export const sendChatMessage = async (
       error.message ||                      // Network/client error
       'Failed to get AI response. Please try again.';  // Fallback
     
+    const statusCode = error.response?.status;
+    
+    // Retry logic for rate limits (429) with exponential backoff
+    if (statusCode === 429 && retries < maxRetries) {
+      const delay = Math.pow(2, retries) * 1000; // Exponential backoff: 1s, 2s
+      console.log(`Rate limited. Retrying in ${delay}ms... (attempt ${retries + 1}/${maxRetries})`);
+      
+      await new Promise(resolve => setTimeout(resolve, delay));
+      return sendChatMessage(message, conversationHistory, retries + 1);
+    }
+    
     // Custom: Create new Error with extracted message
     const chatError = new Error(errorMessage);
     
     // Custom: Preserve HTTP status code (for components to check)
-    if (error.response?.status) {
-      (chatError as any).status = error.response.status;
+    if (statusCode) {
+      (chatError as any).status = statusCode;
     }
     
     throw chatError;

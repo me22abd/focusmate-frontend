@@ -83,12 +83,26 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
       setMessages((prev) => [...prev, aiMessage]);
     } catch (error: any) {
       console.error('Chat error:', error);
-      toast.error(error.message || 'Failed to get AI response. Please try again.');
       
-      // Add error message
+      // Enhanced error handling for different error types
+      let errorMessageText = 'Sorry, I encountered an error. Please try again in a moment.';
+      let toastMessage = error.message || 'Failed to get AI response. Please try again.';
+      
+      // Handle 429 (rate limit/quota exceeded) specifically
+      if (error.status === 429 || error.message?.includes('quota') || error.message?.includes('429')) {
+        errorMessageText = 'I\'m currently experiencing high demand. This could be due to:\n\n• Rate limit reached - Please wait a few moments and try again\n• Quota exceeded - The service may need to be upgraded\n\nPlease try again in a minute or contact support if this persists.';
+        toastMessage = 'AI service is temporarily unavailable. Please try again in a moment.';
+      } else if (error.message?.includes('network') || error.message?.includes('timeout')) {
+        errorMessageText = 'I\'m having trouble connecting right now. Please check your internet connection and try again.';
+        toastMessage = 'Connection error. Please check your internet and try again.';
+      }
+      
+      toast.error(toastMessage);
+      
+      // Add error message to chat
       const errorMessage: ChatMessage = {
         role: 'assistant',
-        content: 'Sorry, I encountered an error. Please try again in a moment.',
+        content: errorMessageText,
         timestamp: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, errorMessage]);
