@@ -7,13 +7,13 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader2, X } from 'lucide-react';
+import { Send, Loader2, X, MessageSquare, Plus, Trash2, Clock } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { sendChatMessage, ChatMessage } from '@/lib/api/ai';
 import { useAuthStore } from '@/store/auth-store';
-import { FocusAIMascot } from '@/components/mascot/FocusAIMascot';
+import { FocusAICharacter, FocusAIPose } from '@/components/mascot/FocusAICharacter';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -23,19 +23,160 @@ interface AssistantChatProps {
   userName: string;
 }
 
+interface Conversation {
+  id: string;
+  title: string;
+  messages: ChatMessage[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+const CONVERSATIONS_STORAGE_KEY = 'focusai_conversations';
+const CURRENT_CONVERSATION_KEY = 'focusai_current_conversation_id';
+
 export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps) {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [inputValue, setInputValue] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [mascotPose, setMascotPose] = useState<FocusAIPose>('smile');
+  const [lastActivityTime, setLastActivityTime] = useState(Date.now());
+  const [showSidebar, setShowSidebar] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const { user } = useAuthStore();
+
+  // Load conversations from localStorage
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    try {
+      const stored = localStorage.getItem(CONVERSATIONS_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        setConversations(parsed);
+      }
+
+      const currentId = localStorage.getItem(CURRENT_CONVERSATION_KEY);
+      if (currentId && stored) {
+        const parsed = JSON.parse(stored);
+        const conversation = parsed.find((c: Conversation) => c.id === currentId);
+        if (conversation) {
+          setCurrentConversationId(currentId);
+          setMessages(conversation.messages);
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load conversations:', error);
+    }
+
+    // Create new conversation if none exists
+    createNewConversation();
+  }, []);
+
+  // Save conversations to localStorage whenever they change
+  useEffect(() => {
+    if (typeof window === 'undefined' || conversations.length === 0) return;
+    
+    try {
+      localStorage.setItem(CONVERSATIONS_STORAGE_KEY, JSON.stringify(conversations));
+      if (currentConversationId) {
+        localStorage.setItem(CURRENT_CONVERSATION_KEY, currentConversationId);
+      }
+    } catch (error) {
+      console.error('Failed to save conversations:', error);
+    }
+  }, [conversations, currentConversationId]);
+
+  // Update current conversation when messages change
+  useEffect(() => {
+    if (!currentConversationId || messages.length === 0) return;
+
+    setConversations((prev) =>
+      prev.map((conv) =>
+        conv.id === currentConversationId
+          ? {
+              ...conv,
+              messages,
+              updatedAt: new Date().toISOString(),
+              title: getConversationTitle(messages),
+            }
+          : conv
+      )
+    );
+  }, [messages, currentConversationId]);
+
+  const getConversationTitle = (msgs: ChatMessage[]): string => {
+    const firstUserMessage = msgs.find((m) => m.role === 'user');
+    if (firstUserMessage) {
+      const content = firstUserMessage.content;
+      return content.length > 30 ? content.substring(0, 30) + '...' : content;
+    }
+    return 'New Conversation';
+  };
+
+  const createNewConversation = () => {
+    const newId = `conv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const greeting: ChatMessage = {
       role: 'assistant',
       content: `Hi ${userName}, ready to focus today? How can I help you?`,
       timestamp: new Date().toISOString(),
-    },
-  ]);
-  const [inputValue, setInputValue] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const { user } = useAuthStore();
+    };
+    
+    const newConversation: Conversation = {
+      id: newId,
+      title: 'New Conversation',
+      messages: [greeting],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    setConversations((prev) => [newConversation, ...prev]);
+    setCurrentConversationId(newId);
+    setMessages([greeting]);
+    setShowSidebar(false);
+  };
+
+  const switchConversation = (conversationId: string) => {
+    const conversation = conversations.find((c) => c.id === conversationId);
+    if (conversation) {
+      setCurrentConversationId(conversationId);
+      setMessages(conversation.messages);
+      setShowSidebar(false);
+    }
+  };
+
+  const deleteConversation = (conversationId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setConversations((prev) => prev.filter((c) => c.id !== conversationId));
+    
+    if (currentConversationId === conversationId) {
+      const remaining = conversations.filter((c) => c.id !== conversationId);
+      if (remaining.length > 0) {
+        switchConversation(remaining[0].id);
+      } else {
+        createNewConversation();
+      }
+    }
+  };
+
+  const formatConversationDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString();
+  };
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -46,8 +187,30 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
   useEffect(() => {
     if (isOpen && inputRef.current) {
       setTimeout(() => inputRef.current?.focus(), 300);
+      setMascotPose('help');
+      setLastActivityTime(Date.now());
     }
   }, [isOpen]);
+
+  // Inactivity timer - switch to sleep pose after 10 seconds
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const checkInactivity = () => {
+      const timeSinceActivity = Date.now() - lastActivityTime;
+      if (timeSinceActivity > 10000 && !isLoading) {
+        setMascotPose('sleep');
+      }
+    };
+
+    inactivityTimerRef.current = setInterval(checkInactivity, 1000);
+
+    return () => {
+      if (inactivityTimerRef.current) {
+        clearInterval(inactivityTimerRef.current);
+      }
+    };
+  }, [isOpen, lastActivityTime, isLoading]);
 
   const handleSend = async () => {
     if (!inputValue.trim() || isLoading) return;
@@ -57,6 +220,17 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
       content: inputValue.trim(),
       timestamp: new Date().toISOString(),
     };
+
+    // Update pose based on message content
+    setLastActivityTime(Date.now());
+    const message = inputValue.trim().toLowerCase();
+    if (message.includes('how') || message.includes('what') || message.includes('why') || message.includes('help')) {
+      setMascotPose('help');
+    } else if (message.includes('idea') || message.includes('suggestion') || message.includes('tip') || message.includes('advice')) {
+      setMascotPose('idea');
+    } else {
+      setMascotPose('notebook'); // Default to notebook for structured responses
+    }
 
     // Add user message immediately
     setMessages((prev) => [...prev, userMessage]);
@@ -81,6 +255,14 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
       };
 
       setMessages((prev) => [...prev, aiMessage]);
+      setLastActivityTime(Date.now());
+      
+      // Check if response is structured/helpful - use notebook pose
+      if (response.includes('\n') || response.includes('•') || response.includes('-') || response.length > 100) {
+        setMascotPose('notebook');
+      } else {
+        setMascotPose('smile');
+      }
     } catch (error: any) {
       console.error('Chat error:', error);
       
@@ -131,39 +313,122 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
             onClick={onClose}
           />
 
-          {/* Chat Window - Responsive positioning */}
+          {/* Chat Window - Responsive positioning with sidebar */}
           <motion.div
-            className="fixed z-50 w-[calc(100vw-2rem)] max-w-md h-[calc(100vh-8rem)] max-h-[600px] 
+            className="fixed z-50 w-[calc(100vw-2rem)] max-w-4xl h-[calc(100vh-8rem)] max-h-[700px]
                        bottom-4 left-1/2 -translate-x-1/2
                        sm:bottom-6 sm:left-auto sm:right-6 sm:translate-x-0
-                       md:h-[600px]"
+                       md:h-[700px] flex gap-2"
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
           >
-            <GlassCard className="h-full flex flex-col shadow-2xl">
+            {/* Sidebar - Conversation List */}
+            <AnimatePresence>
+              {showSidebar && (
+                <motion.div
+                  initial={{ width: 0, opacity: 0 }}
+                  animate={{ width: 280, opacity: 1 }}
+                  exit={{ width: 0, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden"
+                >
+                  <GlassCard className="h-full flex flex-col shadow-xl">
+                    <div className="p-4 border-b border-white/10 flex items-center justify-between">
+                      <h3 className="font-semibold text-foreground">Conversations</h3>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setShowSidebar(false)}
+                        className="h-6 w-6"
+                      >
+                        <X className="w-3 h-3" />
+                      </Button>
+                    </div>
+                    <div className="p-2">
+                      <Button
+                        onClick={createNewConversation}
+                        className="w-full justify-start gap-2 bg-gradient-to-r from-indigo-500 via-blue-500 to-cyan-500 hover:opacity-90"
+                        size="sm"
+                      >
+                        <Plus className="w-4 h-4" />
+                        New Conversation
+                      </Button>
+                    </div>
+                    <div className="flex-1 overflow-y-auto p-2 space-y-1">
+                      {conversations.map((conv) => (
+                        <div
+                          key={conv.id}
+                          onClick={() => switchConversation(conv.id)}
+                          className={cn(
+                            'p-3 rounded-lg cursor-pointer transition-all group relative',
+                            currentConversationId === conv.id
+                              ? 'bg-indigo-500/20 border border-indigo-500/30'
+                              : 'hover:bg-white/10 border border-transparent'
+                          )}
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-foreground truncate">
+                                {conv.title}
+                              </p>
+                              <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                                <Clock className="w-3 h-3" />
+                                {formatConversationDate(conv.updatedAt)}
+                              </p>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={(e) => deleteConversation(conv.id, e)}
+                              className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <Trash2 className="w-3 h-3 text-red-500" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </GlassCard>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Main Chat Area */}
+            <GlassCard className="h-full flex-1 flex flex-col shadow-2xl min-w-0">
               {/* Header */}
               <div className="flex items-center justify-between p-4 border-b border-white/10">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
                   {/* Mascot Avatar */}
-                  <div className="w-10 h-12 flex items-center justify-center overflow-visible">
-                    <FocusAIMascot size="sm" animated={true} />
+                  <div className="w-[70px] h-[70px] flex items-center justify-center overflow-visible flex-shrink-0">
+                    <FocusAICharacter pose={mascotPose} size="md" animate />
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-foreground">FocusAI</h3>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-semibold text-foreground truncate">FocusAI</h3>
                     <p className="text-xs text-muted-foreground">Your Productivity Companion</p>
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={onClose}
-                  className="h-8 w-8"
-                  aria-label="Close chat"
-                >
-                  <X className="w-4 h-4" />
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setShowSidebar(!showSidebar)}
+                    className="h-8 w-8"
+                    aria-label="Toggle conversations"
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={onClose}
+                    className="h-8 w-8"
+                    aria-label="Close chat"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
 
               {/* Messages Area */}

@@ -116,7 +116,7 @@ import { Navbar } from '@/components/navbar';
 import { Footer } from '@/components/footer';
 import { Button } from '@/components/ui/button';
 import { AnimatedButton } from '@/components/ui/animated-button';
-import { FocusAIMascot } from '@/components/mascot/FocusAIMascot';
+import { FocusAICharacter } from '@/components/mascot/FocusAICharacter';
 import { GlassCard } from '@/components/ui/glass-card';
 
 // Adapted from Lucide React: Icon library (free, open-source)
@@ -361,7 +361,7 @@ export default function Home() {
           transition={{ delay: 0.7 }}
           className="relative z-10 flex flex-col items-center gap-4 mt-12 px-4"
         >
-          <FocusAIMascot size="lg" />
+          <FocusAICharacter pose="idle" size="lg" animate onHoverPose="wave" autoPose />
           <div className="text-center space-y-2">
             <h2 className="text-xl font-bold bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent flex items-center justify-center gap-2">
               <Sparkles className="h-5 w-5 text-indigo-600" />

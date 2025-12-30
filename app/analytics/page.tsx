@@ -10,6 +10,7 @@ import { QuickNav } from '@/components/quick-nav';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { GlassCard } from '@/components/ui/glass-card';
 import { AnimatedButton } from '@/components/ui/animated-button';
+import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import {
   CalendarDays,
@@ -26,6 +27,8 @@ import {
   LayoutDashboard,
   TrendingDown,
   Lock,
+  RefreshCw,
+  Loader2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getUserAchievements, checkAchievements, Achievement } from '@/lib/api/achievements';
@@ -228,16 +231,36 @@ export default function AnalyticsPage() {
           <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
             {/* Header */}
             <GlassCard delay={0} className="p-6">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.4em] text-indigo-600 dark:text-indigo-400">
-                Analytics
-              </p>
-              <h1 className="mt-3 text-3xl font-bold bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">
-                Your Focus Analytics
-              </h1>
-              <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-                Track your productivity and focus session insights.
-              </p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.4em] text-indigo-600 dark:text-indigo-400">
+                  Analytics
+                </p>
+                <h1 className="mt-3 text-3xl font-bold bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">
+                  Your Focus Analytics
+                </h1>
+                <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+                  Track your productivity and focus session insights.
+                </p>
+              </div>
+              <Button
+                onClick={() => analytics.refresh()}
+                variant="outline"
+                className="gap-2"
+                disabled={analytics.isLoading}
+              >
+                {analytics.isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Refreshing...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="h-4 w-4" />
+                    Refresh
+                  </>
+                )}
+              </Button>
             </div>
             </GlassCard>
 

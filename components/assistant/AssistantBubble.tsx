@@ -11,7 +11,7 @@ import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/store/auth-store';
 import { AssistantChat } from './AssistantChat';
-import { FocusAIMascot } from '@/components/mascot/FocusAIMascot';
+import { FocusAICharacter } from '@/components/mascot/FocusAICharacter';
 import { cn } from '@/lib/utils';
 
 export function AssistantBubble() {
@@ -139,7 +139,7 @@ export function AssistantBubble() {
         >
           {/* Mascot Avatar */}
           <div className="w-full h-full flex items-center justify-center overflow-visible">
-            <FocusAIMascot size="sm" animated={true} />
+            <FocusAICharacter pose="wave" size="sm" animate />
           </div>
 
           {/* Notification Badge (optional - can be conditionally shown) */}
