@@ -11,7 +11,7 @@ import { Send, Loader2, X, MessageSquare, Plus, Trash2, Clock } from 'lucide-rea
 import { GlassCard } from '@/components/ui/glass-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { sendChatMessage, ChatMessage } from '@/lib/api/ai';
+import { sendAIMessage, ChatMessage } from '@/lib/api/ai';
 import { useAuthStore } from '@/store/auth-store';
 import { FocusAICharacter, FocusAIPose } from '@/components/mascot/FocusAICharacter';
 import { cn } from '@/lib/utils';
@@ -238,14 +238,8 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
     setIsLoading(true);
 
     try {
-      // Get conversation history (excluding the greeting)
-      const conversationHistory = messages.map((msg) => ({
-        role: msg.role,
-        content: msg.content,
-      }));
-
-      // Send to AI
-      const response = await sendChatMessage(userMessage.content, conversationHistory);
+      // Send to unified AI engine (handles all features automatically)
+      const response = await sendAIMessage(userMessage.content);
 
       // Add AI response
       const aiMessage: ChatMessage = {

@@ -138,40 +138,41 @@ export interface ChatResponse {
  * - Settings page (AI assistant section)
  * ────────────────────────────────────────────────────────────────────────────
  */
-export const sendChatMessage = async (
-  message: string, 
-  conversationHistory: ChatMessage[] = [],
+/**
+ * Send message to unified AI engine
+ * 
+ * Uses the unified /ai/engine endpoint which handles all AI features:
+ * - Support questions
+ * - Task analysis
+ * - Productivity coaching
+ * - Session feedback
+ * - Mood detection
+ * - App knowledge base
+ */
+export const sendAIMessage = async (
+  message: string,
   retries: number = 0
 ): Promise<string> => {
   const maxRetries = 2; // Retry up to 2 times for rate limits
   
   try {
-    // Custom: POST to MY AI endpoint with message and history
-    const response = await axiosInstance.post<ChatResponse>('/ai/chat', {
+    // POST to unified AI engine endpoint
+    const response = await axiosInstance.post<ChatResponse>('/ai/engine', {
       message,
-      conversationHistory,
     });
     
-    // Custom: Extract just the response string (simplify for components)
+    // Extract response string
     return response.data.response;
     
   } catch (error: any) {
-    console.error('Failed to send chat message:', error);
+    console.error('Failed to send AI message:', error);
     
-    // -----------------------------------------------------------------------
-    // Custom: Enhanced error message extraction (MY implementation)
-    // -----------------------------------------------------------------------
-    // Backend can return errors in various formats depending on error type:
-    // - Validation error: response.data.message
-    // - General error: response.data.error
-    // - Network error: error.message
-    // 
-    // Check all possible locations and provide user-friendly fallback
+    // Enhanced error message extraction
     const errorMessage = 
-      error.response?.data?.message ||      // Backend validation error
-      error.response?.data?.error ||        // Backend general error
-      error.message ||                      // Network/client error
-      'Failed to get AI response. Please try again.';  // Fallback
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      error.message ||
+      'Failed to get AI response. Please try again.';
     
     const statusCode = error.response?.status;
     
@@ -181,19 +182,30 @@ export const sendChatMessage = async (
       console.log(`Rate limited. Retrying in ${delay}ms... (attempt ${retries + 1}/${maxRetries})`);
       
       await new Promise(resolve => setTimeout(resolve, delay));
-      return sendChatMessage(message, conversationHistory, retries + 1);
+      return sendAIMessage(message, retries + 1);
     }
     
-    // Custom: Create new Error with extracted message
     const chatError = new Error(errorMessage);
     
-    // Custom: Preserve HTTP status code (for components to check)
     if (statusCode) {
       (chatError as any).status = statusCode;
     }
     
     throw chatError;
   }
+};
+
+/**
+ * Legacy function - redirects to unified engine
+ * @deprecated Use sendAIMessage instead
+ */
+export const sendChatMessage = async (
+  message: string, 
+  conversationHistory: ChatMessage[] = [],
+  retries: number = 0
+): Promise<string> => {
+  // For backwards compatibility, use unified engine (history is handled by AI context)
+  return sendAIMessage(message, retries);
 };
 
 /**
