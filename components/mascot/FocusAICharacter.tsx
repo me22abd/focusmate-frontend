@@ -153,45 +153,69 @@ export function FocusAICharacter({
           : {}
       }
     >
-      {/* Glow effect wrapper for better blending */}
-      <div className="relative w-full h-full">
-        {/* Subtle glow effect matching app gradient - creates depth */}
-        <div 
-          className="absolute inset-0 rounded-full blur-2xl opacity-50 dark:opacity-30 transition-opacity"
-          style={{
-            background: 'radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(59, 130, 246, 0.1) 50%, rgba(6, 182, 212, 0.05) 100%)',
-          }}
-        />
-        
-        {/* Mascot image with enhanced background blending */}
+      {/* Background blending wrapper - removes white background and blends with app */}
+      <div className="relative w-full h-full" style={{ isolation: 'isolate' }}>
+        {/* Mascot image with background replacement */}
         <div className="relative z-10 w-full h-full">
-          <Image
-            src={imageSrc}
-            alt={`FocusAI mascot - ${currentPose} pose`}
-            width={currentSize.width}
-            height={currentSize.height}
-            className={cn(
-              'object-contain w-full h-full mascot-image-blend',
-              // Enhanced shadows for depth and blending
-              'shadow-[0_4px_20px_rgba(99,102,241,0.2)]',
-              'dark:shadow-[0_4px_20px_rgba(139,92,246,0.25)]',
-              // Subtle color enhancement to match app theme
-              'brightness-[1.03]',
-              {
-                'transition-all duration-300': animate,
-              }
-            )}
+          {/* Light mode: Match app's indigo-50/purple-50/pink-50 gradient background */}
+          <div 
+            className="dark:hidden relative w-full h-full rounded-lg"
             style={{
-              // Ensure proper rendering and anti-aliasing
-              imageRendering: 'auto',
+              background: 'linear-gradient(to bottom right, rgb(238, 242, 255), rgb(243, 232, 255), rgb(253, 242, 248))',
             }}
-            priority={size === 'lg'}
-            unoptimized
-            onError={(e) => {
-              // Fallback if image doesn't exist yet
-              console.warn(`Mascot image not found: ${imageSrc}`);
+          >
+            <Image
+              src={imageSrc}
+              alt={`FocusAI mascot - ${currentPose} pose`}
+              width={currentSize.width}
+              height={currentSize.height}
+              className={cn(
+                'object-contain w-full h-full relative',
+                // Use multiply to make white transparent and blend with background
+                'mix-blend-multiply',
+                // Add subtle shadow for depth
+                'drop-shadow-[0_2px_8px_rgba(99,102,241,0.1)]',
+                {
+                  'transition-all duration-300': animate,
+                }
+              )}
+              priority={size === 'lg'}
+              unoptimized
+              onError={(e) => {
+                console.warn(`Mascot image not found: ${imageSrc}`);
+              }}
+            />
+          </div>
+          
+          {/* Dark mode: Match app's dark slate background */}
+          <div 
+            className="hidden dark:block relative w-full h-full rounded-lg"
+            style={{
+              background: 'linear-gradient(to bottom right, rgb(2, 6, 23), rgb(30, 27, 75), rgb(15, 23, 42))',
             }}
-          />
+          >
+            <Image
+              src={imageSrc}
+              alt={`FocusAI mascot - ${currentPose} pose`}
+              width={currentSize.width}
+              height={currentSize.height}
+              className={cn(
+                'object-contain w-full h-full relative',
+                // For dark mode, use lighten/screen to make white blend
+                'mix-blend-lighten opacity-90',
+                // Add subtle shadow for depth
+                'drop-shadow-[0_2px_8px_rgba(139,92,246,0.15)]',
+                {
+                  'transition-all duration-300': animate,
+                }
+              )}
+              priority={size === 'lg'}
+              unoptimized
+              onError={(e) => {
+                console.warn(`Mascot image not found: ${imageSrc}`);
+              }}
+            />
+          </div>
         </div>
       </div>
     </motion.div>
