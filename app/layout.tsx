@@ -124,6 +124,9 @@ import { SoundPreloader } from "@/components/sound-preloader";
 // Custom: Assistant bubble component
 import { AssistantBubble } from "@/components/assistant/AssistantBubble";
 
+// Custom: Navigation guard to prevent swipe-back to login
+import { NavigationGuard } from "@/components/navigation-guard";
+
 /**
  * Font Configuration - Geist Sans
  * 
@@ -187,6 +190,10 @@ export default function RootLayout({
           Custom: Font variables applied, antialiased for smooth rendering */}
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        style={{
+          touchAction: 'pan-y',
+          overscrollBehavior: 'none',
+        }}
       >
         {/* ===================================================================
             THEME PROVIDER - Dark Mode Support
@@ -216,6 +223,9 @@ export default function RootLayout({
           {/* Custom: Global token validator - validates auth on every page load */}
           {/* This component validates tokens and prevents wrong user loading */}
           <AuthTokenValidator />
+          
+          {/* Custom: Navigation guard - prevents swipe-back to login when authenticated */}
+          <NavigationGuard />
           
           {/* Custom: Sound preloader - unlocks audio context on first user interaction */}
           <SoundPreloader />

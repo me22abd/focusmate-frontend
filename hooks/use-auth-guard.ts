@@ -74,8 +74,9 @@ export function useAuthGuard() {
         console.warn('GUARD: No token found');
         console.log('GUARD: allowed or redirect? → REDIRECT (no token)');
         // No token - clear any stale data and redirect
+        // BUT: Only redirect if we're not already on login or a public page
         clearAuth();
-        if (isMounted && pathname && pathname !== '/login') {
+        if (isMounted && pathname && pathname !== '/login' && !isPublicPage) {
           console.log('GUARD: Redirecting to /login');
           router.replace('/login');
         }

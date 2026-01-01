@@ -342,7 +342,7 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
 
           {/* Chat Window - Full Screen */}
           <motion.div
-            className="fixed inset-0 z-50 w-screen h-screen flex gap-0"
+            className="fixed inset-0 z-50 w-screen h-screen flex gap-0 overflow-hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -420,7 +420,7 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
             </AnimatePresence>
 
             {/* Main Chat Area */}
-            <GlassCard className="flex-1 flex flex-col shadow-2xl min-w-0 rounded-none border-0 h-full overflow-hidden">
+            <GlassCard className="flex-1 flex flex-col shadow-2xl min-w-0 rounded-none border-0 h-full">
               {/* Header */}
               <div className="flex items-center justify-between p-4 border-b border-white/10 flex-shrink-0">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -468,7 +468,7 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
               {/* Messages Area - Fully scrollable from top to bottom */}
               <div 
                 ref={messagesContainerRef}
-                className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-4 min-h-0"
+                className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4 min-h-0"
                 style={{ 
                   WebkitOverflowScrolling: 'touch',
                   scrollBehavior: 'smooth',
