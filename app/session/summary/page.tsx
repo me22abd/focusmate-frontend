@@ -40,6 +40,9 @@ import { getUserStreak } from '@/lib/api/sessions';
 import { playTaskCompleteSound } from '@/lib/sounds';
 import { useSettingsStore } from '@/store/settings-store';
 import confetti from 'canvas-confetti';
+import { generateSessionSummary, detectMood, type SessionSummaryResponse, type MoodDetectionResponse } from '@/lib/api/ai';
+import { FocusAICharacter } from '@/components/mascot/FocusAICharacter';
+import { Loader2 } from 'lucide-react';
 
 interface SessionSummaryData {
   id?: string;
@@ -87,6 +90,10 @@ function SessionSummaryContent() {
   const [xpEarned, setXpEarned] = useState(0);
   const [coinsEarned, setCoinsEarned] = useState(0);
   const [achievements, setAchievements] = useState<string[]>([]);
+  const [aiSummary, setAiSummary] = useState<SessionSummaryResponse | null>(null);
+  const [aiSummaryLoading, setAiSummaryLoading] = useState(false);
+  const [detectedMood, setDetectedMood] = useState<MoodDetectionResponse | null>(null);
+  const [moodLoading, setMoodLoading] = useState(false);
 
   // Calculate end time
   const endTime = new Date(new Date(startTime).getTime() + completedDuration * 60 * 1000).toISOString();
@@ -219,6 +226,40 @@ function SessionSummaryContent() {
     fetchSessionData();
   }, [sessionId]);
 
+  // Calculate tasks for use in AI summary
+  const completedTasks = tasks.filter((t) => t.status === 'completed');
+  const pendingTasks = tasks.filter((t) => t.status === 'pending' || !t.status);
+
+  // Generate AI Session Summary when session data is available
+  useEffect(() => {
+    const generateAISummary = async () => {
+      if (!sessionData || aiSummaryLoading || aiSummary) return;
+
+      try {
+        setAiSummaryLoading(true);
+        const summary = await generateSessionSummary({
+          duration: sessionData.duration,
+          tasksCompleted: completedTasks.length,
+          tasksPlanned: completedTasks.length + pendingTasks.length,
+          partnerName: sessionData.partnerName,
+          reflectionText: reflection,
+          startTime: sessionData.startTime,
+          endTime: sessionData.endTime,
+        });
+        setAiSummary(summary);
+      } catch (error: any) {
+        console.error('Failed to generate AI summary:', error);
+        // Don't show error toast - AI summary is optional
+      } finally {
+        setAiSummaryLoading(false);
+      }
+    };
+
+    if (sessionData && !aiSummary) {
+      generateAISummary();
+    }
+  }, [sessionData, completedTasks.length, pendingTasks.length, reflection, aiSummaryLoading, aiSummary]);
+
   const handleToggleTaskComplete = async (taskId: string, currentStatus: string) => {
     try {
       const updatedTask = await toggleTaskComplete(taskId);
@@ -244,8 +285,30 @@ function SessionSummaryContent() {
   };
 
   const handleSaveReflection = async () => {
-    // TODO: Save reflection to backend
-    toast.success('Reflection saved!');
+    try {
+      // Detect mood from reflection text if provided
+      if (reflection.trim()) {
+        setMoodLoading(true);
+        try {
+          const moodResult = await detectMood({
+            sessionId: sessionData?.id || undefined,
+            reflectionText: reflection,
+          });
+          setDetectedMood(moodResult);
+          toast.success('Reflection saved and mood analyzed!');
+        } catch (error: any) {
+          console.error('Mood detection failed:', error);
+          toast.success('Reflection saved!');
+        } finally {
+          setMoodLoading(false);
+        }
+      } else {
+        toast.success('Reflection saved!');
+      }
+    } catch (error: any) {
+      console.error('Failed to save reflection:', error);
+      toast.error('Failed to save reflection. Please try again.');
+    }
   };
 
   const formatTime = (minutes: number) => {
@@ -297,9 +360,6 @@ function SessionSummaryContent() {
       </>
     );
   }
-
-  const completedTasks = tasks.filter((t) => t.status === 'completed');
-  const pendingTasks = tasks.filter((t) => t.status === 'pending' || !t.status);
 
   return (
     <>
@@ -635,8 +695,19 @@ function SessionSummaryContent() {
                     />
                   </div>
 
-                  <AnimatedButton onClick={handleSaveReflection} className="w-full">
-                    Save Reflection
+                  <AnimatedButton 
+                    onClick={handleSaveReflection} 
+                    className="w-full"
+                    disabled={moodLoading}
+                  >
+                    {moodLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Analyzing...
+                      </>
+                    ) : (
+                      'Save Reflection'
+                    )}
                   </AnimatedButton>
                 </CardContent>
               </Card>

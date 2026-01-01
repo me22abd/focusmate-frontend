@@ -52,15 +52,10 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
   const { user } = useAuthStore();
   const router = useRouter();
 
-  // Handle close - navigate back or to dashboard
+  // Handle close - always go to dashboard
   const handleClose = () => {
-    // Try to go back in history, otherwise go to dashboard
-    if (window.history.length > 1) {
-      router.back();
-    } else {
-      router.push('/dashboard');
-    }
-    onClose();
+    onClose(); // Close the chat first
+    router.push('/dashboard'); // Always navigate to dashboard
   };
 
   // Load conversations from localStorage (user-specific)
@@ -425,7 +420,7 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
             </AnimatePresence>
 
             {/* Main Chat Area */}
-            <GlassCard className="h-full flex-1 flex flex-col shadow-2xl min-w-0 rounded-none border-0">
+            <GlassCard className="flex-1 flex flex-col shadow-2xl min-w-0 rounded-none border-0 h-full overflow-hidden">
               {/* Header */}
               <div className="flex items-center justify-between p-4 border-b border-white/10 flex-shrink-0">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -470,13 +465,13 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
                 </div>
               </div>
 
-              {/* Messages Area - Scrollable with proper scroll behavior */}
+              {/* Messages Area - Fully scrollable from top to bottom */}
               <div 
                 ref={messagesContainerRef}
-                className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0 overscroll-contain"
+                className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-4 min-h-0"
                 style={{ 
                   WebkitOverflowScrolling: 'touch',
-                  scrollBehavior: 'smooth'
+                  scrollBehavior: 'smooth',
                 }}
               >
                 <AnimatePresence>

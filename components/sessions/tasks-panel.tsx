@@ -48,6 +48,8 @@ import { getTasks, createTask, updateTask, deleteTask, getTaskStats, toggleTaskC
 import { getModules, type Module } from '@/lib/api/modules';
 import { playTaskCompleteSound } from '@/lib/sounds';
 import { useSettingsStore } from '@/store/settings-store';
+import { optimizeTasks, type TaskOptimizationResponse } from '@/lib/api/ai';
+import { Sparkles, Loader2 } from 'lucide-react';
 
 export function TasksPanel() {
   const { user } = useAuthStore();
@@ -59,6 +61,7 @@ export function TasksPanel() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [modules, setModules] = useState<Module[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isOptimizing, setIsOptimizing] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -208,6 +211,41 @@ export function TasksPanel() {
       console.error('Failed to toggle task:', error);
       const errorMessage = error.response?.data?.message || error.message || 'Failed to update task';
       toast.error(errorMessage);
+    }
+  };
+
+  const handleOptimizeTask = async () => {
+    if (!formData.title.trim() && !formData.description.trim()) {
+      toast.error('Please enter a task title or description first');
+      return;
+    }
+
+    setIsOptimizing(true);
+    try {
+      const optimizationResult = await optimizeTasks({
+        userId: user?.id || '',
+        tasks: [{
+          id: 'temp',
+          title: formData.title || 'Untitled Task',
+          description: formData.description || undefined,
+          dueDate: formData.dueDate ? new Date(formData.dueDate).toISOString() : undefined,
+        }],
+      });
+
+      if (optimizationResult.optimizedTasks && optimizationResult.optimizedTasks.length > 0) {
+        const optimized = optimizationResult.optimizedTasks[0];
+        setFormData({
+          ...formData,
+          title: optimized.improvedText.includes('\n') ? formData.title : optimized.improvedText,
+          description: optimized.improvedText.includes('\n') ? optimized.improvedText : (formData.description || ''),
+        });
+        toast.success('Task optimized by FocusAI ✨');
+      }
+    } catch (error: any) {
+      console.error('Failed to optimize task:', error);
+      toast.error('Failed to optimize task. Please try again.');
+    } finally {
+      setIsOptimizing(false);
     }
   };
 
@@ -449,7 +487,29 @@ export function TasksPanel() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="description">Description</Label>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleOptimizeTask}
+                    disabled={isOptimizing || (!formData.title.trim() && !formData.description.trim())}
+                    className="text-xs"
+                  >
+                    {isOptimizing ? (
+                      <>
+                        <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                        Optimizing...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-3 w-3 mr-1" />
+                        Optimize with AI
+                      </>
+                    )}
+                  </Button>
+                </div>
                 <Textarea
                   id="description"
                   value={formData.description}

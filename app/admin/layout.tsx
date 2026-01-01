@@ -14,7 +14,8 @@ import {
   LogOut,
   Shield,
   Menu,
-  X
+  X,
+  Mail
 } from 'lucide-react';
 import { adminLogout } from '@/lib/api/admin';
 import { Toaster } from 'sonner';
@@ -27,6 +28,7 @@ const navItems = [
   { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
   { href: '/admin/notifications', label: 'Notifications', icon: Bell },
   { href: '/admin/achievements', label: 'Achievements', icon: Award },
+  { href: '/admin/ai-email-helper', label: 'AI Email Helper', icon: Mail },
   { href: '/admin/settings', label: 'Settings', icon: Settings },
 ];
 

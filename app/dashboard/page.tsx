@@ -181,6 +181,9 @@ import {
 
 // Adapted: Toast library
 import { toast } from 'sonner';
+import { evaluateNotifications, type NotificationRecommendation } from '@/lib/api/ai';
+import { FocusAICharacter } from '@/components/mascot/FocusAICharacter';
+import { Sparkles, AlertTriangle, Zap, TrendingUp } from 'lucide-react';
 
 /**
  * Dashboard Page Component
@@ -211,6 +214,8 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [showSessionModal, setShowSessionModal] = useState(false);
   const [resendingEmail, setResendingEmail] = useState(false);
+  const [aiRecommendations, setAiRecommendations] = useState<NotificationRecommendation[]>([]);
+  const [loadingRecommendations, setLoadingRecommendations] = useState(false);
 
   // ===========================================================================
   // 📘 CODE ORIGIN: User Profile Sync on Mount
@@ -241,12 +246,10 @@ export default function DashboardPage() {
       console.log('  Token exists:', hasToken ? '✅ Yes' : '❌ No');
       console.log('  User exists:', storedUserStr ? '✅ Yes' : '❌ No');
       
+      // Don't redirect here - useAuthGuard already handles this
+      // Only check token to decide whether to fetch user data
       if (!hasToken) {
-        console.warn('⚠️ Dashboard: No token found, redirecting to login');
-        useAuthStore.getState().clearAuth();
-        if (typeof window !== 'undefined') {
-          window.location.href = '/login';
-        }
+        console.warn('⚠️ Dashboard: No token found, but letting useAuthGuard handle redirect');
         setIsLoading(false);
         return;
       }
@@ -357,20 +360,13 @@ export default function DashboardPage() {
           console.error('  Token preview after error:', tokenAfterError.substring(0, 30) + '...');
         }
         
-        // Show error on screen for debugging
+        // Don't handle 401/403 here - axios interceptor and useAuthGuard handle redirects
+        // Just log the error for debugging
         if (error?.response?.status === 401 || error?.response?.status === 403) {
           const errorMsg = error?.response?.data?.message || error?.message || 'Authentication failed';
           console.error('⚠️ DASHBOARD: Auth error detected (401/403)');
           console.error('  Error message:', errorMsg);
-          toast.error(`Auth Error (${error?.response?.status}): ${errorMsg}`, {
-            description: 'Check console for details',
-            duration: 10000,
-          });
-          console.warn('⚠️ DASHBOARD: Clearing storage and redirecting to login');
-          useAuthStore.getState().clearAuth();
-          if (typeof window !== 'undefined') {
-            window.location.href = '/login';
-          }
+          // Don't redirect or show toast - let auth system handle it
           return;
         }
         
@@ -522,6 +518,30 @@ export default function DashboardPage() {
     ],
     [analytics]  // Recalculate when analytics changes
   );
+
+  // ===========================================================================
+  // 📘 CODE ORIGIN: AI Recommendations Fetch - Phase 4
+  // ===========================================================================
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      if (!user?.id) return;
+      
+      setLoadingRecommendations(true);
+      try {
+        const recommendations = await evaluateNotifications();
+        setAiRecommendations(recommendations.slice(0, 3)); // Show top 3
+      } catch (error) {
+        console.error('Failed to fetch AI recommendations:', error);
+      } finally {
+        setLoadingRecommendations(false);
+      }
+    };
+
+    fetchRecommendations();
+    // Refresh every 5 minutes
+    const interval = setInterval(fetchRecommendations, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [user?.id]);
 
   // ===========================================================================
   // 📘 CODE ORIGIN: Weekly Progress Calculation
@@ -849,6 +869,65 @@ export default function DashboardPage() {
               </GlassCard>
             ))}
           </section>
+
+          {/* ===================================================================
+              AI RECOMMENDATIONS SECTION - Phase 4
+              =================================================================== */}
+          {aiRecommendations.length > 0 && (
+            <GlassCard delay={0.45} className="p-5">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 flex items-center justify-center">
+                  <FocusAICharacter pose="idea" size="sm" animate />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">
+                    Today's FocusAI Recommendations
+                  </h2>
+                  <p className="text-xs text-slate-600 dark:text-slate-400">
+                    Personalized insights to boost your productivity
+                  </p>
+                </div>
+              </div>
+              <div className="space-y-3">
+                {aiRecommendations.map((rec, idx) => {
+                  const getIcon = () => {
+                    switch (rec.type) {
+                      case 'streak_warning':
+                        return <AlertTriangle className="h-4 w-4 text-orange-500" />;
+                      case 'best_time_to_focus':
+                        return <Clock className="h-4 w-4 text-blue-500" />;
+                      case 'task_overdue':
+                        return <AlertTriangle className="h-4 w-4 text-red-500" />;
+                      case 'session_preparation':
+                        return <Zap className="h-4 w-4 text-yellow-500" />;
+                      case 'motivation_boost':
+                        return <TrendingUp className="h-4 w-4 text-green-500" />;
+                      default:
+                        return <Sparkles className="h-4 w-4 text-indigo-500" />;
+                    }
+                  };
+                  return (
+                    <div
+                      key={idx}
+                      className="p-3 rounded-lg border border-indigo-200 dark:border-indigo-800 bg-indigo-50/50 dark:bg-indigo-950/20"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="mt-0.5 flex-shrink-0">{getIcon()}</div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-sm font-semibold text-foreground mb-1">
+                            {rec.title}
+                          </h4>
+                          <p className="text-xs text-muted-foreground">
+                            {rec.description}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </GlassCard>
+          )}
 
           {/* ===================================================================
               ACTION CARDS SECTION

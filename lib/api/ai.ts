@@ -248,14 +248,31 @@ export const detectMood = async (data: {
 };
 
 export interface OptimizedTask {
+  id: string;
   improvedText: string;
   priority: 'low' | 'medium' | 'high';
-  estimatedTime: number;
+  estimatedTime: string;
+  breakdown?: string[];
 }
 
-export const optimizeTasks = async (tasks: any[]): Promise<OptimizedTask[]> => {
-  const response = await axiosInstance.post<{ tasks: OptimizedTask[] }>('/ai/tasks/optimize', { tasks });
-  return response.data.tasks;
+export interface TaskOptimizationResponse {
+  optimizedTasks: OptimizedTask[];
+  overallSuggestion: string;
+}
+
+export const optimizeTasks = async (data: {
+  userId: string;
+  tasks: {
+    id: string;
+    title: string;
+    description?: string;
+    dueDate?: string;
+    priority?: 'low' | 'medium' | 'high';
+    status?: 'pending' | 'completed' | 'overdue';
+  }[];
+}): Promise<TaskOptimizationResponse> => {
+  const response = await axiosInstance.post<TaskOptimizationResponse>('/ai/tasks/optimize', data);
+  return response.data;
 };
 
 // ==========================================================================
@@ -269,16 +286,38 @@ export interface NotificationRecommendation {
 }
 
 export const evaluateNotifications = async (): Promise<NotificationRecommendation[]> => {
-  const response = await axiosInstance.post<{ notifications: NotificationRecommendation[] }>('/ai/notify/evaluate');
-  return response.data.notifications;
+  const response = await axiosInstance.post<{ recommendedNotifications: NotificationRecommendation[] }>('/ai/notify/evaluate');
+  return response.data.recommendedNotifications || [];
 };
 
+export interface EmailSupportResponse {
+  replySubject?: string;
+  replyBody: string;
+  classification?: 'bug' | 'billing' | 'question' | 'feature-request' | 'account-issue' | 'spam';
+  priority?: 'low' | 'normal' | 'high' | 'urgent';
+  confidence?: number;
+}
+
 export const generateEmailReply = async (data: {
-  originalMessage: string;
+  subject: string;
+  body: string;
   context?: string;
-}): Promise<string> => {
-  const response = await axiosInstance.post<{ reply: string }>('/ai/email/support', data);
-  return response.data.reply;
+}): Promise<EmailSupportResponse | string> => {
+  // Combine subject and body into originalMessage format expected by backend
+  const originalMessage = data.subject ? `Subject: ${data.subject}\n\n${data.body}` : data.body;
+  const response = await axiosInstance.post<{ reply: string } | EmailSupportResponse>('/ai/email/support', {
+    originalMessage,
+    context: data.context,
+  });
+  
+  // Backend currently returns { reply: string }, but may return full EmailSupportResponse in future
+  if ('reply' in response.data) {
+    // Legacy format
+    return response.data.reply;
+  } else {
+    // New format (when backend is updated)
+    return response.data as EmailSupportResponse;
+  }
 };
 
 /**
