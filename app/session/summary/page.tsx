@@ -20,6 +20,7 @@ import {
   Meh,
   Heart,
   Sparkles,
+  Loader2,
 } from 'lucide-react';
 import { useAuthGuard } from '@/hooks/use-auth-guard';
 import { useAuthStore } from '@/store/auth-store';
@@ -42,7 +43,6 @@ import { useSettingsStore } from '@/store/settings-store';
 import confetti from 'canvas-confetti';
 import { generateSessionSummary, detectMood, type SessionSummaryResponse, type MoodDetectionResponse } from '@/lib/api/ai';
 import { FocusAICharacter } from '@/components/mascot/FocusAICharacter';
-import { Loader2 } from 'lucide-react';
 
 interface SessionSummaryData {
   id?: string;
@@ -712,6 +712,141 @@ function SessionSummaryContent() {
                 </CardContent>
               </Card>
             </GlassCard>
+
+            {/* AI Session Summary */}
+            {aiSummaryLoading ? (
+              <GlassCard delay={0.55}>
+                <Card className="border-0 shadow-none bg-transparent">
+                  <CardContent className="p-6 text-center">
+                    <Loader2 className="h-8 w-8 animate-spin text-indigo-600 mx-auto mb-4" />
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      FocusAI is analyzing your session...
+                    </p>
+                  </CardContent>
+                </Card>
+              </GlassCard>
+            ) : aiSummary ? (
+              <GlassCard delay={0.55}>
+                <Card className="border-0 shadow-none bg-transparent">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-3 bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">
+                      <div className="w-12 h-12 flex items-center justify-center">
+                        <FocusAICharacter pose="happy" size="sm" animate />
+                      </div>
+                      <span>FocusAI Session Insights</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {/* Summary */}
+                    <div>
+                      <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Summary</h4>
+                      <p className="text-sm text-slate-600 dark:text-slate-400">{aiSummary.summary}</p>
+                    </div>
+
+                    {/* Strengths */}
+                    {aiSummary.strengths && aiSummary.strengths.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-semibold text-green-700 dark:text-green-400 mb-2 flex items-center gap-2">
+                          <TrendingUp className="h-4 w-4" />
+                          Strengths
+                        </h4>
+                        <ul className="space-y-1">
+                          {aiSummary.strengths.map((strength, idx) => (
+                            <li key={idx} className="text-sm text-slate-600 dark:text-slate-400 flex items-start gap-2">
+                              <span className="text-green-600 mt-0.5">✓</span>
+                              <span>{strength}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Weaknesses */}
+                    {aiSummary.weaknesses && aiSummary.weaknesses.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-semibold text-orange-700 dark:text-orange-400 mb-2 flex items-center gap-2">
+                          <Sparkles className="h-4 w-4" />
+                          Areas to Improve
+                        </h4>
+                        <ul className="space-y-1">
+                          {aiSummary.weaknesses.map((weakness, idx) => (
+                            <li key={idx} className="text-sm text-slate-600 dark:text-slate-400 flex items-start gap-2">
+                              <span className="text-orange-600 mt-0.5">•</span>
+                              <span>{weakness}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Recommendations */}
+                    {aiSummary.recommendations && aiSummary.recommendations.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-semibold text-blue-700 dark:text-blue-400 mb-2 flex items-center gap-2">
+                          <Sparkles className="h-4 w-4" />
+                          Recommendations
+                        </h4>
+                        <ul className="space-y-1">
+                          {aiSummary.recommendations.map((rec, idx) => (
+                            <li key={idx} className="text-sm text-slate-600 dark:text-slate-400 flex items-start gap-2">
+                              <span className="text-blue-600 mt-0.5">→</span>
+                              <span>{rec}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Motivational Message */}
+                    {aiSummary.motivationalMessage && (
+                      <div className="p-4 rounded-lg bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-950/30 dark:to-blue-950/30 border border-indigo-200 dark:border-indigo-800">
+                        <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                          {aiSummary.motivationalMessage}
+                        </p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </GlassCard>
+            ) : null}
+
+            {/* AI Mood Analysis */}
+            {detectedMood && (
+              <GlassCard delay={0.6}>
+                <Card className="border-0 shadow-none bg-transparent">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-3 bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">
+                      <div className="w-12 h-12 flex items-center justify-center">
+                        <FocusAICharacter pose="neutral" size="sm" animate />
+                      </div>
+                      <span>Mood Analysis</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center gap-4">
+                      <div className="text-4xl">
+                        {detectedMood.mood === 'positive' || detectedMood.mood === 'motivated' || detectedMood.mood === 'satisfied' ? '😊' :
+                         detectedMood.mood === 'tired' || detectedMood.mood === 'frustrated' ? '😴' :
+                         detectedMood.mood === 'anxious' ? '😰' : '😐'}
+                      </div>
+                      <div>
+                        <p className="text-lg font-semibold text-slate-900 dark:text-white capitalize">
+                          {detectedMood.mood}
+                        </p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          Confidence: {Math.round(detectedMood.confidence * 100)}%
+                        </p>
+                      </div>
+                    </div>
+                    {detectedMood.explanation && (
+                      <p className="text-sm text-slate-600 dark:text-slate-400">
+                        {detectedMood.explanation}
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              </GlassCard>
+            )}
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
