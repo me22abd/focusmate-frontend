@@ -81,7 +81,7 @@ export function AssistantBubble() {
     <>
       {/* Floating Bubble Button - Draggable */}
       <motion.div
-        className="fixed bottom-6 right-6 z-50 cursor-grab active:cursor-grabbing"
+        className="fixed bottom-6 right-6 z-[9999] cursor-grab active:cursor-grabbing"
         initial={{ scale: 0, opacity: 0, x: position.x, y: position.y }}
         animate={{ 
           scale: 1, 
@@ -142,12 +142,6 @@ export function AssistantBubble() {
             <FocusAICharacter pose="wave" size="sm" animate />
           </div>
 
-          {/* Notification Badge (optional - can be conditionally shown) */}
-          {/* <motion.div
-            className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-white"
-            animate={{ scale: [1, 1.2, 1] }}
-            transition={{ duration: 1, repeat: Infinity }}
-          /> */}
         </motion.button>
       </motion.div>
 

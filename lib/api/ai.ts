@@ -99,6 +99,7 @@ export interface ChatRequest {
 export interface ChatResponse {
   response: string;  // AI-generated text
   userId: string;    // User who made request
+  memoryUpdated?: boolean;  // Indicates if AI memory was updated
 }
 
 /**
@@ -149,10 +150,15 @@ export interface ChatResponse {
  * - Mood detection
  * - App knowledge base
  */
+export interface AIMessageResponse {
+  response: string;
+  memoryUpdated?: boolean;
+}
+
 export const sendAIMessage = async (
   message: string,
   retries: number = 0
-): Promise<string> => {
+): Promise<AIMessageResponse> => {
   const maxRetries = 2; // Retry up to 2 times for rate limits
   
   try {
@@ -161,8 +167,11 @@ export const sendAIMessage = async (
       message,
     });
     
-    // Extract response string
-    return response.data.response;
+    // Return both response and memory update status
+    return {
+      response: response.data.response,
+      memoryUpdated: response.data.memoryUpdated,
+    };
     
   } catch (error: any) {
     console.error('Failed to send AI message:', error);
@@ -205,7 +214,8 @@ export const sendChatMessage = async (
   retries: number = 0
 ): Promise<string> => {
   // For backwards compatibility, use unified engine (history is handled by AI context)
-  return sendAIMessage(message, retries);
+  const result = await sendAIMessage(message, retries);
+  return result.response;
 };
 
 // ==========================================================================

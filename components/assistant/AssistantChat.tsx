@@ -45,6 +45,7 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
   const [mascotPose, setMascotPose] = useState<FocusAIPose>('happy');
   const [lastActivityTime, setLastActivityTime] = useState(Date.now());
   const [showSidebar, setShowSidebar] = useState(false);
+  const [memoryLearningActive, setMemoryLearningActive] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -268,31 +269,37 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
 
     try {
       // Send to unified AI engine (handles all features automatically)
-      const response = await sendAIMessage(userMessage.content);
+      const result = await sendAIMessage(userMessage.content);
 
       // Add AI response
       const aiMessage: ChatMessage = {
         role: 'assistant',
-        content: response,
+        content: result.response,
         timestamp: new Date().toISOString(),
       };
 
       setMessages((prev) => [...prev, aiMessage]);
       setLastActivityTime(Date.now());
       
-      // Show learning message when memory is updated (every 3rd message or randomly)
-      // The backend returns memoryUpdated: true, but we show message occasionally to not be annoying
-      if (Math.random() > 0.7) { // 30% chance to show learning message
-        setTimeout(() => {
-          toast.success('🧠 FocusAI is learning your preferences...', {
-            description: 'Your conversations help me provide better personalized advice.',
-            duration: 3000,
-          });
-        }, 500);
+      // Handle memory update feedback
+      if (result.memoryUpdated) {
+        // Trigger learning animation on mascot
+        setMemoryLearningActive(true);
+        setTimeout(() => setMemoryLearningActive(false), 2000);
+        
+        // Show subtle learning toast (only occasionally to not be annoying)
+        if (Math.random() > 0.7) {
+          setTimeout(() => {
+            toast.success('🧠 FocusAI is learning your preferences...', {
+              description: 'Your conversations help me provide better personalized advice.',
+              duration: 3000,
+            });
+          }, 500);
+        }
       }
       
       // Check if response is structured/helpful - use read pose
-      if (response.includes('\n') || response.includes('•') || response.includes('-') || response.length > 100) {
+      if (result.response.includes('\n') || result.response.includes('•') || result.response.includes('-') || result.response.length > 100) {
         setMascotPose('read');
       } else {
         setMascotPose('happy');
@@ -435,8 +442,28 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
                     <ArrowLeft className="w-4 h-4" />
                   </Button>
                   {/* Mascot Avatar */}
-                  <div className="w-[70px] h-[70px] flex items-center justify-center overflow-visible flex-shrink-0">
+                  <div className="w-[70px] h-[70px] flex items-center justify-center overflow-visible flex-shrink-0 relative group">
                     <FocusAICharacter pose={mascotPose} size="md" animate />
+                    {/* Learning spark animation */}
+                    {memoryLearningActive && (
+                      <motion.div
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ 
+                          scale: [1, 1.5, 0],
+                          opacity: [1, 0.5, 0],
+                          rotate: [0, 180, 360],
+                        }}
+                        transition={{ duration: 2, ease: 'easeOut' }}
+                        className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                      >
+                        <div className="text-2xl">✨</div>
+                      </motion.div>
+                    )}
+                    {/* Tooltip */}
+                    <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-slate-900 dark:bg-slate-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 shadow-lg">
+                      FocusAI knows your preferences, patterns, and goals
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900 dark:border-t-slate-800"></div>
+                    </div>
                   </div>
                   <div className="min-w-0 flex-1">
                     <h3 className="font-semibold text-foreground truncate">FocusAI</h3>

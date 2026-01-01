@@ -109,7 +109,9 @@
 // Framework pattern: Next.js core imports (required for all Next.js pages)
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 // Custom implementation: MY components (designed for Focusmate)
 import { Navbar } from '@/components/navbar';
@@ -118,6 +120,8 @@ import { Button } from '@/components/ui/button';
 import { AnimatedButton } from '@/components/ui/animated-button';
 import { FocusAICharacter } from '@/components/mascot/FocusAICharacter';
 import { GlassCard } from '@/components/ui/glass-card';
+import { AssistantChat } from '@/components/assistant/AssistantChat';
+import { useAuthStore } from '@/store/auth-store';
 
 // Adapted from Lucide React: Icon library (free, open-source)
 // Custom selection: I chose these 4 specific icons for Focusmate features
@@ -182,6 +186,67 @@ const featureCards = [
     iconColor: 'text-[#f97316]',
   },
 ];
+
+/**
+ * ============================================================================
+ * AI FOCUS COMPANION SECTION COMPONENT
+ * ============================================================================
+ */
+function AIFocusCompanionSection() {
+  const { isAuthenticated, user } = useAuthStore();
+  const router = useRouter();
+  const [isChatOpen, setIsChatOpen] = useState(false);
+
+  const handleChatClick = () => {
+    if (isAuthenticated) {
+      setIsChatOpen(true);
+    } else {
+      router.push('/login');
+    }
+  };
+
+  return (
+    <>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.7 }}
+        className="relative z-10 flex flex-col items-center gap-4 mt-12 px-4"
+      >
+        <FocusAICharacter pose="idle" size="lg" animate onHoverPose="wave" autoPose />
+        <div className="text-center space-y-4">
+          <div className="space-y-2">
+            <h2 className="text-xl font-bold bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent flex items-center justify-center gap-2">
+              <Sparkles className="h-5 w-5 text-indigo-600" />
+              Meet FocusAI — Your Productivity Companion
+            </h2>
+            <p className="text-sm text-muted-foreground max-w-md">
+              Meet FocusAI, your productivity partner. Powered by AI to help you stay focused, track progress, and achieve your goals.
+            </p>
+          </div>
+          <Button
+            onClick={handleChatClick}
+            className="bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 hover:opacity-90 text-white"
+            size="lg"
+          >
+            <Sparkles className="mr-2 h-4 w-4" />
+            {isAuthenticated ? 'Chat with FocusAI' : 'Get Started with FocusAI'}
+          </Button>
+        </div>
+      </motion.div>
+
+      <AnimatePresence>
+        {isChatOpen && isAuthenticated && (
+          <AssistantChat
+            isOpen={isChatOpen}
+            onClose={() => setIsChatOpen(false)}
+            userName={user?.name || 'there'}
+          />
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
 
 /**
  * ============================================================================
@@ -355,23 +420,7 @@ export default function Home() {
         </motion.div>
 
         {/* Your AI Focus Companion Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-          className="relative z-10 flex flex-col items-center gap-4 mt-12 px-4"
-        >
-          <FocusAICharacter pose="idle" size="lg" animate onHoverPose="wave" autoPose />
-          <div className="text-center space-y-2">
-            <h2 className="text-xl font-bold bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent flex items-center justify-center gap-2">
-              <Sparkles className="h-5 w-5 text-indigo-600" />
-              Your AI Focus Companion
-            </h2>
-            <p className="text-sm text-muted-foreground max-w-md">
-              Meet FocusAI, your productivity partner. Powered by AI to help you stay focused, track progress, and achieve your goals.
-            </p>
-          </div>
-        </motion.div>
+        <AIFocusCompanionSection />
 
         {/* ===================================================================
             FEATURE HIGHLIGHTS - Custom Implementation

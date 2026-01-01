@@ -16,7 +16,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '@/store/auth-store';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -62,6 +62,7 @@ export function TasksPanel() {
   const [modules, setModules] = useState<Module[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOptimizing, setIsOptimizing] = useState(false);
+  const [optimizedFields, setOptimizedFields] = useState<Set<string>>(new Set());
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -183,6 +184,7 @@ export function TasksPanel() {
       moduleId: '',
       autoComplete: false,
     });
+    setOptimizedFields(new Set()); // Clear optimized fields when dialog closes
   };
 
   const handleToggleTaskComplete = async (taskId: string, currentStatus: string) => {
@@ -234,11 +236,33 @@ export function TasksPanel() {
 
       if (optimizationResult.optimizedTasks && optimizationResult.optimizedTasks.length > 0) {
         const optimized = optimizationResult.optimizedTasks[0];
-        setFormData({
-          ...formData,
-          title: optimized.improvedText.includes('\n') ? formData.title : optimized.improvedText,
-          description: optimized.improvedText.includes('\n') ? optimized.improvedText : (formData.description || ''),
-        });
+        const newOptimizedFields = new Set<string>();
+        
+        // Update form data and track which fields were optimized
+        if (!optimized.improvedText.includes('\n') && optimized.improvedText) {
+          // Title was optimized
+          newOptimizedFields.add('title');
+          setFormData({
+            ...formData,
+            title: optimized.improvedText,
+          });
+        } else if (optimized.improvedText.includes('\n')) {
+          // Description was optimized
+          newOptimizedFields.add('description');
+          setFormData({
+            ...formData,
+            description: optimized.improvedText,
+          });
+        }
+        
+        // Track optimized fields
+        setOptimizedFields(newOptimizedFields);
+        
+        // Remove glow after 3 seconds
+        setTimeout(() => {
+          setOptimizedFields(new Set());
+        }, 3000);
+        
         toast.success('Task optimized by FocusAI ✨');
       }
     } catch (error: any) {
@@ -477,13 +501,46 @@ export function TasksPanel() {
             <div className="space-y-4 py-4">
               <div className="space-y-2">
                 <Label htmlFor="title">Title *</Label>
-                <Input
-                  id="title"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="Enter task title"
-                  required
-                />
+                <motion.div
+                  animate={optimizedFields.has('title') ? {
+                    boxShadow: [
+                      '0 0 0px rgba(99, 102, 241, 0)',
+                      '0 0 20px rgba(99, 102, 241, 0.5)',
+                      '0 0 0px rgba(99, 102, 241, 0)',
+                    ],
+                  } : {}}
+                  transition={{ duration: 1.5, repeat: 2 }}
+                  className="rounded-md"
+                >
+                  <Input
+                    id="title"
+                    value={formData.title}
+                    onChange={(e) => {
+                      setFormData({ ...formData, title: e.target.value });
+                      setOptimizedFields(prev => {
+                        const next = new Set(prev);
+                        next.delete('title');
+                        return next;
+                      });
+                    }}
+                    placeholder="Enter task title"
+                    required
+                    className={cn(
+                      optimizedFields.has('title') && 'ring-2 ring-indigo-400 ring-opacity-75'
+                    )}
+                  />
+                </motion.div>
+                {optimizedFields.has('title') && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="text-xs text-indigo-600 dark:text-indigo-400 flex items-center gap-1"
+                  >
+                    <Sparkles className="h-3 w-3" />
+                    Optimized by FocusAI
+                  </motion.p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -510,13 +567,46 @@ export function TasksPanel() {
                     )}
                   </Button>
                 </div>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Enter task description (optional)"
-                  rows={3}
-                />
+                <motion.div
+                  animate={optimizedFields.has('description') ? {
+                    boxShadow: [
+                      '0 0 0px rgba(99, 102, 241, 0)',
+                      '0 0 20px rgba(99, 102, 241, 0.5)',
+                      '0 0 0px rgba(99, 102, 241, 0)',
+                    ],
+                  } : {}}
+                  transition={{ duration: 1.5, repeat: 2 }}
+                  className="rounded-md"
+                >
+                  <Textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) => {
+                      setFormData({ ...formData, description: e.target.value });
+                      setOptimizedFields(prev => {
+                        const next = new Set(prev);
+                        next.delete('description');
+                        return next;
+                      });
+                    }}
+                    placeholder="Enter task description (optional)"
+                    rows={3}
+                    className={cn(
+                      optimizedFields.has('description') && 'ring-2 ring-indigo-400 ring-opacity-75'
+                    )}
+                  />
+                </motion.div>
+                {optimizedFields.has('description') && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="text-xs text-indigo-600 dark:text-indigo-400 flex items-center gap-1"
+                  >
+                    <Sparkles className="h-3 w-3" />
+                    Optimized by FocusAI
+                  </motion.p>
+                )}
               </div>
 
               <div className="space-y-2">

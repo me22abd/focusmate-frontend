@@ -43,19 +43,12 @@ const adminAxios = axios.create({
 // Set axios defaults
 axios.defaults.withCredentials = true;
 
-// Request interceptor: Log document.cookie before every request
+// Request interceptor: Ensure credentials are sent
 // CRITICAL: admin_token is httpOnly, so JavaScript can't read it from document.cookie
 // CRITICAL: Browser automatically sends cookie with withCredentials: true
 adminAxios.interceptors.request.use(
   (config) => {
     if (typeof window !== 'undefined') {
-      console.log('🔵 AdminAxios Request Interceptor');
-      console.log('  BaseURL:', config.baseURL);
-      console.log('  Full URL:', config.baseURL ? `${config.baseURL}${config.url}` : config.url);
-      console.log('  document.cookie:', document.cookie || '(empty or httpOnly cookies not visible)');
-      console.log('  withCredentials:', config.withCredentials);
-      console.log('  admin_token cookie: Will be sent automatically by browser (httpOnly)');
-      
       // CRITICAL: Ensure withCredentials is true
       config.withCredentials = true;
     }
@@ -83,6 +76,121 @@ adminAxios.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// ============================================================================
+// ADMIN EMAIL HELPER API FUNCTIONS
+// ============================================================================
+
+export interface SupportEmail {
+  id: string;
+  sender: string;
+  subject: string;
+  message: string;
+  timestamp: string;
+  status: 'pending' | 'ai_drafted' | 'sent';
+}
+
+export interface EmailTemplate {
+  id: string;
+  name: string;
+  content: string;
+  createdAt: string;
+}
+
+/**
+ * Get all support emails from backend
+ * TODO: Replace with actual backend endpoint when available
+ * For now, returns empty array and logs that backend endpoint is needed
+ */
+export async function getSupportEmails(): Promise<SupportEmail[]> {
+  try {
+    // TODO: Replace with actual endpoint: GET /admin/support-emails
+    // const response = await adminAxios.get<SupportEmail[]>('/support-emails');
+    // return response.data;
+    
+    console.warn('⚠️ getSupportEmails: Backend endpoint not yet implemented. Using localStorage fallback.');
+    return [];
+  } catch (error: any) {
+    console.error('Failed to fetch support emails:', error);
+    throw error;
+  }
+}
+
+/**
+ * Send email reply via backend
+ * TODO: Replace with actual backend endpoint when available
+ */
+export async function sendEmailReply(
+  emailId: string,
+  replySubject: string,
+  replyBody: string,
+  recipientEmail: string
+): Promise<void> {
+  try {
+    // TODO: Replace with actual endpoint: POST /admin/emails/:id/send
+    // await adminAxios.post(`/emails/${emailId}/send`, {
+    //   subject: replySubject,
+    //   body: replyBody,
+    //   to: recipientEmail,
+    // });
+    
+    console.warn('⚠️ sendEmailReply: Backend endpoint not yet implemented. Email send simulated.');
+    // Simulate successful send
+    await new Promise(resolve => setTimeout(resolve, 500));
+  } catch (error: any) {
+    console.error('Failed to send email reply:', error);
+    throw error;
+  }
+}
+
+/**
+ * Save email template to backend
+ * TODO: Replace with actual backend endpoint when available
+ */
+export async function saveTemplate(
+  name: string,
+  content: string
+): Promise<EmailTemplate> {
+  try {
+    // TODO: Replace with actual endpoint: POST /admin/email-templates
+    // const response = await adminAxios.post<EmailTemplate>('/email-templates', {
+    //   name,
+    //   content,
+    // });
+    // return response.data;
+    
+    console.warn('⚠️ saveTemplate: Backend endpoint not yet implemented. Using localStorage fallback.');
+    
+    // Fallback: Create template object (will be stored in localStorage by component)
+    return {
+      id: `temp_${Date.now()}`,
+      name,
+      content,
+      createdAt: new Date().toISOString(),
+    };
+  } catch (error: any) {
+    console.error('Failed to save template:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get all saved email templates from backend
+ * TODO: Replace with actual backend endpoint when available
+ */
+export async function getEmailTemplates(): Promise<EmailTemplate[]> {
+  try {
+    // TODO: Replace with actual endpoint: GET /admin/email-templates
+    // const response = await adminAxios.get<EmailTemplate[]>('/email-templates');
+    // return response.data;
+    
+    console.warn('⚠️ getEmailTemplates: Backend endpoint not yet implemented. Using localStorage fallback.');
+    return [];
+  } catch (error: any) {
+    console.error('Failed to fetch email templates:', error);
+    throw error;
+  }
+}
 
 // Helper to get cookie value (works in both client and server)
 function getCookie(name: string): string | null {
@@ -365,15 +473,10 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 
 export async function getAllUsers(): Promise<User[]> {
   try {
-    console.log('🔍 Fetching all users from /admin/users...');
     const response = await adminAxios.get<User[]>('/users'); // Relative path - baseURL already includes /admin
-    console.log('✅ Users API response:', response);
-    console.log('✅ Users data:', response.data);
-    console.log(`✅ Received ${Array.isArray(response.data) ? response.data.length : 0} users`);
     
     // Ensure we always return an array
     const users = Array.isArray(response.data) ? response.data : [];
-    console.log(`✅ Returning ${users.length} users to component`);
     return users;
   } catch (error: any) {
     console.error('❌ Failed to fetch users:', error);
