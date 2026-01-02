@@ -113,3 +113,4 @@ Once all 8 mascot files have transparent backgrounds:
 - Use an online tool like Remove.bg for better results
 - Or manually edit with GIMP/Photoshop for precision
 
+

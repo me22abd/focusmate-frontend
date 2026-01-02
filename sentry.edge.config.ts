@@ -24,3 +24,4 @@ Sentry.init({
   tracesSampleRate: 0.1,
 });
 
+

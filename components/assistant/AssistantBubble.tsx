@@ -5,19 +5,17 @@
  */
 'use client';
 
-import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/auth-store';
-import { AssistantChat } from './AssistantChat';
 import { FocusAICharacter } from '@/components/mascot/FocusAICharacter';
 import { cn } from '@/lib/utils';
 
 export function AssistantBubble() {
-  const [isOpen, setIsOpen] = useState(false);
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const pathname = usePathname();
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
@@ -53,8 +51,8 @@ export function AssistantBubble() {
     localStorage.setItem('assistant-bubble-position', JSON.stringify(newPosition));
   };
 
-  // Public pages where assistant should NOT appear
-  const publicPages = [
+  // Pages where assistant bubble should NOT appear
+  const hiddenPages = [
     '/',
     '/login',
     '/register',
@@ -63,17 +61,18 @@ export function AssistantBubble() {
     '/verify-email',
     '/privacy',
     '/terms',
+    '/assistant', // Don't show bubble on assistant page itself
   ];
 
-  const isPublicPage = publicPages.some((page) => {
+  const shouldHide = hiddenPages.some((page) => {
     if (page === '/') {
       return pathname === '/' || pathname === '';
     }
     return pathname?.startsWith(page);
   });
 
-  // Don't render on server, if not authenticated, or on public pages
-  if (!mounted || !isAuthenticated || isPublicPage) {
+  // Don't render on server, if not authenticated, or on hidden pages
+  if (!mounted || !isAuthenticated || shouldHide) {
     return null;
   }
 
@@ -123,7 +122,7 @@ export function AssistantBubble() {
 
         {/* Button */}
         <motion.button
-          onClick={() => setIsOpen(true)}
+          onClick={() => router.push('/assistant')}
           className={cn(
             'relative w-16 h-16 rounded-full',
             'bg-gradient-to-br from-indigo-500 via-blue-500 to-cyan-500',
@@ -144,17 +143,6 @@ export function AssistantBubble() {
 
         </motion.button>
       </motion.div>
-
-      {/* Chat Window */}
-      <AnimatePresence>
-        {isOpen && (
-          <AssistantChat
-            isOpen={isOpen}
-            onClose={() => setIsOpen(false)}
-            userName={user?.name || 'there'}
-          />
-        )}
-      </AnimatePresence>
     </>
   );
 }

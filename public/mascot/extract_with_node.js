@@ -86,3 +86,4 @@ async function extractSprites() {
 
 extractSprites().catch(console.error);
 
+

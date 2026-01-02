@@ -109,8 +109,7 @@
 // Framework pattern: Next.js core imports (required for all Next.js pages)
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 
 // Custom implementation: MY components (designed for Focusmate)
@@ -120,7 +119,6 @@ import { Button } from '@/components/ui/button';
 import { AnimatedButton } from '@/components/ui/animated-button';
 import { FocusAICharacter } from '@/components/mascot/FocusAICharacter';
 import { GlassCard } from '@/components/ui/glass-card';
-import { AssistantChat } from '@/components/assistant/AssistantChat';
 import { useAuthStore } from '@/store/auth-store';
 
 // Adapted from Lucide React: Icon library (free, open-source)
@@ -193,13 +191,12 @@ const featureCards = [
  * ============================================================================
  */
 function AIFocusCompanionSection() {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const router = useRouter();
-  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const handleChatClick = () => {
     if (isAuthenticated) {
-      setIsChatOpen(true);
+      router.push('/assistant');
     } else {
       router.push('/login');
     }
@@ -231,22 +228,12 @@ function AIFocusCompanionSection() {
           >
             <Sparkles className="mr-2 h-4 w-4" />
             {isAuthenticated ? 'Chat with FocusAI' : 'Get Started with FocusAI'}
-          </Button>
-        </div>
-      </motion.div>
-
-      <AnimatePresence>
-        {isChatOpen && isAuthenticated && (
-          <AssistantChat
-            isOpen={isChatOpen}
-            onClose={() => setIsChatOpen(false)}
-            userName={user?.name || 'there'}
-          />
-        )}
-      </AnimatePresence>
-    </>
-  );
-}
+                  </Button>
+                </div>
+              </motion.div>
+            </>
+          );
+        }
 
 /**
  * ============================================================================

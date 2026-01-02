@@ -341,15 +341,23 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
     }
   };
 
+  // Prevent body scroll when chat is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = '';
+      };
+    }
+  }, [isOpen]);
+
   return (
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop - Removed for full-screen experience */}
-
           {/* Chat Window - Full Screen */}
           <motion.div
-            className="fixed inset-0 z-50 w-screen h-screen flex gap-0 overflow-hidden"
+            className="fixed inset-0 z-50 w-full h-full flex gap-0 overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

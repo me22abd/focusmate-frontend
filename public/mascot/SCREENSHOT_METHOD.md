@@ -78,3 +78,4 @@ You should see all 8 files listed!
 
 Once the files are in place, the mascot will automatically appear across your entire app with the exact design you showed me!
 
+
