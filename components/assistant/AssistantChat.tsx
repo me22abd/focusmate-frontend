@@ -50,6 +50,7 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const shouldAutoScrollRef = useRef(true); // Track if we should auto-scroll
   const { user } = useAuthStore();
   const router = useRouter();
 
@@ -208,10 +209,40 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
     return date.toLocaleDateString();
   };
 
-  // Auto-scroll to bottom when new messages arrive
+  // Auto-scroll to bottom only when new messages are added (not on initial load or manual scroll)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (shouldAutoScrollRef.current && messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
   }, [messages]);
+
+  // Detect when user manually scrolls - stop auto-scrolling
+  useEffect(() => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 100; // Within 100px of bottom
+      shouldAutoScrollRef.current = isNearBottom;
+    };
+
+    container.addEventListener('scroll', handleScroll);
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Initial scroll to bottom when chat opens or conversation loads
+  useEffect(() => {
+    if (isOpen && messagesContainerRef.current && messages.length > 0) {
+      // Small delay to ensure DOM is rendered
+      setTimeout(() => {
+        if (messagesEndRef.current) {
+          messagesEndRef.current.scrollIntoView({ behavior: 'auto' });
+          shouldAutoScrollRef.current = true;
+        }
+      }, 100);
+    }
+  }, [isOpen]);
 
   // Focus input when chat opens
   useEffect(() => {
@@ -266,6 +297,7 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
     setMessages((prev) => [...prev, userMessage]);
     setInputValue('');
     setIsLoading(true);
+    shouldAutoScrollRef.current = true; // Enable auto-scroll when sending message
 
     try {
       // Send to unified AI engine (handles all features automatically)
@@ -280,6 +312,7 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
 
       setMessages((prev) => [...prev, aiMessage]);
       setLastActivityTime(Date.now());
+      shouldAutoScrollRef.current = true; // Enable auto-scroll when receiving message
       
       // Handle memory update feedback
       if (result.memoryUpdated) {
@@ -507,6 +540,15 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
                 style={{ 
                   WebkitOverflowScrolling: 'touch',
                   scrollBehavior: 'smooth',
+                }}
+                onScroll={() => {
+                  // Update auto-scroll preference based on scroll position
+                  const container = messagesContainerRef.current;
+                  if (container) {
+                    const { scrollTop, scrollHeight, clientHeight } = container;
+                    const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+                    shouldAutoScrollRef.current = isNearBottom;
+                  }
                 }}
               >
                 <AnimatePresence>
