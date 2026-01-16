@@ -13,9 +13,16 @@ interface GlassCardProps {
   className?: string;
   hover?: boolean;
   delay?: number;
+  noOverflow?: boolean; // Allow disabling overflow-hidden for scrollable containers
 }
 
-export function GlassCard({ children, className, hover = true, delay = 0 }: GlassCardProps) {
+export function GlassCard({ 
+  children, 
+  className, 
+  hover = true, 
+  delay = 0,
+  noOverflow = false 
+}: GlassCardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -23,7 +30,8 @@ export function GlassCard({ children, className, hover = true, delay = 0 }: Glas
       transition={{ duration: 0.5, delay }}
       whileHover={hover ? { y: -4, transition: { duration: 0.2 } } : {}}
       className={cn(
-        'relative overflow-hidden rounded-2xl border border-white/20',
+        'relative rounded-2xl border border-white/20',
+        !noOverflow && 'overflow-hidden', // Only apply overflow-hidden if not disabled
         'bg-white/40 dark:bg-white/5 backdrop-blur-xl',
         'shadow-lg shadow-black/5 dark:shadow-black/20',
         'transition-all duration-300',

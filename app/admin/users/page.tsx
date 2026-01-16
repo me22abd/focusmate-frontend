@@ -11,7 +11,7 @@ import { getAllUsers, suspendUser, deleteUser, getAdminIdFromToken, getUserDetai
 import { toast } from 'sonner';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Search, Eye, Key } from 'lucide-react';
+import { Search, Eye, Key, Loader2 } from 'lucide-react';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -129,7 +129,14 @@ export default function AdminUsersPage() {
   };
 
   if (loading) {
-    return <div className="text-center py-12">Loading users...</div>;
+    return (
+      <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-950 dark:via-purple-950/20 dark:to-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-indigo-600 mx-auto mb-2" />
+          <p className="text-slate-600 dark:text-slate-400">Loading users...</p>
+        </div>
+      </div>
+    );
   }
 
   return (

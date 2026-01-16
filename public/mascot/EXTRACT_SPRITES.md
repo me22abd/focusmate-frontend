@@ -71,3 +71,4 @@ Your sprite sheet shows 7-8 poses in a grid. Here's how to extract them:
 After extraction, you should have 8 PNG files in `/public/mascot/`. The component is already configured to use these exact filenames.
 
 
+

@@ -50,3 +50,4 @@ The exact grid layout may vary - check the sprite sheet to determine if it's:
 Once extracted, place all 8 PNG files in `/public/mascot/` and the component will automatically use them!
 
 
+

@@ -157,14 +157,16 @@ export interface AIMessageResponse {
 
 export const sendAIMessage = async (
   message: string,
+  conversationHistory: ChatMessage[] = [],
   retries: number = 0
 ): Promise<AIMessageResponse> => {
   const maxRetries = 2; // Retry up to 2 times for rate limits
   
   try {
-    // POST to unified AI engine endpoint
+    // POST to unified AI engine endpoint with full conversation history
     const response = await axiosInstance.post<ChatResponse>('/ai/engine', {
       message,
+      conversationHistory, // Send full conversation context for memory
     });
     
     // Return both response and memory update status
@@ -174,8 +176,6 @@ export const sendAIMessage = async (
     };
     
   } catch (error: any) {
-    console.error('Failed to send AI message:', error);
-    
     // Enhanced error message extraction
     const errorMessage = 
       error.response?.data?.message ||
@@ -188,10 +188,9 @@ export const sendAIMessage = async (
     // Retry logic for rate limits (429) with exponential backoff
     if (statusCode === 429 && retries < maxRetries) {
       const delay = Math.pow(2, retries) * 1000; // Exponential backoff: 1s, 2s
-      console.log(`Rate limited. Retrying in ${delay}ms... (attempt ${retries + 1}/${maxRetries})`);
       
       await new Promise(resolve => setTimeout(resolve, delay));
-      return sendAIMessage(message, retries + 1);
+      return sendAIMessage(message, conversationHistory, retries + 1);
     }
     
     const chatError = new Error(errorMessage);
@@ -214,7 +213,7 @@ export const sendChatMessage = async (
   retries: number = 0
 ): Promise<string> => {
   // For backwards compatibility, use unified engine (history is handled by AI context)
-  const result = await sendAIMessage(message, retries);
+  const result = await sendAIMessage(message, conversationHistory, retries);
   return result.response;
 };
 

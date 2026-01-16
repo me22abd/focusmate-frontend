@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 import { 
   LayoutDashboard, 
   Users, 
@@ -19,6 +20,7 @@ import {
 } from 'lucide-react';
 import { adminLogout } from '@/lib/api/admin';
 import { Toaster } from 'sonner';
+import { AnimatedButton } from '@/components/ui/animated-button';
 
 const navItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -53,7 +55,37 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-950 dark:via-purple-950/20 dark:to-slate-900">
+      {/* Floating gradient orbs background */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          className="absolute top-20 left-10 w-72 h-72 bg-purple-400/30 rounded-full blur-3xl"
+          animate={{
+            x: [0, 50, 0],
+            y: [0, 30, 0],
+            scale: [1, 1.2, 1],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+        />
+        <motion.div
+          className="absolute bottom-20 right-10 w-96 h-96 bg-blue-400/30 rounded-full blur-3xl"
+          animate={{
+            x: [0, -30, 0],
+            y: [0, -50, 0],
+            scale: [1, 1.1, 1],
+          }}
+          transition={{
+            duration: 25,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+        />
+      </div>
+
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div
@@ -62,22 +94,22 @@ export default function AdminLayout({
         />
       )}
 
-      {/* Sidebar - Fixed at 240px width */}
+      {/* Premium Glass Sidebar */}
       <aside
-        className={`fixed left-0 top-0 z-50 h-screen w-[240px] bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex-shrink-0 transition-transform duration-300 ease-in-out ${
+        className={`fixed left-0 top-0 z-50 h-screen w-[240px] backdrop-blur-xl bg-white/40 dark:bg-white/5 border-r border-white/20 dark:border-white/10 flex-shrink-0 transition-transform duration-300 ease-in-out ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
       >
         <div className="flex h-full flex-col">
-          {/* Logo/Header */}
-          <div className="flex h-16 items-center justify-between border-b border-slate-200 dark:border-slate-700 px-6 flex-shrink-0">
-            <h1 className="text-xl font-bold text-slate-900 dark:text-white">
+          {/* Logo/Header with gradient */}
+          <div className="flex h-16 items-center justify-between border-b border-white/20 dark:border-white/10 px-6 flex-shrink-0">
+            <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">
               Admin Panel
             </h1>
             {/* Mobile close button */}
             <button
               onClick={() => setSidebarOpen(false)}
-              className="md:hidden p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700"
+              className="md:hidden p-1 rounded-md hover:bg-white/20 dark:hover:bg-white/10 transition-colors"
             >
               <X className="h-5 w-5 text-slate-600 dark:text-slate-300" />
             </button>
@@ -85,50 +117,58 @@ export default function AdminLayout({
 
           {/* Navigation - Scrollable */}
           <nav className="flex-1 overflow-y-auto space-y-1 px-3 py-4">
-            {navItems.map((item) => {
+            {navItems.map((item, index) => {
               const Icon = item.icon;
               const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
               return (
-                <Link
+                <motion.div
                   key={item.href}
-                  href={item.href}
-                  onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
-                    isActive
-                      ? 'bg-indigo-600 text-white shadow-md dark:bg-indigo-500'
-                      : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700'
-                  }`}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.05 }}
                 >
-                  <Icon className="h-5 w-5 flex-shrink-0" />
-                  <span>{item.label}</span>
-                </Link>
+                  <Link
+                    href={item.href}
+                    onClick={() => setSidebarOpen(false)}
+                    className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
+                      isActive
+                        ? 'bg-gradient-to-r from-indigo-600 to-blue-500 text-white shadow-lg shadow-indigo-500/30'
+                        : 'text-slate-700 hover:bg-white/20 dark:text-slate-300 dark:hover:bg-white/10'
+                    }`}
+                  >
+                    <Icon className="h-5 w-5 flex-shrink-0" />
+                    <span>{item.label}</span>
+                  </Link>
+                </motion.div>
               );
             })}
           </nav>
 
           {/* Logout - Fixed at bottom */}
-          <div className="border-t border-slate-200 dark:border-slate-700 p-4 flex-shrink-0">
-            <button
+          <div className="border-t border-white/20 dark:border-white/10 p-4 flex-shrink-0">
+            <AnimatedButton
               onClick={handleLogout}
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 transition-colors"
+              variant="ghost"
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50/50 dark:text-red-400 dark:hover:bg-red-900/20 transition-colors"
             >
               <LogOut className="h-5 w-5" />
               Logout
-            </button>
+            </AnimatedButton>
           </div>
         </div>
       </aside>
 
       {/* Main Content - Responsive padding: no padding on mobile, 240px on desktop */}
-      <main className="min-h-screen md:pl-[240px]">
+      <main className="relative z-10 min-h-screen md:pl-[240px]">
         {/* Mobile Menu Button */}
         <div className="md:hidden fixed top-4 left-4 z-30">
-          <button
+          <AnimatedButton
             onClick={() => setSidebarOpen(true)}
-            className="p-2 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700"
+            variant="outline"
+            className="p-2 rounded-md bg-white/40 dark:bg-white/5 backdrop-blur-xl border-white/20 dark:border-white/10 shadow-lg"
           >
             <Menu className="h-5 w-5 text-slate-600 dark:text-slate-300" />
-          </button>
+          </AnimatedButton>
         </div>
 
         {/* Content Container */}

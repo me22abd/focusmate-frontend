@@ -7,11 +7,12 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader2, X, MessageSquare, Plus, Trash2, Clock, ArrowLeft } from 'lucide-react';
+import { Send, Loader2, X, MessageSquare, ArrowLeft } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { sendAIMessage, ChatMessage } from '@/lib/api/ai';
+import { sendAIMessage } from '@/lib/api/ai';
+import { saveChatMessage, getChatHistory, ChatMessage } from '@/lib/api/chat';
 import { useAuthStore } from '@/store/auth-store';
 import { FocusAICharacter, FocusAIPose } from '@/components/mascot/FocusAICharacter';
 import { cn } from '@/lib/utils';
@@ -24,27 +25,13 @@ interface AssistantChatProps {
   userName: string;
 }
 
-interface Conversation {
-  id: string;
-  title: string;
-  messages: ChatMessage[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-// Storage keys are now user-specific (will be generated with userId)
-const getConversationsStorageKey = (userId: string) => `focusai_conversations_${userId}`;
-const getCurrentConversationKey = (userId: string) => `focusai_current_conversation_id_${userId}`;
-
 export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps) {
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [mascotPose, setMascotPose] = useState<FocusAIPose>('happy');
   const [lastActivityTime, setLastActivityTime] = useState(Date.now());
-  const [showSidebar, setShowSidebar] = useState(false);
   const [memoryLearningActive, setMemoryLearningActive] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -60,163 +47,64 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
     router.push('/dashboard'); // Always navigate to dashboard
   };
 
-  // Load conversations from localStorage (user-specific)
+  // Load chat history from backend when chat opens
   useEffect(() => {
-    if (typeof window === 'undefined' || !user?.id) {
-      // Clear conversations if no user
-      setConversations([]);
-      setCurrentConversationId(null);
-      setMessages([]);
-      return;
-    }
-    
-    try {
-      const conversationsKey = getConversationsStorageKey(user.id);
-      const currentIdKey = getCurrentConversationKey(user.id);
-      
-      const stored = localStorage.getItem(conversationsKey);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed && parsed.length > 0) {
-          setConversations(parsed);
+    const loadChatHistory = async () => {
+      if (!isOpen || !user?.id) return;
 
-          const currentId = localStorage.getItem(currentIdKey);
-          if (currentId) {
-            const conversation = parsed.find((c: Conversation) => c.id === currentId);
-            if (conversation) {
-              setCurrentConversationId(currentId);
-              setMessages(conversation.messages);
-              return;
-            }
-          }
-          // If no current conversation found, use the first one
-          if (parsed.length > 0) {
-            setCurrentConversationId(parsed[0].id);
-            setMessages(parsed[0].messages);
-            return;
-          }
+      setIsLoadingHistory(true);
+      try {
+        const history = await getChatHistory(50); // Get last 50 messages
+        
+        if (history.length > 0) {
+          setMessages(history);
+          // Don't auto-scroll when loading history - let user see from top
+          shouldAutoScrollRef.current = false;
+        } else {
+          // No history - show welcome message
+          const greeting: ChatMessage = {
+            role: 'assistant',
+            content: `Hi ${userName}, ready to focus today? How can I help you?`,
+            timestamp: new Date().toISOString(),
+          };
+          setMessages([greeting]);
+          // Auto-scroll for new conversation
+          shouldAutoScrollRef.current = true;
         }
+      } catch (error) {
+        toast.error('Failed to load chat history');
+        // Show welcome message on error
+        const greeting: ChatMessage = {
+          role: 'assistant',
+          content: `Hi ${userName}, ready to focus today? How can I help you?`,
+          timestamp: new Date().toISOString(),
+        };
+        setMessages([greeting]);
+      } finally {
+        setIsLoadingHistory(false);
       }
-    } catch (error) {
-      console.error('Failed to load conversations:', error);
-    }
-
-    // Create new conversation if none exists for this user
-    createNewConversation();
-  }, [user?.id]); // Reload when user changes
-
-  // Save conversations to localStorage whenever they change (user-specific)
-  useEffect(() => {
-    if (typeof window === 'undefined' || conversations.length === 0 || !user?.id) return;
-    
-    try {
-      const conversationsKey = getConversationsStorageKey(user.id);
-      const currentIdKey = getCurrentConversationKey(user.id);
-      
-      localStorage.setItem(conversationsKey, JSON.stringify(conversations));
-      if (currentConversationId) {
-        localStorage.setItem(currentIdKey, currentConversationId);
-      }
-    } catch (error) {
-      console.error('Failed to save conversations:', error);
-    }
-  }, [conversations, currentConversationId, user?.id]);
-
-  // Update current conversation when messages change
-  useEffect(() => {
-    if (!currentConversationId || messages.length === 0) return;
-
-    setConversations((prev) =>
-      prev.map((conv) =>
-        conv.id === currentConversationId
-          ? {
-              ...conv,
-              messages,
-              updatedAt: new Date().toISOString(),
-              title: getConversationTitle(messages),
-            }
-          : conv
-      )
-    );
-  }, [messages, currentConversationId]);
-
-  const getConversationTitle = (msgs: ChatMessage[]): string => {
-    const firstUserMessage = msgs.find((m) => m.role === 'user');
-    if (firstUserMessage) {
-      const content = firstUserMessage.content;
-      return content.length > 30 ? content.substring(0, 30) + '...' : content;
-    }
-    return 'New Conversation';
-  };
-
-  const createNewConversation = () => {
-    const newId = `conv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    const greeting: ChatMessage = {
-      role: 'assistant',
-      content: `Hi ${userName}, ready to focus today? How can I help you?`,
-      timestamp: new Date().toISOString(),
-    };
-    
-    const newConversation: Conversation = {
-      id: newId,
-      title: 'New Conversation',
-      messages: [greeting],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
     };
 
-    setConversations((prev) => [newConversation, ...prev]);
-    setCurrentConversationId(newId);
-    setMessages([greeting]);
-    setShowSidebar(false);
-  };
+    loadChatHistory();
+  }, [isOpen, user?.id, userName]);
 
-  const switchConversation = (conversationId: string) => {
-    const conversation = conversations.find((c) => c.id === conversationId);
-    if (conversation) {
-      setCurrentConversationId(conversationId);
-      setMessages(conversation.messages);
-      setShowSidebar(false);
-    }
-  };
+  // Track the previous message count to detect when new messages are added
+  const prevMessageCountRef = useRef(messages.length);
 
-  const deleteConversation = (conversationId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setConversations((prev) => prev.filter((c) => c.id !== conversationId));
-    
-    if (currentConversationId === conversationId) {
-      const remaining = conversations.filter((c) => c.id !== conversationId);
-      if (remaining.length > 0) {
-        switchConversation(remaining[0].id);
-      } else {
-        createNewConversation();
-      }
-    }
-  };
-
-  const formatConversationDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 7) return `${diffDays}d ago`;
-    return date.toLocaleDateString();
-  };
-
-  // Auto-scroll to bottom only when new messages are added (not on initial load or manual scroll)
+  // Auto-scroll to bottom ONLY when NEW messages are added (not on initial load)
   useEffect(() => {
-    if (shouldAutoScrollRef.current && messagesEndRef.current) {
+    const isNewMessage = messages.length > prevMessageCountRef.current;
+    prevMessageCountRef.current = messages.length;
+
+    // Only auto-scroll if:
+    // 1. A new message was just added
+    // 2. User is near the bottom (hasn't scrolled up)
+    if (isNewMessage && shouldAutoScrollRef.current && messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages]);
 
-  // Detect when user manually scrolls - stop auto-scrolling
+  // Detect when user manually scrolls - stop auto-scrolling if they scroll up
   useEffect(() => {
     const container = messagesContainerRef.current;
     if (!container) return;
@@ -231,25 +119,29 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
     return () => container.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Initial scroll to bottom when chat opens or conversation loads
-  useEffect(() => {
-    if (isOpen && messagesContainerRef.current && messages.length > 0) {
-      // Small delay to ensure DOM is rendered
-      setTimeout(() => {
-        if (messagesEndRef.current) {
-          messagesEndRef.current.scrollIntoView({ behavior: 'auto' });
-          shouldAutoScrollRef.current = true;
-        }
-      }, 100);
-    }
-  }, [isOpen]);
-
-  // Focus input when chat opens
+  // Focus input when chat opens (but don't force scroll)
   useEffect(() => {
     if (isOpen && inputRef.current) {
       setTimeout(() => inputRef.current?.focus(), 300);
       setMascotPose('help');
       setLastActivityTime(Date.now());
+      
+      // Allow user to see conversation from wherever they left off
+      // Only enable auto-scroll if this is a new conversation with just one message
+      if (messages.length <= 1) {
+        shouldAutoScrollRef.current = true;
+        setTimeout(() => {
+          if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 100);
+      } else {
+        // For existing conversations, start at the top
+        shouldAutoScrollRef.current = false;
+        if (messagesContainerRef.current) {
+          messagesContainerRef.current.scrollTop = 0;
+        }
+      }
     }
   }, [isOpen]);
 
@@ -293,15 +185,27 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
       setMascotPose('read'); // Default to read for structured responses
     }
 
-    // Add user message immediately
-    setMessages((prev) => [...prev, userMessage]);
+    // Add user message immediately to UI
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
     setInputValue('');
     setIsLoading(true);
     shouldAutoScrollRef.current = true; // Enable auto-scroll when sending message
 
     try {
-      // Send to unified AI engine (handles all features automatically)
-      const result = await sendAIMessage(userMessage.content);
+      // Save user message to backend
+      await saveChatMessage('user', userMessage.content);
+
+      // Send to unified AI engine with full conversation history for context
+      // Map to AI ChatMessage format (filter out system messages, only user/assistant)
+      const aiHistory = updatedMessages
+        .filter(m => m.role === 'user' || m.role === 'assistant')
+        .map(m => ({
+          role: m.role as 'user' | 'assistant',
+          content: m.content,
+          timestamp: m.timestamp || m.createdAt,
+        }));
+      const result = await sendAIMessage(userMessage.content, aiHistory);
 
       // Add AI response
       const aiMessage: ChatMessage = {
@@ -313,6 +217,9 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
       setMessages((prev) => [...prev, aiMessage]);
       setLastActivityTime(Date.now());
       shouldAutoScrollRef.current = true; // Enable auto-scroll when receiving message
+
+      // Save AI response to backend
+      await saveChatMessage('assistant', aiMessage.content);
       
       // Handle memory update feedback
       if (result.memoryUpdated) {
@@ -396,79 +303,9 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
           >
-            {/* Sidebar - Conversation List */}
-            <AnimatePresence>
-              {showSidebar && (
-                <motion.div
-                  initial={{ width: 0, opacity: 0 }}
-                  animate={{ width: 280, opacity: 1 }}
-                  exit={{ width: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="overflow-hidden"
-                >
-                  <GlassCard className="h-full flex flex-col shadow-xl rounded-none border-r border-white/10">
-                    <div className="p-4 border-b border-white/10 flex items-center justify-between">
-                      <h3 className="font-semibold text-foreground">Conversations</h3>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setShowSidebar(false)}
-                        className="h-6 w-6"
-                      >
-                        <X className="w-3 h-3" />
-                      </Button>
-                    </div>
-                    <div className="p-2">
-                      <Button
-                        onClick={createNewConversation}
-                        className="w-full justify-start gap-2 bg-gradient-to-r from-indigo-500 via-blue-500 to-cyan-500 hover:opacity-90"
-                        size="sm"
-                      >
-                        <Plus className="w-4 h-4" />
-                        New Conversation
-                      </Button>
-                    </div>
-                    <div className="flex-1 overflow-y-auto p-2 space-y-1">
-                      {conversations.map((conv) => (
-                        <div
-                          key={conv.id}
-                          onClick={() => switchConversation(conv.id)}
-                          className={cn(
-                            'p-3 rounded-lg cursor-pointer transition-all group relative',
-                            currentConversationId === conv.id
-                              ? 'bg-indigo-500/20 border border-indigo-500/30'
-                              : 'hover:bg-white/10 border border-transparent'
-                          )}
-                        >
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-foreground truncate">
-                                {conv.title}
-                              </p>
-                              <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                                <Clock className="w-3 h-3" />
-                                {formatConversationDate(conv.updatedAt)}
-                              </p>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={(e) => deleteConversation(conv.id, e)}
-                              className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                            >
-                              <Trash2 className="w-3 h-3 text-red-500" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </GlassCard>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
             {/* Main Chat Area */}
-            <GlassCard className="flex-1 flex flex-col shadow-2xl min-w-0 rounded-none border-0 h-full">
+            <div className="flex-1 flex flex-col min-w-0 h-full">
+              <GlassCard className="flex-1 flex flex-col shadow-2xl rounded-none border-0 min-h-0" noOverflow={true}>
               {/* Header */}
               <div className="flex items-center justify-between p-4 border-b border-white/10 flex-shrink-0">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -515,15 +352,6 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => setShowSidebar(!showSidebar)}
-                    className="h-8 w-8"
-                    aria-label="Toggle conversations"
-                  >
-                    <MessageSquare className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
                     onClick={handleClose}
                     className="h-8 w-8"
                     aria-label="Close chat"
@@ -536,10 +364,10 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
               {/* Messages Area - Fully scrollable from top to bottom */}
               <div 
                 ref={messagesContainerRef}
-                className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4 min-h-0"
+                className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-4 min-h-0"
                 style={{ 
                   WebkitOverflowScrolling: 'touch',
-                  scrollBehavior: 'smooth',
+                  overscrollBehavior: 'contain',
                 }}
                 onScroll={() => {
                   // Update auto-scroll preference based on scroll position
@@ -551,6 +379,16 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
                   }
                 }}
               >
+                {/* Loading history state */}
+                {isLoadingHistory && (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                    <span className="ml-2 text-sm text-muted-foreground">Loading chat history...</span>
+                  </div>
+                )}
+
+                {/* Messages */}
+                {!isLoadingHistory && (
                 <AnimatePresence>
                   {messages.map((message, index) => (
                     <motion.div
@@ -575,13 +413,14 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
                         <p className="text-sm whitespace-pre-wrap break-words">
                           {message.content}
                         </p>
-                      </div>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+              )}
 
-                {/* Loading indicator */}
-                {isLoading && (
+              {/* Loading indicator */}
+              {isLoading && !isLoadingHistory && (
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -622,7 +461,8 @@ export function AssistantChat({ isOpen, onClose, userName }: AssistantChatProps)
                   </Button>
                 </div>
               </div>
-            </GlassCard>
+              </GlassCard>
+            </div>
           </motion.div>
         </>
       )}

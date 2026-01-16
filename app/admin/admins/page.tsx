@@ -1,14 +1,17 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { GlassCard } from '@/components/ui/glass-card';
+import { AnimatedButton } from '@/components/ui/animated-button';
 import { getAdmins, createAdmin, type Admin } from '@/lib/api/admin';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Shield } from 'lucide-react';
+import { Plus, Shield, Loader2 } from 'lucide-react';
 
 export default function AdminAdminsPage() {
   const [admins, setAdmins] = useState<Admin[]>([]);
@@ -68,144 +71,215 @@ export default function AdminAdminsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-muted-foreground">Loading admins...</div>
+      <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-950 dark:via-purple-950/20 dark:to-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-indigo-600 mx-auto mb-2" />
+          <p className="text-slate-600 dark:text-slate-400">Loading admins...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Admin Management</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage administrator accounts
-          </p>
-        </div>
-        <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Add New Admin
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create New Admin</DialogTitle>
-              <DialogDescription>
-                Add a new administrator account to the system
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleCreateAdmin} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
-                <Input
-                  id="name"
-                  type="text"
-                  placeholder="Admin User"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  disabled={isCreating}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="admin@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  disabled={isCreating}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={8}
-                  disabled={isCreating}
-                />
-                <p className="text-xs text-muted-foreground">Minimum 8 characters</p>
-              </div>
-              <div className="flex justify-end gap-2 pt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setCreateDialogOpen(false)}
-                  disabled={isCreating}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={isCreating || !name || !email || !password}>
-                  {isCreating ? 'Creating...' : 'Create Admin'}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-950 dark:via-purple-950/20 dark:to-slate-900">
+      {/* Floating gradient orbs */}
+      <div className="absolute inset-0 overflow-hidden">
+        <motion.div
+          className="absolute top-20 left-10 w-72 h-72 bg-purple-400/30 rounded-full blur-3xl"
+          animate={{
+            x: [0, 50, 0],
+            y: [0, 30, 0],
+            scale: [1, 1.2, 1],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+        />
+        <motion.div
+          className="absolute bottom-20 right-10 w-96 h-96 bg-blue-400/30 rounded-full blur-3xl"
+          animate={{
+            x: [0, -30, 0],
+            y: [0, -50, 0],
+            scale: [1, 1.1, 1],
+          }}
+          transition={{
+            duration: 25,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+        />
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Administrators</CardTitle>
-          <CardDescription>
-            List of all administrator accounts in the system
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {admins.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              No admins found
+      <div className="relative z-10 px-4 sm:px-6 pb-24 pt-6">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex items-center justify-between"
+          >
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">
+                Admin Management
+              </h1>
+              <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 mt-1">
+                Manage administrator accounts
+              </p>
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left p-4 font-semibold">Name</th>
-                    <th className="text-left p-4 font-semibold">Email</th>
-                    <th className="text-left p-4 font-semibold">Created At</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {admins.map((admin) => (
-                    <tr key={admin.id} className="border-b hover:bg-slate-50 dark:hover:bg-slate-800">
-                      <td className="p-4">
-                        <div className="flex items-center gap-2">
-                          <Shield className="h-4 w-4 text-primary" />
-                          {admin.name}
-                        </div>
-                      </td>
-                      <td className="p-4">{admin.email}</td>
-                      <td className="p-4">
-                        {new Date(admin.createdAt).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+              <DialogTrigger asChild>
+                <AnimatedButton glow className="bg-gradient-to-r from-indigo-600 to-blue-500 text-white">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add New Admin
+                </AnimatedButton>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle className="bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">
+                    Create New Admin
+                  </DialogTitle>
+                  <DialogDescription>
+                    Add a new administrator account to the system
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleCreateAdmin} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Full Name</Label>
+                    <Input
+                      id="name"
+                      type="text"
+                      placeholder="Admin User"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      required
+                      disabled={isCreating}
+                      className="bg-white/50 dark:bg-white/5 backdrop-blur-sm"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="admin@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      disabled={isCreating}
+                      className="bg-white/50 dark:bg-white/5 backdrop-blur-sm"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      minLength={8}
+                      disabled={isCreating}
+                      className="bg-white/50 dark:bg-white/5 backdrop-blur-sm"
+                    />
+                    <p className="text-xs text-muted-foreground">Minimum 8 characters</p>
+                  </div>
+                  <div className="flex justify-end gap-2 pt-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setCreateDialogOpen(false)}
+                      disabled={isCreating}
+                    >
+                      Cancel
+                    </Button>
+                    <AnimatedButton
+                      type="submit"
+                      disabled={isCreating || !name || !email || !password}
+                      className="bg-gradient-to-r from-indigo-600 to-blue-500 text-white"
+                    >
+                      {isCreating ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Creating...
+                        </>
+                      ) : (
+                        'Create Admin'
+                      )}
+                    </AnimatedButton>
+                  </div>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </motion.div>
+
+          <GlassCard delay={0.1}>
+            <Card className="border-0 shadow-none bg-transparent">
+              <CardHeader>
+                <CardTitle className="bg-gradient-to-r from-indigo-600 via-blue-500 to-sky-400 bg-clip-text text-transparent">
+                  Administrators
+                </CardTitle>
+                <CardDescription>
+                  List of all administrator accounts in the system
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {admins.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No admins found
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b border-white/20">
+                          <th className="text-left p-4 font-semibold">Name</th>
+                          <th className="text-left p-4 font-semibold">Email</th>
+                          <th className="text-left p-4 font-semibold">Created At</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {admins.map((admin, index) => (
+                          <motion.tr
+                            key={admin.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.05 }}
+                            className="border-b border-white/10 hover:bg-white/10 dark:hover:bg-white/5"
+                          >
+                            <td className="p-4">
+                              <div className="flex items-center gap-2">
+                                <Shield className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                                {admin.name}
+                              </div>
+                            </td>
+                            <td className="p-4">{admin.email}</td>
+                            <td className="p-4">
+                              {new Date(admin.createdAt).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })}
+                            </td>
+                          </motion.tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </GlassCard>
+        </div>
+      </div>
     </div>
   );
 }
+
 
 
 

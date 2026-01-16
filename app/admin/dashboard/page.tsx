@@ -77,7 +77,20 @@ export default function AdminDashboardPage() {
   }, []);
 
   if (loading) {
-    return <div className="text-center py-12">Loading dashboard...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center"
+        >
+          <div className="w-16 h-16 mx-auto mb-4 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+          <p className="text-lg font-medium bg-gradient-to-r from-indigo-600 via-blue-500 to-cyan-500 bg-clip-text text-transparent">
+            Loading dashboard...
+          </p>
+        </motion.div>
+      </div>
+    );
   }
 
   const isDbHealthy = health?.dbStatus === 'connected';

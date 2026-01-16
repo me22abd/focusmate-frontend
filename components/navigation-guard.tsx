@@ -1,8 +1,7 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { useAuthStore } from '@/store/auth-store';
 
 /**
  * NavigationGuard - Prevents navigation to login page when user is authenticated
@@ -15,6 +14,7 @@ import { useAuthStore } from '@/store/auth-store';
 export function NavigationGuard() {
   const pathname = usePathname();
   const router = useRouter();
+  const lastAuthenticatedPathRef = useRef<string>('/dashboard');
 
   useEffect(() => {
     // Check token directly from localStorage (more reliable than store state)
@@ -30,33 +30,56 @@ export function NavigationGuard() {
       return pathname?.startsWith(page);
     });
 
-    // If user has token and somehow ends up on login page, redirect to dashboard
+    // Track last authenticated path for better redirect
+    if (hasToken && pathname && !isPublicPage) {
+      lastAuthenticatedPathRef.current = pathname;
+    }
+
+    // If user has token and somehow ends up on login page, redirect to last known page or dashboard
     if (hasToken && pathname === '/login') {
-      console.log('NavigationGuard: Authenticated user on /login, redirecting to /dashboard');
-      router.replace('/dashboard');
+      const redirectTo = lastAuthenticatedPathRef.current || '/dashboard';
+      router.replace(redirectTo);
       return;
     }
 
     // Handle popstate events (browser back/forward, swipe gestures)
-    const handlePopState = () => {
-      // Small delay to let the navigation complete, then check
-      setTimeout(() => {
-        const currentPath = window.location.pathname;
-        const stillHasToken = typeof window !== 'undefined' && 
-                             localStorage.getItem('access_token');
-        
-        // If we have a token and ended up on login, redirect away
-        if (stillHasToken && currentPath === '/login') {
-          console.log('NavigationGuard: Popstate detected navigation to /login, redirecting away');
-          router.replace('/dashboard');
-        }
-      }, 0);
+    const handlePopState = (event: PopStateEvent) => {
+      // Immediate check without delay for better UX
+      const currentPath = window.location.pathname;
+      const stillHasToken = typeof window !== 'undefined' && 
+                           localStorage.getItem('access_token');
+      
+      // If we have a token and ended up on login, prevent it and go to last known page
+      if (stillHasToken && currentPath === '/login') {
+        event.preventDefault();
+        const redirectTo = lastAuthenticatedPathRef.current || '/dashboard';
+        router.replace(redirectTo);
+      }
+    };
+
+    // Also handle beforeunload to track navigation
+    const handleBeforeUnload = () => {
+      const hasToken = typeof window !== 'undefined' && 
+                      localStorage.getItem('access_token');
+      if (hasToken && pathname && !isPublicPage) {
+        sessionStorage.setItem('last_authenticated_path', pathname);
+      }
     };
 
     window.addEventListener('popstate', handlePopState);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    // Restore last path from session storage on mount
+    if (typeof window !== 'undefined') {
+      const savedPath = sessionStorage.getItem('last_authenticated_path');
+      if (savedPath && savedPath !== '/login') {
+        lastAuthenticatedPathRef.current = savedPath;
+      }
+    }
 
     return () => {
       window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [pathname, router]);
 

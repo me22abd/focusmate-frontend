@@ -65,3 +65,4 @@ Save all files in `/frontend/public/mascot/` with these exact names:
 Once all 8 PNG files are in `/frontend/public/mascot/`, the component will automatically use them!
 
 
+

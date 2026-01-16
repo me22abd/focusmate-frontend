@@ -99,17 +99,11 @@ export interface EmailTemplate {
 
 /**
  * Get all support emails from backend
- * TODO: Replace with actual backend endpoint when available
- * For now, returns empty array and logs that backend endpoint is needed
  */
 export async function getSupportEmails(): Promise<SupportEmail[]> {
   try {
-    // TODO: Replace with actual endpoint: GET /admin/support-emails
-    // const response = await adminAxios.get<SupportEmail[]>('/support-emails');
-    // return response.data;
-    
-    console.warn('⚠️ getSupportEmails: Backend endpoint not yet implemented. Using localStorage fallback.');
-    return [];
+    const response = await adminAxios.get<SupportEmail[]>('/support-emails');
+    return response.data;
   } catch (error: any) {
     console.error('Failed to fetch support emails:', error);
     throw error;
@@ -118,7 +112,6 @@ export async function getSupportEmails(): Promise<SupportEmail[]> {
 
 /**
  * Send email reply via backend
- * TODO: Replace with actual backend endpoint when available
  */
 export async function sendEmailReply(
   emailId: string,
@@ -127,16 +120,11 @@ export async function sendEmailReply(
   recipientEmail: string
 ): Promise<void> {
   try {
-    // TODO: Replace with actual endpoint: POST /admin/emails/:id/send
-    // await adminAxios.post(`/emails/${emailId}/send`, {
-    //   subject: replySubject,
-    //   body: replyBody,
-    //   to: recipientEmail,
-    // });
-    
-    console.warn('⚠️ sendEmailReply: Backend endpoint not yet implemented. Email send simulated.');
-    // Simulate successful send
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await adminAxios.post(`/emails/${emailId}/send`, {
+      subject: replySubject,
+      body: replyBody,
+      to: recipientEmail,
+    });
   } catch (error: any) {
     console.error('Failed to send email reply:', error);
     throw error;
@@ -145,29 +133,19 @@ export async function sendEmailReply(
 
 /**
  * Save email template to backend
- * TODO: Replace with actual backend endpoint when available
  */
 export async function saveTemplate(
   name: string,
-  content: string
+  content: string,
+  templateId?: string
 ): Promise<EmailTemplate> {
   try {
-    // TODO: Replace with actual endpoint: POST /admin/email-templates
-    // const response = await adminAxios.post<EmailTemplate>('/email-templates', {
-    //   name,
-    //   content,
-    // });
-    // return response.data;
-    
-    console.warn('⚠️ saveTemplate: Backend endpoint not yet implemented. Using localStorage fallback.');
-    
-    // Fallback: Create template object (will be stored in localStorage by component)
-    return {
-      id: `temp_${Date.now()}`,
+    const response = await adminAxios.post<EmailTemplate>('/email-templates', {
       name,
       content,
-      createdAt: new Date().toISOString(),
-    };
+      id: templateId,
+    });
+    return response.data;
   } catch (error: any) {
     console.error('Failed to save template:', error);
     throw error;
@@ -176,16 +154,11 @@ export async function saveTemplate(
 
 /**
  * Get all saved email templates from backend
- * TODO: Replace with actual backend endpoint when available
  */
 export async function getEmailTemplates(): Promise<EmailTemplate[]> {
   try {
-    // TODO: Replace with actual endpoint: GET /admin/email-templates
-    // const response = await adminAxios.get<EmailTemplate[]>('/email-templates');
-    // return response.data;
-    
-    console.warn('⚠️ getEmailTemplates: Backend endpoint not yet implemented. Using localStorage fallback.');
-    return [];
+    const response = await adminAxios.get<EmailTemplate[]>('/email-templates');
+    return response.data;
   } catch (error: any) {
     console.error('Failed to fetch email templates:', error);
     throw error;

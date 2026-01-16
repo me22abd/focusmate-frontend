@@ -114,3 +114,4 @@ Once all 8 mascot files have transparent backgrounds:
 - Or manually edit with GIMP/Photoshop for precision
 
 
+
