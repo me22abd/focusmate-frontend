@@ -263,27 +263,33 @@ export function NotificationBell() {
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
             className="absolute right-0 mt-2 w-80 sm:w-96 max-h-[32rem] overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xl z-50"
+            style={{ 
+              right: '0',
+              minWidth: '320px',
+              maxWidth: '384px',
+              transform: 'translateX(0)'
+            }}
           >
             {/* Header */}
-            <div className="border-b border-slate-200 dark:border-slate-700 p-4">
-              <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-slate-900 dark:text-white">
+            <div className="border-b border-slate-200 dark:border-slate-700 p-3 sm:p-4">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white flex-shrink-0">
                   Notifications
                 </h3>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
                   {unreadCount > 0 && (
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={handleMarkAllRead}
-                      className="text-xs h-7"
+                      className="text-xs h-7 px-2 whitespace-nowrap"
                     >
                       Mark all read
                     </Button>
                   )}
                   <button
                     onClick={() => setIsOpen(false)}
-                    className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded"
+                    className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded flex-shrink-0"
                   >
                     <X className="h-4 w-4 text-slate-500" />
                   </button>
@@ -321,10 +327,10 @@ export function NotificationBell() {
                         </div>
                         
                         {/* Content */}
-                        <div className="flex-1 min-w-0">
+                        <div className="flex-1 min-w-0 pr-1">
                           <div className="flex items-start justify-between gap-2">
                             <p className={cn(
-                              'text-sm font-medium',
+                              'text-sm font-medium break-words flex-1',
                               notification.isRead 
                                 ? 'text-slate-600 dark:text-slate-400' 
                                 : 'text-slate-900 dark:text-white'
@@ -332,10 +338,10 @@ export function NotificationBell() {
                               {notification.title}
                             </p>
                             {!notification.isRead && (
-                              <div className="h-2 w-2 rounded-full bg-blue-500 flex-shrink-0 mt-1" />
+                              <div className="h-2 w-2 rounded-full bg-blue-500 flex-shrink-0 mt-1.5" />
                             )}
                           </div>
-                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2 break-words">
                             {notification.message}
                           </p>
                           <div className="flex items-center justify-between mt-2">
