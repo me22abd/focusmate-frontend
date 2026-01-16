@@ -39,9 +39,25 @@ export function RemindersPanel() {
 
   useEffect(() => {
     if (user?.id) {
+      loadReminders();
       generateAutoReminders();
     }
   }, [user?.id]);
+
+  const loadReminders = () => {
+    try {
+      const storageKey = `focusmate_reminders_${user?.id || 'default'}`;
+      if (typeof window !== 'undefined') {
+        const savedReminders = localStorage.getItem(storageKey);
+        if (savedReminders) {
+          const parsed = JSON.parse(savedReminders);
+          setReminders(parsed);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load reminders:', error);
+    }
+  };
 
   const generateAutoReminders = async () => {
     try {
@@ -81,7 +97,25 @@ export function RemindersPanel() {
         }
       });
 
-      setReminders(autoReminders);
+      // Merge with saved custom reminders
+      const storageKey = `focusmate_reminders_${user?.id || 'default'}`;
+      let savedReminders: Reminder[] = [];
+      if (typeof window !== 'undefined') {
+        const saved = localStorage.getItem(storageKey);
+        if (saved) {
+          savedReminders = JSON.parse(saved);
+        }
+      }
+
+      // Combine auto-generated and custom reminders, avoiding duplicates
+      const allReminders = [...savedReminders];
+      autoReminders.forEach(autoReminder => {
+        if (!allReminders.find(r => r.id === autoReminder.id)) {
+          allReminders.push(autoReminder);
+        }
+      });
+
+      setReminders(allReminders);
     } catch (error) {
       console.error('Failed to generate reminders:', error);
     } finally {
@@ -172,6 +206,24 @@ export function RemindersPanel() {
                           <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded">
                             {reminder.frequency}
                           </span>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="ml-auto h-6 px-2 text-xs"
+                            onClick={() => {
+                              const updated = reminders.map(r => 
+                                r.id === reminder.id ? { ...r, completed: true } : r
+                              );
+                              setReminders(updated);
+                              const storageKey = `focusmate_reminders_${user?.id || 'default'}`;
+                              if (typeof window !== 'undefined') {
+                                localStorage.setItem(storageKey, JSON.stringify(updated));
+                              }
+                              toast.success('Reminder marked as complete');
+                            }}
+                          >
+                            Mark Done
+                          </Button>
                         </div>
                       </div>
                     </div>
@@ -231,34 +283,126 @@ export function RemindersPanel() {
             <CardContent className="p-6">
               <h3 className="text-lg font-bold mb-4">Add Reminder</h3>
               <form
-                onSubmit={(e) => {
+                onSubmit={async (e) => {
                   e.preventDefault();
-                  toast.info('Manual reminder creation coming soon');
+                  const formData = new FormData(e.currentTarget);
+                  const title = formData.get('title') as string;
+                  const message = formData.get('message') as string;
+                  const frequency = formData.get('frequency') as string;
+                  const scheduledDate = formData.get('scheduledDate') as string;
+                  const scheduledTime = formData.get('scheduledTime') as string;
+
+                  if (!title || !scheduledDate || !scheduledTime) {
+                    toast.error('Please fill in all required fields');
+                    return;
+                  }
+
+                  // Combine date and time
+                  const scheduledDateTime = new Date(`${scheduledDate}T${scheduledTime}`);
+                  
+                  // Adjust based on frequency (for "before" options)
+                  if (frequency === '5min') {
+                    scheduledDateTime.setMinutes(scheduledDateTime.getMinutes() - 5);
+                  } else if (frequency === '30min') {
+                    scheduledDateTime.setMinutes(scheduledDateTime.getMinutes() - 30);
+                  } else if (frequency === '1hour') {
+                    scheduledDateTime.setHours(scheduledDateTime.getHours() - 1);
+                  }
+
+                  const newReminder: Reminder = {
+                    id: `custom-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                    type: 'custom',
+                    title,
+                    message: message || title,
+                    scheduledAt: scheduledDateTime.toISOString(),
+                    frequency: frequency as Reminder['frequency'],
+                    completed: false,
+                  };
+
+                  // Save to localStorage
+                  const storageKey = `focusmate_reminders_${user?.id || 'default'}`;
+                  const existingReminders = typeof window !== 'undefined' 
+                    ? JSON.parse(localStorage.getItem(storageKey) || '[]')
+                    : [];
+                  
+                  const updatedReminders = [newReminder, ...existingReminders];
+                  
+                  if (typeof window !== 'undefined') {
+                    localStorage.setItem(storageKey, JSON.stringify(updatedReminders));
+                  }
+
+                  // Update state
+                  setReminders(updatedReminders);
                   setShowAddDialog(false);
+                  toast.success('Reminder created successfully!');
                 }}
                 className="space-y-4"
               >
-                <input
-                  name="title"
-                  placeholder="Reminder title"
-                  required
-                  className="w-full px-3 py-2 border rounded-lg"
-                />
-                <textarea
-                  name="message"
-                  placeholder="Reminder message"
-                  rows={3}
-                  className="w-full px-3 py-2 border rounded-lg"
-                />
-                <select name="frequency" className="w-full px-3 py-2 border rounded-lg">
-                  <option value="5min">5 minutes before</option>
-                  <option value="30min">30 minutes before</option>
-                  <option value="1hour">1 hour before</option>
-                  <option value="daily">Daily</option>
-                  <option value="weekly">Weekly</option>
-                </select>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    Reminder Title *
+                  </label>
+                  <input
+                    name="title"
+                    placeholder="e.g., Study for Math Exam"
+                    required
+                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    Message
+                  </label>
+                  <textarea
+                    name="message"
+                    placeholder="Optional reminder message"
+                    rows={3}
+                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    Scheduled Date *
+                  </label>
+                  <input
+                    name="scheduledDate"
+                    type="date"
+                    required
+                    min={new Date().toISOString().split('T')[0]}
+                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    Scheduled Time *
+                  </label>
+                  <input
+                    name="scheduledTime"
+                    type="time"
+                    required
+                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    Frequency
+                  </label>
+                  <select 
+                    name="frequency" 
+                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                    defaultValue="1hour"
+                  >
+                    <option value="5min">5 minutes before</option>
+                    <option value="30min">30 minutes before</option>
+                    <option value="1hour">1 hour before</option>
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                  </select>
+                </div>
                 <div className="flex gap-2">
-                  <Button type="submit" className="flex-1">Create</Button>
+                  <Button type="submit" className="flex-1 bg-gradient-to-r from-indigo-600 to-blue-600">
+                    Create Reminder
+                  </Button>
                   <Button
                     type="button"
                     variant="outline"
