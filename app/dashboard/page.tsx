@@ -206,6 +206,43 @@ export default function DashboardPage() {
   
   // Custom: MY analytics hook (fetches and manages analytics data)
   const analytics = useAnalytics();
+
+  // ===========================================================================
+  // 📘 CODE ORIGIN: Force Analytics Refresh on Dashboard Mount
+  // ===========================================================================
+  // Custom implementation by me: Ensure fresh analytics data when dashboard loads
+  // 
+  // What I Built:
+  // Force refresh analytics when dashboard mounts to ensure we have the latest
+  // data, especially after completing a session and redirecting here.
+  // 
+  // Why This Is Needed:
+  // After session completion, user is redirected to dashboard. Analytics should
+  // show the newly completed session immediately, not cached values.
+  // 
+  // My Implementation:
+  // - Check for sessionStorage flag indicating session just completed
+  // - Call forceRefresh() on mount to bypass any cache
+  // - Clear the flag after refresh to prevent unnecessary refreshes
+  // - Ensures analytics always shows latest data on dashboard load
+  // ===========================================================================
+  useEffect(() => {
+    // Check if we just completed a session (flag set by summary page)
+    const shouldRefreshAnalytics = typeof window !== 'undefined' && 
+      sessionStorage.getItem('focusmate_refresh_analytics') === 'true';
+    
+    // Force fresh analytics data when dashboard mounts
+    // This ensures we always see latest data after session completion
+    if (analytics.forceRefresh) {
+      analytics.forceRefresh();
+      
+      // Clear the refresh flag after refreshing
+      if (shouldRefreshAnalytics) {
+        sessionStorage.removeItem('focusmate_refresh_analytics');
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run on mount - analytics.forceRefresh is stable
   
   // ===========================================================================
   // LOCAL STATE MANAGEMENT

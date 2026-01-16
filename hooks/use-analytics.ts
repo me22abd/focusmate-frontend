@@ -254,19 +254,31 @@ export function useAnalytics() {
     }
   }, [user?.id]);
 
+  // Track refresh trigger to force fresh fetch
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
   // Fetch on mount and when user changes
   useEffect(() => {
     fetchAnalytics();
-  }, [fetchAnalytics]);
+  }, [fetchAnalytics, refreshTrigger]);
 
-  // Refresh function for manual updates
+  // Refresh function for manual updates (uses cache if available)
   const refresh = useCallback(() => {
     fetchAnalytics();
   }, [fetchAnalytics]);
 
+  // Force refresh function that bypasses cache by triggering a re-fetch
+  const forceRefresh = useCallback(() => {
+    // Set loading state immediately
+    setData((prev) => ({ ...prev, isLoading: true, error: null }));
+    // Increment refresh trigger to force useEffect to run
+    setRefreshTrigger((prev) => prev + 1);
+  }, []);
+
   return {
     ...data,
     refresh,
+    forceRefresh,
   };
 }
 

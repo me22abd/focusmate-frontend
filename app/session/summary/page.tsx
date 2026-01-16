@@ -353,7 +353,17 @@ function SessionSummaryContent() {
           <Card className="w-full max-w-md">
             <CardContent className="p-6 text-center">
               <p className="text-slate-600 dark:text-slate-400 mb-4">Session data not found</p>
-              <Button onClick={() => router.push('/dashboard')}>Back to Dashboard</Button>
+              <Button
+                onClick={() => {
+                  // Set flag to force analytics refresh on dashboard
+                  if (typeof window !== 'undefined') {
+                    sessionStorage.setItem('focusmate_refresh_analytics', 'true');
+                  }
+                  router.push('/dashboard');
+                }}
+              >
+                Back to Dashboard
+              </Button>
             </CardContent>
           </Card>
         </div>
@@ -410,7 +420,16 @@ function SessionSummaryContent() {
                     Great job staying focused!
                   </p>
                 </div>
-                <AnimatedButton variant="outline" onClick={() => router.push('/dashboard')}>
+                <AnimatedButton
+                  variant="outline"
+                  onClick={() => {
+                    // Set flag to force analytics refresh on dashboard
+                    if (typeof window !== 'undefined') {
+                      sessionStorage.setItem('focusmate_refresh_analytics', 'true');
+                    }
+                    router.push('/dashboard');
+                  }}
+                >
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Dashboard
                 </AnimatedButton>
@@ -852,7 +871,13 @@ function SessionSummaryContent() {
             <div className="flex flex-col sm:flex-row gap-4">
               <AnimatedButton
                 variant="outline"
-                onClick={() => router.push('/dashboard')}
+                onClick={() => {
+                  // Set flag to force analytics refresh on dashboard
+                  if (typeof window !== 'undefined') {
+                    sessionStorage.setItem('focusmate_refresh_analytics', 'true');
+                  }
+                  router.push('/dashboard');
+                }}
                 className="flex-1"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
