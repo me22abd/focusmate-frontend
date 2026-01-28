@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, LogOut, Edit3, Trophy } from 'lucide-react';
+import { X, LogOut, Edit3, Trophy, CheckCircle2 } from 'lucide-react';
 import { useAuthStore } from '@/store/auth-store';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { logoutUser } from '@/lib/api/auth';
@@ -146,7 +146,14 @@ export function ProfilePanel({ isOpen, onClose }: ProfilePanelProps) {
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-bold truncate">{userName}</h3>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-lg font-bold truncate">{userName}</h3>
+                      {user?.isEmailVerified && (
+                        <div className="flex items-center justify-center h-5 w-5 rounded-full bg-blue-500 text-white flex-shrink-0" title="Verified account">
+                          <CheckCircle2 className="h-3.5 w-3.5" />
+                        </div>
+                      )}
+                    </div>
                     <p className="text-sm text-slate-500 dark:text-slate-400">
                       Student • Focusmate Member
                     </p>
@@ -249,11 +256,6 @@ export function ProfilePanel({ isOpen, onClose }: ProfilePanelProps) {
                   <div className="grid gap-4 sm:grid-cols-2">
                     <InfoTile label="Email" value={user?.email ?? '—'} />
                     <InfoTile label="Role" value={user?.role ?? '—'} />
-                    <InfoTile
-                      label="Email status"
-                      value={user?.isEmailVerified ? 'Verified' : 'Not verified yet'}
-                      accent={user?.isEmailVerified ? 'success' : 'warning'}
-                    />
                     <InfoTile
                       label="Member since"
                       value={
