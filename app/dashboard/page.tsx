@@ -988,31 +988,32 @@ export default function DashboardPage() {
                 - Button with hover/tap animations
                 - Opens SessionModeSelect modal
                 ============================================================== */}
-            <GlassCard delay={0.5} className="p-5">
-              <div className="flex items-start gap-4">
-                {/* Custom: Gradient icon */}
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-r from-indigo-600 to-sky-500 text-white shadow-lg">
-                  <UsersRound className="h-5 w-5" />
-                </div>
-                <div className="flex-1 space-y-3 min-w-0">
-                  <div>
-                    <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+            <GlassCard delay={0.5} className="p-6">
+              <div className="space-y-4">
+                {/* Header with icon and text */}
+                <div className="flex items-start gap-4">
+                  {/* Custom: Gradient icon */}
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-r from-indigo-600 to-sky-500 text-white shadow-lg flex-shrink-0">
+                    <UsersRound className="h-6 w-6" />
+                  </div>
+                  <div className="flex-1 min-w-0 pt-1">
+                    <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white leading-tight">
                       Match with a focus partner today
                     </h2>
-                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
+                    <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
                       Pair up instantly with an accountability partner.
                     </p>
                   </div>
-                  {/* Custom: Premium animated button */}
-                  <AnimatedButton
-                    onClick={handleStartSession}
-                    glow
-                    className="w-full rounded-2xl bg-gradient-to-r from-indigo-600 to-sky-500 py-5 text-base font-semibold text-white shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40"
-                  >
-                    <UsersRound className="mr-2 h-5 w-5" />
-                    Match with a focus partner today
-                  </AnimatedButton>
                 </div>
+                {/* Custom: Premium animated button */}
+                <AnimatedButton
+                  onClick={handleStartSession}
+                  glow
+                  className="w-full rounded-2xl bg-gradient-to-r from-indigo-600 to-sky-500 py-4 text-base font-semibold text-white shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 transition-all"
+                >
+                  <UsersRound className="mr-2 h-5 w-5" />
+                  Match with a focus partner today
+                </AnimatedButton>
               </div>
             </GlassCard>
 
