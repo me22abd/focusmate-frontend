@@ -11,6 +11,35 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
 
+/**
+ * InfoTile Component - Reusable info display component
+ */
+function InfoTile({
+  label,
+  value,
+  accent,
+}: {
+  label: string;
+  value: string;
+  accent?: 'success' | 'warning';
+}) {
+  const accentColor =
+    accent === 'success'
+      ? 'text-emerald-600 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-900/20'
+      : accent === 'warning'
+        ? 'text-amber-600 bg-amber-50 dark:text-amber-400 dark:bg-amber-900/20'
+        : 'text-slate-900 dark:text-white';
+
+  return (
+    <div className="rounded-2xl border border-slate-100 bg-white px-4 py-3 text-sm shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <p className="text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500">
+        {label}
+      </p>
+      <p className={`mt-1 text-base font-medium ${accentColor}`}>{value}</p>
+    </div>
+  );
+}
+
 interface ProfilePanelProps {
   isOpen: boolean;
   onClose: () => void;
@@ -205,6 +234,35 @@ export function ProfilePanel({ isOpen, onClose }: ProfilePanelProps) {
                       )}
                     </CardContent>
                   </Card>
+                </div>
+
+                {/* Account Information Section */}
+                <div>
+                  <div className="mb-4">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                      Account information
+                    </h3>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                      Synced with your Focusmate profile
+                    </p>
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <InfoTile label="Email" value={user?.email ?? '—'} />
+                    <InfoTile label="Role" value={user?.role ?? '—'} />
+                    <InfoTile
+                      label="Email status"
+                      value={user?.isEmailVerified ? 'Verified' : 'Not verified yet'}
+                      accent={user?.isEmailVerified ? 'success' : 'warning'}
+                    />
+                    <InfoTile
+                      label="Member since"
+                      value={
+                        user?.createdAt
+                          ? new Date(user.createdAt).toLocaleDateString()
+                          : '—'
+                      }
+                    />
+                  </div>
                 </div>
 
                 {/* Achievements Section */}

@@ -1093,48 +1093,6 @@ export default function DashboardPage() {
               </AnimatedButton>
             </GlassCard>
 
-            {/* =================================================================
-                ACCOUNT INFORMATION CARD
-                =================================================================
-                
-                📘 CODE ORIGIN: Custom Implementation
-                ──────────────────────────────────────────────────────────────
-                What I Built: User account details display
-                
-                My Implementation:
-                - Grid of InfoTile components
-                - Shows email, role, verification status, member since
-                - Color coding (success/warning for verification status)
-                - Date formatting for createdAt
-                ============================================================== */}
-            <GlassCard delay={0.8} className="p-5">
-              <div className="mb-4">
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-                  Account information
-                </h2>
-                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                  Synced with your Focusmate profile
-                </p>
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {/* Custom: MY InfoTile component usage */}
-                <InfoTile label="Email" value={user?.email ?? '—'} />
-                <InfoTile label="Role" value={user?.role ?? '—'} />
-                <InfoTile
-                  label="Email status"
-                  value={user?.isEmailVerified ? 'Verified' : 'Not verified yet'}
-                  accent={user?.isEmailVerified ? 'success' : 'warning'}  // Custom: Conditional color
-                />
-                <InfoTile
-                  label="Member since"
-                  value={
-                    user?.createdAt
-                      ? new Date(user.createdAt).toLocaleDateString()  // Custom: Date formatting
-                      : '—'
-                  }
-                />
-              </div>
-            </GlassCard>
           </section>
           </div>
         </div>
@@ -1168,54 +1126,6 @@ export default function DashboardPage() {
   );
 }
 
-/**
- * ===========================================================================
- * 📘 CODE ORIGIN: InfoTile Component
- * ===========================================================================
- * Custom implementation by me: Reusable info display component
- * 
- * What I Built:
- * Small component for displaying labeled information with optional color accent.
- * 
- * Props:
- * - label: Display label (e.g., "Email", "Role")
- * - value: Display value (e.g., "user@example.com", "user")
- * - accent: Optional color accent ('success', 'warning')
- * 
- * My Styling:
- * - success: Green text/background
- * - warning: Amber text/background
- * - default: Slate text (dark mode aware)
- * 
- * Used in Account Information section
- * ===========================================================================
- */
-function InfoTile({
-  label,
-  value,
-  accent,
-}: {
-  label: string;
-  value: string;
-  accent?: 'success' | 'warning';
-}) {
-  // Custom: Conditional accent color
-  const accentColor =
-    accent === 'success'
-      ? 'text-emerald-600 bg-emerald-50'
-      : accent === 'warning'
-        ? 'text-amber-600 bg-amber-50'
-        : 'text-slate-900 dark:text-white';
-
-  return (
-    <div className="rounded-2xl border border-slate-100 bg-white px-4 py-3 text-sm shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <p className="text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500">
-        {label}
-      </p>
-      <p className={`mt-1 text-base font-medium ${accentColor}`}>{value}</p>
-    </div>
-  );
-}
 
 /**
  * ============================================================================
