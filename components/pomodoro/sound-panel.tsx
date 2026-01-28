@@ -59,7 +59,7 @@ export function SoundPanel({
   onVolumeChange,
   onToggleMute,
 }: SoundPanelProps) {
-  const [activeCategory, setActiveCategory] = React.useState("Nature");
+  const [activeCategory, setActiveCategory] = React.useState("Calm");
 
   const categorySounds = getSoundsByCategory(activeCategory as any);
 

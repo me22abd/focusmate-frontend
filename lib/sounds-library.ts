@@ -23,6 +23,7 @@ export interface Sound {
 }
 
 export type SoundCategory = 
+  | 'Calm'
   | 'Nature'
   | 'Water'
   | 'Ambient'
@@ -32,6 +33,7 @@ export type SoundCategory =
   | 'Classical';
 
 export const SOUND_CATEGORIES = [
+  { id: 'Calm', label: 'Calm', emoji: '🌙', description: 'Slow, soft meditation music' },
   { id: 'Nature', label: 'Nature', emoji: '🌿', description: 'Natural outdoor ambience' },
   { id: 'Water', label: 'Water', emoji: '💧', description: 'Ocean and water sounds' },
   { id: 'Ambient', label: 'Ambient', emoji: '🏙️', description: 'Ambient environments' },
@@ -42,6 +44,24 @@ export const SOUND_CATEGORIES = [
 ] as const;
 
 export const SOUNDS: Sound[] = [
+  // 🌙 CALM (SLOW, SOLEMN MEDITATION TRACKS)
+  { 
+    id: 'soft-piano',
+    name: 'Soft Piano',
+    category: 'Calm',
+    path: '/sounds/calm/soft-piano.mp3',
+    emoji: '🎹',
+    description: 'Gentle, slow piano for deep focus'
+  },
+  { 
+    id: 'ambient-drone',
+    name: 'Ambient Drone',
+    category: 'Calm',
+    path: '/sounds/calm/ambient-drone.mp3',
+    emoji: '🌌',
+    description: 'Slow, atmospheric meditation pad'
+  },
+
   // 🌿 NATURE
   { 
     id: 'deep-rain',
