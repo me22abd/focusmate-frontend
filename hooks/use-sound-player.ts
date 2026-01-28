@@ -32,10 +32,11 @@
  * ============================================================================
  */
 
-'use client';
+"use client";
 
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { SOUNDS, type Sound } from '@/lib/sounds-library';
+import { useState, useEffect, useRef, useCallback } from "react";
+import { toast } from "sonner";
+import { SOUNDS, type Sound } from "@/lib/sounds-library";
 
 export function useSoundPlayer() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -46,15 +47,15 @@ export function useSoundPlayer() {
 
   // Load preferences on mount
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
     
-    const savedSound = localStorage.getItem('pomodoro_sound');
-    const savedVolume = localStorage.getItem('pomodoro_volume');
-    const savedMuted = localStorage.getItem('pomodoro_muted');
+    const savedSound = localStorage.getItem("pomodoro_sound");
+    const savedVolume = localStorage.getItem("pomodoro_volume");
+    const savedMuted = localStorage.getItem("pomodoro_muted");
     
     if (savedSound) setCurrentSound(savedSound);
     if (savedVolume) setVolume(parseInt(savedVolume));
-    if (savedMuted) setIsMuted(savedMuted === 'true');
+    if (savedMuted) setIsMuted(savedMuted === "true");
   }, []);
 
   // Stop sound (define first)
@@ -63,6 +64,7 @@ export function useSoundPlayer() {
       audioRef.current.pause();
       audioRef.current = null;
     }
+
     setCurrentSound(null);
     setIsPlaying(false);
   }, []);
@@ -70,13 +72,18 @@ export function useSoundPlayer() {
   // Play sound
   const playSound = useCallback((soundId: string) => {
     // Special case: Stop sound
-    if (soundId === 'STOP') {
+    if (soundId === "STOP") {
       stopSound();
       return;
     }
 
     const sound = SOUNDS.find(s => s.id === soundId);
-    if (!sound) return;
+    if (!sound) {
+      toast.error("Sound not found", {
+        description: "This sound is not configured correctly. Please try another option.",
+      });
+      return;
+    }
 
     // If same sound is already playing, stop it
     if (currentSound === soundId && isPlaying) {
@@ -97,11 +104,16 @@ export function useSoundPlayer() {
     
     audio.play()
       .then(() => {
-        console.log('✅ Playing:', sound.name);
+        console.log("✅ Playing:", sound.name);
       })
       .catch((error) => {
-        console.warn('⚠️ Sound file not found or failed to load:', sound.path);
-        console.info('💡 Tip: Replace placeholder files with real audio to hear sounds');
+        console.warn("⚠️ Sound file not found or failed to load:", sound.path, error);
+        toast.error("Unable to play sound", {
+          description: `The "${sound.name}" track could not be loaded. Please try a different sound.`,
+        });
+        // Ensure state stays consistent if playback fails
+        setIsPlaying(false);
+        return;
       });
 
     audioRef.current = audio;
@@ -109,8 +121,8 @@ export function useSoundPlayer() {
     setIsPlaying(true);
     
     // Save preference
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('pomodoro_sound', soundId);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("pomodoro_sound", soundId);
     }
   }, [volume, isMuted, currentSound, isPlaying, stopSound]);
 
@@ -120,8 +132,8 @@ export function useSoundPlayer() {
     if (audioRef.current && !isMuted) {
       audioRef.current.volume = newVolume / 100;
     }
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('pomodoro_volume', newVolume.toString());
+    if (typeof window !== "undefined") {
+      localStorage.setItem("pomodoro_volume", newVolume.toString());
     }
   }, [isMuted]);
 
@@ -134,8 +146,8 @@ export function useSoundPlayer() {
       audioRef.current.volume = newMuted ? 0 : volume / 100;
     }
     
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('pomodoro_muted', newMuted.toString());
+    if (typeof window !== "undefined") {
+      localStorage.setItem("pomodoro_muted", newMuted.toString());
     }
   }, [isMuted, volume]);
 

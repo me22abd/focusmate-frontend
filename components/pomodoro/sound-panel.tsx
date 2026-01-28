@@ -30,15 +30,15 @@
  * ============================================================================
  */
 
-'use client';
+"use client";
 
-import * as React from 'react';
-import { Volume2, VolumeX } from 'lucide-react';
-import { Slider } from '@/components/ui/slider';
-import { Button } from '@/components/ui/button';
-import { SoundCard } from './sound-card';
-import { SOUNDS, SOUND_CATEGORIES, getSoundsByCategory } from '@/lib/sounds-library';
-import { cn } from '@/lib/utils';
+import * as React from "react";
+import { Volume2, VolumeX } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
+import { Button } from "@/components/ui/button";
+import { SoundCard } from "./sound-card";
+import { SOUNDS, SOUND_CATEGORIES, getSoundsByCategory } from "@/lib/sounds-library";
+import { cn } from "@/lib/utils";
 
 interface SoundPanelProps {
   currentSound: string | null;
@@ -59,20 +59,42 @@ export function SoundPanel({
   onVolumeChange,
   onToggleMute,
 }: SoundPanelProps) {
-  const [activeCategory, setActiveCategory] = React.useState('recommended');
+  const [activeCategory, setActiveCategory] = React.useState("Nature");
 
   const categorySounds = getSoundsByCategory(activeCategory as any);
 
   return (
     <div className="space-y-6">
       {/* Section Header */}
-      <div className="text-center">
-        <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-          🎧 Ambient Sounds
-        </h3>
-        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-          Choose a sound to help you focus
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="text-left">
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+            🎧 Ambient Sounds
+          </h3>
+          <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+            Layer calming background audio underneath your session.
+          </p>
+        </div>
+
+        {/* Currently Playing Badge */}
+        <div className="flex items-center justify-start sm:justify-end">
+          {currentSound && (
+            <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 dark:bg-slate-800 px-3 py-1.5">
+              <span className="text-xs text-slate-500 dark:text-slate-400">
+                {isPlaying ? "Now playing" : "Paused"}
+              </span>
+              <span className="text-xs font-medium text-slate-800 dark:text-slate-100">
+                {SOUNDS.find((s) => s.id === currentSound)?.emoji}{" "}
+                {SOUNDS.find((s) => s.id === currentSound)?.name}
+              </span>
+            </div>
+          )}
+          {!currentSound && (
+            <span className="text-xs text-slate-500 dark:text-slate-400">
+              No sound selected
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Category Tabs */}
@@ -83,10 +105,10 @@ export function SoundPanel({
             type="button"
             onClick={() => setActiveCategory(cat.id)}
             className={cn(
-              'px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1',
+              "px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1",
               activeCategory === cat.id
-                ? 'bg-gradient-to-r from-indigo-600 to-blue-600 text-white shadow-lg scale-105'
-                : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                ? "bg-gradient-to-r from-indigo-600 to-blue-600 text-white shadow-lg scale-105"
+                : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
             )}
           >
             <span>{cat.emoji}</span>
@@ -98,7 +120,7 @@ export function SoundPanel({
       {/* Category Description */}
       <div className="text-center">
         <p className="text-xs text-slate-500 dark:text-slate-400">
-          {SOUND_CATEGORIES.find(c => c.id === activeCategory)?.description}
+          {SOUND_CATEGORIES.find((c) => c.id === activeCategory)?.description}
         </p>
       </div>
 
