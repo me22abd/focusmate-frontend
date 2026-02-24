@@ -395,8 +395,12 @@ function MatchmakingContent() {
     if (socket) {
       socket.emit('leaveQueue');
       socket.disconnect();
+      
     }
-
+    // Navigate with real match data
+    router.push(
+      `/session/active?mode=partner&roomId=${data.roomId}&partnerId=${data.partnerId}&sessionId=${data.sessionId}`
+    );
     // Build query parameters with ALL required fields
     const startTime = new Date().toISOString();
     const params = new URLSearchParams({

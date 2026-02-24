@@ -84,12 +84,12 @@ function ActiveSessionContent() {
   // sessionId: Use from URL params first (most reliable), then from socket data, then generate fallback
   const sessionId = urlSessionId || partnerData?.sessionId || (isPartnerMode && roomId ? `session-${roomId}` : null);
   // Only require partnerId and roomId - partnerName has fallback, sessionId has fallback
-  const hasRequiredPartnerData = partnerId && roomId;
+  const hasRequiredPartnerData = roomId;
   
   // Only redirect if absolutely critical data is missing (partnerId or roomId)
   // Give it a delay to allow data to load
   useEffect(() => {
-    if (isPartnerMode && !hasRequiredPartnerData) {
+    if (isPartnerMode && !roomId) {
       const timeout = setTimeout(() => {
         if (!partnerId || !roomId) {
           toast.error('Session data incomplete', {
